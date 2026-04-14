@@ -258,6 +258,16 @@
     .multi-empty { color: var(--muted); font-size: 13px; padding: 10px; }
     /* FIX CMP-011: dropdown flip indicator */
     .multi-dropdown.flip-up .multi-menu { top: auto; bottom: calc(100% + 8px); }
+    .progress-track { width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid var(--border-soft); }
+    .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .progress-fill.warning { background: linear-gradient(90deg, var(--warning), #ffdf7a); }
+    .progress-fill.danger { background: linear-gradient(90deg, #ff8f8f, var(--danger)); }
+    .progress-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+    .alert-list { display: grid; gap: 10px; }
+    .alert-item { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); display: grid; gap: 4px; }
+    .alert-item.warning { border-color: rgba(255,209,102,0.28); background: rgba(255,209,102,0.08); }
+    .alert-item.danger { border-color: rgba(255,125,125,0.28); background: rgba(255,125,125,0.08); }
+    .alert-item strong { font-size: 14px; }
     @media (max-width: 1200px) {
       .grid-4, .grid-3 { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .split-panel { grid-template-columns: 1fr; }
@@ -333,6 +343,11 @@
           <div class="card"><div class="metric-title">Tổng thu</div><div class="metric-value metric-positive" id="metricIncome">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch thu nhập trong kỳ lọc.</div></div>
           <div class="card"><div class="metric-title">Tổng chi</div><div class="metric-value metric-negative" id="metricExpense">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch chi tiêu trong kỳ lọc.</div></div>
           <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="metricNetFlow">0 ₫</div><div class="metric-meta">Thu nhập trừ chi tiêu trong kỳ lọc.</div></div>
+        </div>
+        <div class="card">
+          <h3>Cần nộp trong 7 ngày tới</h3>
+          <div class="card-subtitle">Cảnh báo các quỹ đang thiếu tiền và sắp đến hạn nộp.</div>
+          <div id="dashboardDebtAlerts"></div>
         </div>
         <div class="grid-2">
           <div class="card">
@@ -435,10 +450,72 @@
       </section>
 
       <section class="page" id="page-debt">
+        <div class="grid-4">
+          <div class="card"><div class="metric-title">Tổng cần bù về mốc hiện hành</div><div class="metric-value metric-negative" id="debtTotalGap">0 ₫</div><div class="metric-meta">Phần thiếu hụt để các quỹ quay về mốc mục tiêu hiện hành.</div></div>
+          <div class="card"><div class="metric-title">Tổng cần nộp tối thiểu</div><div class="metric-value" id="debtTotalMinDue">0 ₫</div><div class="metric-meta">Bao gồm phần cần bù và phần thiếu dồn từ kỳ trước.</div></div>
+          <div class="card"><div class="metric-title">Số quỹ đang theo dõi</div><div class="metric-value" id="debtFundCount">0</div><div class="metric-meta">Các quỹ hoàn quỹ đang được quản lý trên thiết bị này.</div></div>
+          <div class="card"><div class="metric-title">Tổng mốc mục tiêu hiện hành</div><div class="metric-value metric-positive" id="debtTargetTotal">0 ₫</div><div class="metric-meta">Mốc mục tiêu động sau các lần nộp làm tăng quỹ.</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="debtFormTitle">Tạo quỹ hoàn quỹ</h3>
+            <div class="card-subtitle">Mốc mục tiêu là động. Sau mỗi lần nộp, phần vượt mức cần bù sẽ làm tăng mốc cho các kỳ sau.</div>
+            <form id="debtPlanForm" class="form-grid">
+              <div class="field"><label for="debtPlanNameInput">Tên quỹ</label><input id="debtPlanNameInput" type="text" maxlength="80" placeholder="Ví dụ: Quỹ tiết kiệm ngân hàng A" required /></div>
+              <div class="field"><label for="debtPlanAccountInput">Tài khoản liên kết</label><select id="debtPlanAccountInput"></select></div>
+              <div class="field"><label for="debtPlanCurrentTargetInput">Mốc mục tiêu hiện hành</label><input id="debtPlanCurrentTargetInput" type="number" min="0" step="1000" placeholder="30000000" required /></div>
+              <div class="field"><label for="debtPlanCycleInput">Chu kỳ theo dõi</label><select id="debtPlanCycleInput"><option value="monthly">Hàng tháng</option><option value="quarterly">Hàng quý</option><option value="yearly">Hàng năm</option></select></div>
+              <div class="field"><label for="debtPlanDueDayInput">Ngày đến hạn trong kỳ</label><input id="debtPlanDueDayInput" type="number" min="1" max="31" step="1" placeholder="1" required /></div>
+              <div class="field"><label for="debtPlanCarryShortfallInput">Phần thiếu dồn từ kỳ trước</label><input id="debtPlanCarryShortfallInput" type="number" min="0" step="1000" placeholder="0" /></div>
+              <div class="field" style="grid-column: 1 / -1;"><label for="debtPlanNoteInput">Ghi chú</label><textarea id="debtPlanNoteInput" placeholder="Ví dụ: nếu quỹ bị rút bớt thì kỳ sau phải bù về mốc hiện hành trước, phần còn lại mới tính là tăng mốc."></textarea></div>
+              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="debtPlanSubmitBtn">Lưu quỹ</button><button class="btn btn-secondary hidden" type="button" id="debtPlanCancelEditBtn">Hủy sửa</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Ghi nhận nộp quỹ</h3>
+            <div class="card-subtitle">Bản ghi nộp quỹ phải liên kết trực tiếp với một giao dịch thật đã đi vào tài khoản liên kết. Điều này giúp tránh sai lệch số dư và truy vết rõ ràng.</div>
+            <form id="debtEntryForm" class="form-grid">
+              <div class="field"><label for="debtEntryPlanSelect">Chọn quỹ</label><select id="debtEntryPlanSelect"></select></div>
+              <div class="field"><label for="debtEntryTransactionSelect">Giao dịch thật liên kết</label><select id="debtEntryTransactionSelect"></select></div>
+              <div class="field" style="grid-column: 1 / -1;"><label>Thông tin giao dịch</label><div id="debtEntryTransactionInfo" class="notice">Chọn quỹ để hiện danh sách giao dịch có thể liên kết.</div></div>
+              <div class="field" style="grid-column: 1 / -1;"><label for="debtEntryNoteInput">Ghi chú</label><textarea id="debtEntryNoteInput" placeholder="Ví dụ: kỳ này nộp từ lương để bù quỹ và tăng mốc."></textarea></div>
+              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="debtEntrySubmitBtn">Ghi nhận nộp quỹ</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Mô phỏng các kỳ tới</h3>
+            <div class="card-subtitle">Nhập một mức nộp dự kiến cho mỗi kỳ để xem phần bù hụt, phần tăng mốc và mốc mới sẽ thay đổi như thế nào.</div>
+            <div class="toolbar">
+              <div class="field"><label for="debtProjectionPlanSelect">Quỹ mô phỏng</label><select id="debtProjectionPlanSelect"></select></div>
+              <div class="field"><label for="debtProjectionPaymentInput">Số tiền dự kiến nộp mỗi kỳ</label><input id="debtProjectionPaymentInput" type="number" min="0" step="1000" value="3000000" /></div>
+              <div class="field"><label for="debtProjectionPeriodsInput">Số kỳ mô phỏng</label><input id="debtProjectionPeriodsInput" type="number" min="1" max="24" step="1" value="6" /></div>
+            </div>
+            <div class="stacked-summary" id="debtProjectionSummary"></div>
+            <div id="debtProjectionTable"></div>
+          </div>
+
+          <div class="card">
+            <h3>Lịch sử nộp quỹ</h3>
+            <div class="card-subtitle">Mỗi lần nộp sẽ tách rõ phần bù hụt và phần tăng mốc.</div>
+            <div class="toolbar" style="margin-bottom: 14px;">
+              <div class="field"><label for="debtEntryDateFrom">Từ ngày</label><input id="debtEntryDateFrom" type="date" /></div>
+              <div class="field"><label for="debtEntryDateTo">Đến ngày</label><input id="debtEntryDateTo" type="date" /></div>
+              <div class="field"><label for="debtEntryPageSize">Số dòng mỗi trang</label><select id="debtEntryPageSize"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+            </div>
+            <div id="debtEntryTable"></div>
+            <div class="pagination"><div id="debtEntryPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="debtEntryPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="debtEntryNextBtn" type="button">Trang sau</button></div></div>
+          </div>
+        </div>
+
         <div class="card">
-          <h3>Quản lý nguồn nợ</h3>
-          <div class="card-subtitle">Khối này được giữ chỗ để phát triển tiếp ở vòng sau.</div>
-          <div class="empty-state">Trang quản lý nguồn nợ đang được để trống theo đúng scope hiện tại.</div>
+          <h3>Danh sách quỹ hoàn quỹ</h3>
+          <div class="card-subtitle">Trang này theo dõi quỹ mục tiêu theo logic mốc động: phần vượt mức cần bù sẽ làm tăng mốc mục tiêu cho các kỳ tiếp theo.</div>
+          <div id="debtTable"></div>
         </div>
       </section>
 
@@ -573,15 +650,21 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const STORAGE_KEY = 'personal_finance_dashboard_state_v8';
+    const STORAGE_KEY = 'personal_finance_dashboard_state_v12';
     const SUPABASE_URL = 'https://ivffdirptersuroxrbua.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_TFZaRWhzMlEG0mRzyHGGnw_zNi717A4';
-    const TABLES = { accounts: 'accounts', categories: 'categories', transactions: 'transactions' };
+const TABLES = {
+  accounts: 'accounts',
+  categories: 'categories',
+  transactions: 'transactions',
+  debtPlans: 'debt_plans',
+  debtEntries: 'debt_entries'
+};
     const PAGE_META = {
       dashboard: { title: 'Dashboard', subtitle: 'Tổng quan tài sản, dòng tiền và các giao dịch gần đây.' },
       reports: { title: 'Báo cáo thu chi', subtitle: 'Lọc theo thời gian, tài khoản, loại giao dịch và đặc tính chi tiêu.' },
       compare: { title: 'So sánh mục thu chi các tháng', subtitle: 'Biểu đồ cột chồng so sánh dao động theo ngày, tháng hoặc năm.' },
-      debt: { title: 'Quản lý nguồn nợ', subtitle: 'Trang này đang được giữ chỗ để phát triển tiếp.' },
+      debt: { title: 'Quản lý nguồn nợ', subtitle: 'Theo dõi quỹ hoàn quỹ với mốc mục tiêu động, cảnh báo hạn nộp và bản ghi nộp liên kết trực tiếp với giao dịch thật.' },
       transactions: { title: 'Dữ liệu giao dịch', subtitle: 'Nhập, sửa, tìm kiếm, chọn nhiều dòng và xóa mềm giao dịch.' },
       accounts: { title: 'Phân loại tài khoản', subtitle: 'Quản lý ví, ngân hàng, tiết kiệm, đầu tư và mốc thời gian cập nhật.' },
       settings: { title: 'Thiết lập', subtitle: 'Quản lý cấu hình, xuất nhập dữ liệu và cloud sync.' }
@@ -590,11 +673,15 @@
     const runtime = {
       charts: {},
       editingTransactionId: null,
+      editingDebtPlanId: null,
       cloudSyncTimer: null,
       txList: { page: 1, pageSize: 10, query: '', type: 'all', selectedIds: new Set() },
       auth: { session: null, user: null, busy: false, lastError: '', lastInfo: 'Chưa đăng nhập cloud.' },
       loginCooldownUntil: 0,
-      loginCooldownTimer: null
+      loginCooldownTimer: null,
+      balancesCacheKey: null,
+      balancesCacheValue: null,
+      debtEntryList: { page: 1, pageSize: 10, from: '', to: '' }
     };
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     const el = {};
@@ -613,12 +700,13 @@
     function cacheElements() {
       [
         'navMenu','pageTitle','pageSubtitle','openTransactionsBtn','syncNowTopBtn','exportJsonBtn','importJsonInput','settingsExportBtn','settingsImportInput',
-        'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','netFlowSummary',
+        'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','netFlowSummary','dashboardDebtAlerts',
         'generalSettingsForm','currencyInput','themeLabelInput','expenseCategoryForm','expenseCategoryInput','expenseCategoryList','incomeCategoryForm','incomeCategoryInput','incomeCategoryList',
         'cloudStatusBox','cloudLoginForm','cloudEmailInput','cloudSyncBtn','cloudPullBtn','cloudLogoutBtn',
         'dashboardQuickRange','dashboardDateFrom','dashboardDateTo','dashboardDistributionMode',
         'reportQuickRange','reportAccountFilter','reportTypeFilter','reportExpenseModeFilter','reportDateFrom','reportDateTo','reportIncomeTotal','reportExpenseTotal','reportTransactionCount','reportNetAmount','reportTransactionsTable',
         'compareDateFrom','compareDateTo','compareGranularity','compareTypeFilter','compareAccountFilter','compareCategoryFilter','compareBy',
+        'debtTotalGap','debtTotalMinDue','debtFundCount','debtTargetTotal','debtPlanForm','debtFormTitle','debtPlanNameInput','debtPlanAccountInput','debtPlanCurrentTargetInput','debtPlanCycleInput','debtPlanDueDayInput','debtPlanCarryShortfallInput','debtPlanNoteInput','debtPlanSubmitBtn','debtPlanCancelEditBtn','debtTable','debtEntryForm','debtEntryPlanSelect','debtEntryTransactionSelect','debtEntryTransactionInfo','debtEntryNoteInput','debtEntrySubmitBtn','debtEntryTable','debtEntryDateFrom','debtEntryDateTo','debtEntryPageSize','debtEntryPaginationInfo','debtEntryPrevBtn','debtEntryNextBtn','debtProjectionPlanSelect','debtProjectionPaymentInput','debtProjectionPeriodsInput','debtProjectionSummary','debtProjectionTable',
         'accountForm','accountNameInput','accountTypeInput','openingBalanceInput','accountNoteInput','accountsTable',
         'transactionFormTitle','transactionForm','txDateInput','txTypeInput','txAmountInput','txAccountFromInput','txAccountToInput','txCategoryInput','txExpenseModeInput','txExpenseModeField','txAdjustmentModeInput','txAdjustmentField','txNoteInput','txAccountFromField','txAccountToField','transactionSubmitBtn','transactionCancelEditBtn','transactionsTable','transactionSearchInput','transactionTypeFilter','transactionPageSize','transactionPaginationInfo','transactionPrevBtn','transactionNextBtn','bulkDeleteBtn','clearSelectionBtn','selectedCountLabel'
       ].forEach(id => el[id] = document.getElementById(id));
@@ -710,6 +798,42 @@
       [el.compareGranularity, el.compareBy].forEach(node => node && node.addEventListener('change', renderComparePage));
       document.addEventListener('click', handleDocumentClick);
 
+      el.debtPlanForm.addEventListener('submit', handleDebtPlanSubmit);
+      el.debtPlanCancelEditBtn.addEventListener('click', cancelDebtPlanEdit);
+      el.debtEntryForm.addEventListener('submit', handleDebtEntrySubmit);
+      el.debtEntryPlanSelect.addEventListener('change', fillDebtEntryTransactionSelect);
+      el.debtEntryTransactionSelect.addEventListener('change', renderDebtEntryTransactionInfo);
+      el.debtProjectionPlanSelect.addEventListener('change', renderDebtProjection);
+      el.debtProjectionPaymentInput.addEventListener('input', renderDebtProjection);
+      el.debtProjectionPeriodsInput.addEventListener('input', renderDebtProjection);
+      el.debtEntryDateFrom.addEventListener('change', () => {
+        if (el.debtEntryDateTo.value && el.debtEntryDateFrom.value > el.debtEntryDateTo.value) {
+          alert('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+          el.debtEntryDateFrom.value = '';
+          return;
+        }
+        runtime.debtEntryList.from = el.debtEntryDateFrom.value || '';
+        runtime.debtEntryList.page = 1;
+        renderDebtEntriesTable();
+      });
+      el.debtEntryDateTo.addEventListener('change', () => {
+        if (el.debtEntryDateFrom.value && el.debtEntryDateTo.value < el.debtEntryDateFrom.value) {
+          alert('Ngày kết thúc không được nhỏ hơn ngày bắt đầu.');
+          el.debtEntryDateTo.value = '';
+          return;
+        }
+        runtime.debtEntryList.to = el.debtEntryDateTo.value || '';
+        runtime.debtEntryList.page = 1;
+        renderDebtEntriesTable();
+      });
+      el.debtEntryPageSize.addEventListener('change', () => {
+        runtime.debtEntryList.pageSize = Number(el.debtEntryPageSize.value || 10);
+        runtime.debtEntryList.page = 1;
+        renderDebtEntriesTable();
+      });
+      el.debtEntryPrevBtn.addEventListener('click', () => changeDebtEntryPage(-1));
+      el.debtEntryNextBtn.addEventListener('click', () => changeDebtEntryPage(1));
+
       el.cloudLoginForm.addEventListener('submit', handleCloudLogin);
       el.cloudSyncBtn.addEventListener('click', () => syncCloudData('both'));
       el.cloudPullBtn.addEventListener('click', () => syncCloudData('pull'));
@@ -723,6 +847,7 @@
       initializeCompareDefaultRange();
       const loginButton = el.cloudLoginForm?.querySelector('button[type="submit"]');
       if (loginButton) loginButton.textContent = 'Gửi magic link';
+      if (el.debtEntryPageSize) el.debtEntryPageSize.value = String(runtime.debtEntryList.pageSize);
       updateTransactionFormVisibility();
     }
 
@@ -803,11 +928,19 @@
 
     function createDefaultState() {
       const now = nowIso();
-      return { version: 7, meta: { currency: 'VND', themeLabel: 'dark-green', lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() }, accounts: [], categories: { expense: [], income: [] }, transactions: [] };
+      return { version: 12, meta: { currency: 'VND', themeLabel: 'dark-green', lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() }, accounts: [], categories: { expense: [], income: [] }, transactions: [], debtPlans: [], debtEntries: [] };
     }
 
     function makeAccount(name, type, openingBalance, note) { const t = nowIso(); return { id: createId('acc'), name, type, openingBalance: Number(openingBalance || 0), note, created_at: t, updated_at: t, deleted_at: null }; }
     function makeCategory(kind, name) { const t = nowIso(); return { id: createId(kind === 'expense' ? 'exp' : 'inc'), kind, name, created_at: t, updated_at: t, deleted_at: null }; }
+    function makeDebtPlan(name, linkedAccountId, currentTargetAmount, cycle, dueDay, carryShortfall, note) {
+      const t = nowIso();
+      return { id: createId('debt'), kind: 'fund_replenishment', name, linkedAccountId, currentTargetAmount: Number(currentTargetAmount || 0), cycle: cycle || 'monthly', dueDay: Number(dueDay || 1), carryShortfall: Number(carryShortfall || 0), note: note || '', created_at: t, updated_at: t, deleted_at: null };
+    }
+    function makeDebtEntry(planId, transactionId, date, amount, replenishAmount, growthAmount, targetAfterPayment, note) {
+      const t = nowIso();
+      return { id: createId('debt_entry'), planId, transactionId, date, amount: Number(amount || 0), replenishAmount: Number(replenishAmount || 0), growthAmount: Number(growthAmount || 0), targetAfterPayment: Number(targetAfterPayment || 0), note: note || '', created_at: t, updated_at: t, deleted_at: null };
+    }
 
     function applyTheme(themeName = state?.meta?.themeLabel || 'dark-green') {
       const allowedThemes = ['dark-green', 'dark-blue', 'light'];
@@ -827,6 +960,7 @@
       renderDashboard();
       renderReportsPage();
       renderComparePage();
+      renderDebtPage();
       updateSelectedCountLabel();
       logStateSnapshot('renderAll');
     }
@@ -839,6 +973,10 @@
       fillAccountSelect(el.txAccountFromInput, false);
       fillAccountSelect(el.txAccountToInput, false);
       fillCompareCategoryFilter();
+      fillDebtAccountSelect();
+      fillDebtPlanSelects();
+      fillDebtEntryTransactionSelect();
+      renderDebtEntryTransactionInfo();
       updateTransactionFormVisibility();
     }
 
@@ -892,6 +1030,7 @@
       runtime.charts.cashflowLine.update();
       renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow);
       updateDashboardDistributionDonut(transactions, el.dashboardDistributionMode.value);
+      renderDashboardDebtAlerts();
     }
 
     function renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow) {
@@ -1287,32 +1426,66 @@
       }
     }
 
-    async function fetchCloudState() {
-      const userId = runtime.auth.user.id;
-      const [aR, cR, tR] = await Promise.all([
-        supabase.from(TABLES.accounts).select('*').eq('user_id', userId),
-        supabase.from(TABLES.categories).select('*').eq('user_id', userId),
-        supabase.from(TABLES.transactions).select('*').eq('user_id', userId)
-      ]);
-      const failed = [aR, cR, tR].find(r => r.error);
-      if (failed?.error) throw failed.error;
-      return {
-        version: 7, meta: clone(state.meta),
-        accounts: (aR.data || []).map(mapCloudAccountToLocal),
-        categories: { expense: (cR.data || []).filter(r => r.kind === 'expense').map(mapCloudCategoryToLocal), income: (cR.data || []).filter(r => r.kind === 'income').map(mapCloudCategoryToLocal) },
-        transactions: (tR.data || []).map(mapCloudTransactionToLocal)
-      };
-    }
+async function fetchCloudState() {
+  const userId = runtime.auth.user.id;
 
-    async function pushLocalStateToCloud(currentState) {
-      const userId = runtime.auth.user.id;
-      const aR = await supabase.from(TABLES.accounts).upsert(currentState.accounts.map(i => mapLocalAccountToCloud(i, userId)), { onConflict: 'id' });
-      if (aR.error) throw aR.error;
-      const cR = await supabase.from(TABLES.categories).upsert([...currentState.categories.expense, ...currentState.categories.income].map(i => mapLocalCategoryToCloud(i, userId)), { onConflict: 'id' });
-      if (cR.error) throw cR.error;
-      const tR = await supabase.from(TABLES.transactions).upsert(currentState.transactions.map(i => mapLocalTransactionToCloud(i, userId)), { onConflict: 'id' });
-      if (tR.error) throw tR.error;
-    }
+  const [aR, cR, tR, dpR, deR] = await Promise.all([
+    supabase.from(TABLES.accounts).select('*').eq('user_id', userId),
+    supabase.from(TABLES.categories).select('*').eq('user_id', userId),
+    supabase.from(TABLES.transactions).select('*').eq('user_id', userId),
+    supabase.from(TABLES.debtPlans).select('*').eq('user_id', userId),
+    supabase.from(TABLES.debtEntries).select('*').eq('user_id', userId)
+  ]);
+
+  const failed = [aR, cR, tR, dpR, deR].find(r => r.error);
+  if (failed?.error) throw failed.error;
+
+  return {
+    version: 12,
+    meta: clone(state.meta),
+    accounts: (aR.data || []).map(mapCloudAccountToLocal),
+    categories: {
+      expense: (cR.data || []).filter(r => r.kind === 'expense').map(mapCloudCategoryToLocal),
+      income: (cR.data || []).filter(r => r.kind === 'income').map(mapCloudCategoryToLocal)
+    },
+    transactions: (tR.data || []).map(mapCloudTransactionToLocal),
+    debtPlans: (dpR.data || []).map(mapCloudDebtPlanToLocal),
+    debtEntries: (deR.data || []).map(mapCloudDebtEntryToLocal)
+  };
+}
+
+async function pushLocalStateToCloud(currentState) {
+  const userId = runtime.auth.user.id;
+
+  const aR = await supabase
+    .from(TABLES.accounts)
+    .upsert(currentState.accounts.map(i => mapLocalAccountToCloud(i, userId)), { onConflict: 'id' });
+  if (aR.error) throw aR.error;
+
+  const cR = await supabase
+    .from(TABLES.categories)
+    .upsert(
+      [...currentState.categories.expense, ...currentState.categories.income]
+        .map(i => mapLocalCategoryToCloud(i, userId)),
+      { onConflict: 'id' }
+    );
+  if (cR.error) throw cR.error;
+
+  const tR = await supabase
+    .from(TABLES.transactions)
+    .upsert(currentState.transactions.map(i => mapLocalTransactionToCloud(i, userId)), { onConflict: 'id' });
+  if (tR.error) throw tR.error;
+
+  const dpR = await supabase
+    .from(TABLES.debtPlans)
+    .upsert(currentState.debtPlans.map(i => mapLocalDebtPlanToCloud(i, userId)), { onConflict: 'id' });
+  if (dpR.error) throw dpR.error;
+
+  const deR = await supabase
+    .from(TABLES.debtEntries)
+    .upsert(currentState.debtEntries.map(i => mapLocalDebtEntryToCloud(i, userId)), { onConflict: 'id' });
+  if (deR.error) throw deR.error;
+}
 
     function scheduleCloudSync() {
       if (!runtime.auth.user) return;
@@ -1516,10 +1689,14 @@
     }
 
     function calculateAccountBalances() {
+      const cacheKey = `${state.meta.lastSavedAt}|${state.accounts.length}|${state.transactions.length}`;
+      if (runtime.balancesCacheKey === cacheKey && runtime.balancesCacheValue) return { ...runtime.balancesCacheValue };
       const balances = {};
       getActiveAccounts().forEach(a => { balances[a.id] = Number(a.openingBalance || 0); });
       getActiveTransactions().forEach(tx => applyTransactionToBalances(tx, balances));
-      return balances;
+      runtime.balancesCacheKey = cacheKey;
+      runtime.balancesCacheValue = { ...balances };
+      return { ...balances };
     }
 
     function applyTransactionToBalances(tx, balances) {
@@ -1616,6 +1793,7 @@
       el.pageSubtitle.textContent = PAGE_META[pageName].subtitle;
       if (pageName === 'compare') renderComparePage();
       if (pageName === 'reports') renderReportsPage();
+      if (pageName === 'debt') renderDebtPage();
     }
 
     // FIX ERR-001: persistState với try/catch
@@ -1645,7 +1823,7 @@
     function normalizeState(input) {
       const base = createDefaultState();
       return {
-        version: 7,
+        version: 12,
         meta: {
           currency: input?.meta?.currency || base.meta.currency,
           themeLabel: input?.meta?.themeLabel || base.meta.themeLabel,
@@ -1658,13 +1836,51 @@
           expense: normalizeCategoryList(input?.categories?.expense || [], 'expense', base.categories.expense),
           income: normalizeCategoryList(input?.categories?.income || [], 'income', base.categories.income)
         },
-        transactions: normalizeArray(input?.transactions, base.transactions).map(item => ({ id: item.id || createId('tx'), type: item.type || 'expense', date: item.date || formatDateInput(new Date()), amount: Number(item.amount || 0), accountFromId: item.accountFromId || item.account_from_id || null, accountToId: item.accountToId || item.account_to_id || null, categoryId: item.categoryId || item.category_id || null, note: item.note || '', expenseMode: item.expenseMode || item.expense_mode || (item.type === 'expense' ? 'variable' : null), deviceId: item.deviceId || item.device_id || base.meta.deviceId, created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null }))
+        transactions: normalizeArray(input?.transactions, base.transactions).map(item => ({ id: item.id || createId('tx'), type: item.type || 'expense', date: item.date || formatDateInput(new Date()), amount: Number(item.amount || 0), accountFromId: item.accountFromId || item.account_from_id || null, accountToId: item.accountToId || item.account_to_id || null, categoryId: item.categoryId || item.category_id || null, note: item.note || '', expenseMode: item.expenseMode || item.expense_mode || (item.type === 'expense' ? 'variable' : null), deviceId: item.deviceId || item.device_id || base.meta.deviceId, created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null })),
+        debtPlans: normalizeDebtPlans(input?.debtPlans || input?.fundPlans || [], base.debtPlans),
+        debtEntries: normalizeDebtEntries(input?.debtEntries || input?.fundEntries || [], base.debtEntries)
       };
     }
 
     function normalizeCategoryList(input, kind, fallback) {
       const source = Array.isArray(input) ? input.filter(i => (i.kind || kind) === kind) : fallback;
       return normalizeArray(source, fallback).map(item => ({ id: item.id || createId(kind === 'expense' ? 'exp' : 'inc'), kind, name: item.name || 'Danh mục', created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null }));
+    }
+
+    function normalizeDebtPlans(input, fallback) {
+      const source = normalizeArray(input, fallback);
+      return source.map(item => ({
+        id: item.id || createId('debt'),
+        kind: item.kind || 'fund_replenishment',
+        name: item.name || 'Quỹ hoàn quỹ',
+        linkedAccountId: item.linkedAccountId || item.linked_account_id || '',
+        currentTargetAmount: Number(item.currentTargetAmount || item.current_target_amount || 0),
+        cycle: item.cycle || 'monthly',
+        dueDay: Number(item.dueDay || item.due_day || 1),
+        carryShortfall: Number(item.carryShortfall || item.carry_shortfall || 0),
+        note: item.note || '',
+        created_at: item.created_at || nowIso(),
+        updated_at: item.updated_at || item.created_at || nowIso(),
+        deleted_at: item.deleted_at || null
+      }));
+    }
+
+    function normalizeDebtEntries(input, fallback) {
+      const source = normalizeArray(input, fallback);
+      return source.map(item => ({
+        id: item.id || createId('debt_entry'),
+        planId: item.planId || item.plan_id || '',
+        transactionId: item.transactionId || item.transaction_id || '',
+        date: item.date || formatDateInput(new Date()),
+        amount: Number(item.amount || 0),
+        replenishAmount: Number(item.replenishAmount || item.replenish_amount || 0),
+        growthAmount: Number(item.growthAmount || item.growth_amount || 0),
+        targetAfterPayment: Number(item.targetAfterPayment || item.target_after_payment || 0),
+        note: item.note || '',
+        created_at: item.created_at || nowIso(),
+        updated_at: item.updated_at || item.created_at || nowIso(),
+        deleted_at: item.deleted_at || null
+      }));
     }
 
     function normalizeArray(value, fallback) { return Array.isArray(value) ? value : fallback; }
@@ -1707,7 +1923,7 @@
 
     function mergeStates(localState, incomingState, options = {}) {
       const merged = normalizeState({
-        version: 7,
+        version: 12,
         meta: {
           currency: options.keepLocalMeta ? localState.meta.currency : incomingState.meta.currency || localState.meta.currency,
           themeLabel: options.keepLocalMeta ? localState.meta.themeLabel : incomingState.meta.themeLabel || localState.meta.themeLabel,
@@ -1720,7 +1936,9 @@
           expense: deduplicateCategoriesByName(mergeRecords(localState.categories.expense, incomingState.categories.expense)),
           income: deduplicateCategoriesByName(mergeRecords(localState.categories.income, incomingState.categories.income))
         },
-        transactions: mergeRecords(localState.transactions, incomingState.transactions)
+        transactions: mergeRecords(localState.transactions, incomingState.transactions),
+        debtPlans: mergeRecords(localState.debtPlans, incomingState.debtPlans),
+        debtEntries: mergeRecords(localState.debtEntries, incomingState.debtEntries)
       });
       return merged;
     }
@@ -1764,6 +1982,392 @@
       const selected = getMultiSelectValues(el.compareCategoryFilter);
       const all = [...getActiveCategories('expense'), ...getActiveCategories('income')];
       renderCustomMultiDropdown(el.compareCategoryFilter, all.map(i => ({ value: i.id, label: i.name })), selected, 'Chọn phân loại', renderCompareChart);
+    }
+
+    function getActiveDebtPlans() { return (state.debtPlans || []).filter(i => !i.deleted_at); }
+    function getActiveDebtEntries() { return (state.debtEntries || []).filter(i => !i.deleted_at); }
+
+    function fillDebtAccountSelect() {
+      if (!el.debtPlanAccountInput) return;
+      const accounts = getActiveAccounts();
+      if (!accounts.length) {
+        el.debtPlanAccountInput.innerHTML = '<option value="">Chưa có tài khoản để liên kết</option>';
+        el.debtPlanAccountInput.disabled = true;
+        return;
+      }
+      el.debtPlanAccountInput.disabled = false;
+      el.debtPlanAccountInput.innerHTML = accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+    }
+
+    function fillDebtPlanSelects() {
+      const plans = getActiveDebtPlans();
+      const planOptions = plans.length ? plans.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('') : '<option value="">Chưa có quỹ</option>';
+      if (el.debtEntryPlanSelect) {
+        const current = el.debtEntryPlanSelect.value;
+        el.debtEntryPlanSelect.innerHTML = planOptions;
+        el.debtEntryPlanSelect.disabled = !plans.length;
+        if (plans.some(p => p.id === current)) el.debtEntryPlanSelect.value = current;
+      }
+      if (el.debtProjectionPlanSelect) {
+        const current = el.debtProjectionPlanSelect.value;
+        el.debtProjectionPlanSelect.innerHTML = planOptions;
+        el.debtProjectionPlanSelect.disabled = !plans.length;
+        if (plans.some(p => p.id === current)) el.debtProjectionPlanSelect.value = current;
+      }
+    }
+
+    function getDebtCycleLabel(cycle) {
+      return ({ monthly: 'Hàng tháng', quarterly: 'Hàng quý', yearly: 'Hàng năm' })[cycle] || cycle;
+    }
+
+    function getDebtPlanLinkedTransactions(plan) {
+      const usedTransactionIds = new Set(getActiveDebtEntries().map(entry => entry.transactionId).filter(Boolean));
+      return getActiveTransactions()
+        .filter(tx => {
+          if (usedTransactionIds.has(tx.id)) return false;
+          if (tx.type === 'income') return tx.accountToId === plan.linkedAccountId;
+          if (tx.type === 'transfer') return tx.accountToId === plan.linkedAccountId;
+          if (tx.type === 'adjustment') return tx.accountFromId === plan.linkedAccountId && Number(tx.amount) > 0;
+          return false;
+        })
+        .sort(sortTransactionsDesc);
+    }
+
+    function calculateBalanceAroundTransaction(accountId, transactionId) {
+      const balances = {};
+      getActiveAccounts().forEach(account => { balances[account.id] = Number(account.openingBalance || 0); });
+      let before = Number(balances[accountId] || 0);
+      let after = before;
+      let found = false;
+      for (const tx of [...getActiveTransactions()].sort(sortTransactionsAsc)) {
+        if (tx.id === transactionId) {
+          before = Number(balances[accountId] || 0);
+          applyTransactionToBalances(tx, balances);
+          after = Number(balances[accountId] || 0);
+          found = true;
+          break;
+        }
+        applyTransactionToBalances(tx, balances);
+      }
+      return { before, after, found };
+    }
+
+    function calculateDebtDueInfo(plan, referenceDate = new Date()) {
+      const ref = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+      const dueDay = Math.min(31, Math.max(1, Number(plan.dueDay || 1)));
+      let nextDue;
+      if (plan.cycle === 'yearly') {
+        nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
+        if (nextDue < ref) nextDue = new Date(ref.getFullYear() + 1, ref.getMonth(), dueDay);
+      } else if (plan.cycle === 'quarterly') {
+        nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
+        while (nextDue < ref) nextDue = new Date(nextDue.getFullYear(), nextDue.getMonth() + 3, dueDay);
+      } else {
+        nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
+        if (nextDue < ref) nextDue = new Date(ref.getFullYear(), ref.getMonth() + 1, dueDay);
+      }
+      const daysUntilDue = Math.floor((nextDue - ref) / 86400000);
+      return { nextDue, daysUntilDue };
+    }
+
+    function calculateDebtSnapshot(plan, accountBalances = calculateAccountBalances()) {
+      const currentBalance = Number(accountBalances[plan.linkedAccountId] || 0);
+      const currentTargetAmount = Number(plan.currentTargetAmount || 0);
+      const carryShortfall = Math.max(0, Number(plan.carryShortfall || 0));
+      const gapToTarget = Math.max(0, currentTargetAmount - currentBalance);
+      const minimumDue = gapToTarget + carryShortfall;
+      const coverageRatio = currentTargetAmount > 0 ? Math.min(1, currentBalance / currentTargetAmount) : 1;
+      const lastEntry = getActiveDebtEntries().filter(e => e.planId === plan.id).sort((a, b) => compareIso(b.date, a.date) || compareIso(b.updated_at, a.updated_at))[0] || null;
+      const dueInfo = calculateDebtDueInfo(plan);
+      let status = 'Ổn định';
+      if (minimumDue > 0 && dueInfo.daysUntilDue < 0) status = 'Quá hạn';
+      else if (minimumDue > 0 && dueInfo.daysUntilDue <= 7) status = 'Sắp hạn';
+      else if (minimumDue > 0) status = 'Cần bù';
+      return { currentBalance, currentTargetAmount, carryShortfall, gapToTarget, minimumDue, coverageRatio, lastEntry, dueInfo, status };
+    }
+
+    function calculateDebtImpact(plan, transaction, balanceBefore, balanceAfter) {
+      const targetBefore = Number(plan.currentTargetAmount || 0);
+      const carryBefore = Math.max(0, Number(plan.carryShortfall || 0));
+      const paymentAmount = Number(transaction.amount || 0);
+      const gapBefore = Math.max(0, targetBefore - balanceBefore);
+      const payToCarry = Math.min(paymentAmount, carryBefore);
+      const remainingAfterCarry = paymentAmount - payToCarry;
+      const payToGap = Math.min(remainingAfterCarry, gapBefore);
+      const remainingAfterGap = remainingAfterCarry - payToGap;
+      const replenishAmount = payToCarry + payToGap;
+      const growthAmount = remainingAfterGap;
+      const targetAfterPayment = targetBefore + growthAmount;
+      const remainingCarry = Math.max(0, carryBefore - payToCarry);
+      return { paymentAmount, gapBefore, minimumDueBefore: gapBefore + carryBefore, replenishAmount, growthAmount, targetAfterPayment, remainingCarry, balanceBefore, balanceAfter };
+    }
+
+    function simulateDebtProjection(plan, plannedPayment, periods, startingBalance = null) {
+      const snapshot = calculateDebtSnapshot(plan);
+      let projectedBalance = startingBalance == null ? snapshot.currentBalance : Number(startingBalance || 0);
+      let target = Number(plan.currentTargetAmount || 0);
+      let carry = Number(plan.carryShortfall || 0);
+      const rows = [];
+      for (let i = 1; i <= periods; i += 1) {
+        const gap = Math.max(0, target - projectedBalance);
+        const minimumDue = gap + carry;
+        const payToCarry = Math.min(plannedPayment, carry);
+        const remainingAfterCarry = plannedPayment - payToCarry;
+        const payToGap = Math.min(remainingAfterCarry, gap);
+        const remainingAfterGap = remainingAfterCarry - payToGap;
+        const replenish = payToCarry + payToGap;
+        const growth = remainingAfterGap;
+        projectedBalance += plannedPayment;
+        target += growth;
+        const remainingGap = Math.max(0, target - projectedBalance);
+        carry = Math.max(0, carry - payToCarry);
+        rows.push({ period: i, dueLabel: `${getDebtCycleLabel(plan.cycle)} · ngày ${plan.dueDay}`, minimumDue, plannedPayment, replenish, growth, targetAfter: target, projectedBalance, carry, remainingGap });
+      }
+      return { snapshot, rows };
+    }
+
+    function renderDashboardDebtAlerts() {
+      if (!el.dashboardDebtAlerts) return;
+      const rows = getActiveDebtPlans().map(plan => ({ plan, snapshot: calculateDebtSnapshot(plan) }))
+        .filter(row => row.snapshot.minimumDue > 0 && row.snapshot.dueInfo.daysUntilDue <= 7)
+        .sort((a, b) => a.snapshot.dueInfo.daysUntilDue - b.snapshot.dueInfo.daysUntilDue);
+      if (!rows.length) {
+        el.dashboardDebtAlerts.innerHTML = '<div class="empty-state">Không có quỹ nào cần nộp trong 7 ngày tới.</div>';
+        return;
+      }
+      el.dashboardDebtAlerts.innerHTML = `<div class="alert-list">${rows.map(({ plan, snapshot }) => {
+        const cls = snapshot.dueInfo.daysUntilDue < 0 ? 'danger' : 'warning';
+        const label = snapshot.dueInfo.daysUntilDue < 0 ? 'Đã quá hạn' : `Còn ${snapshot.dueInfo.daysUntilDue} ngày`;
+        return `<div class="alert-item ${cls}"><strong>${escapeHtml(plan.name)}</strong><span>${escapeHtml(getAccountName(plan.linkedAccountId))}</span><span>${label} · cần nộp tối thiểu ${formatCurrency(snapshot.minimumDue)}</span></div>`;
+      }).join('')}</div>`;
+    }
+
+    function fillDebtEntryTransactionSelect() {
+      if (!el.debtEntryTransactionSelect) return;
+      const plan = getActiveDebtPlans().find(p => p.id === el.debtEntryPlanSelect.value);
+      if (!plan) {
+        el.debtEntryTransactionSelect.innerHTML = '<option value="">Chọn quỹ trước</option>';
+        el.debtEntryTransactionSelect.disabled = true;
+        renderDebtEntryTransactionInfo();
+        return;
+      }
+      const items = getDebtPlanLinkedTransactions(plan);
+      if (!items.length) {
+        el.debtEntryTransactionSelect.innerHTML = '<option value="">Không có giao dịch phù hợp</option>';
+        el.debtEntryTransactionSelect.disabled = true;
+        renderDebtEntryTransactionInfo();
+        return;
+      }
+      el.debtEntryTransactionSelect.disabled = false;
+      el.debtEntryTransactionSelect.innerHTML = items.map(tx => `<option value="${tx.id}">${formatDateDisplay(tx.date)} · ${formatCurrency(tx.amount)} · ${escapeHtml(tx.note || getTransactionAccountText(tx))}</option>`).join('');
+      renderDebtEntryTransactionInfo();
+    }
+
+    function renderDebtEntryTransactionInfo() {
+      if (!el.debtEntryTransactionInfo) return;
+      const plan = getActiveDebtPlans().find(p => p.id === el.debtEntryPlanSelect.value);
+      const tx = getActiveTransactions().find(item => item.id === el.debtEntryTransactionSelect.value);
+      if (!plan) {
+        el.debtEntryTransactionInfo.innerHTML = 'Chọn quỹ để hiện danh sách giao dịch có thể liên kết.';
+        return;
+      }
+      if (!tx) {
+        el.debtEntryTransactionInfo.innerHTML = 'Chọn một giao dịch thật đã đi vào tài khoản liên kết để hệ thống tính phần bù hụt và phần tăng mốc.';
+        return;
+      }
+      const around = calculateBalanceAroundTransaction(plan.linkedAccountId, tx.id);
+      const impact = calculateDebtImpact(plan, tx, around.before, around.after);
+      el.debtEntryTransactionInfo.innerHTML = `${escapeHtml(getAccountName(plan.linkedAccountId))} · trước giao dịch ${formatCurrency(around.before)} · sau giao dịch ${formatCurrency(around.after)} · bù hụt ${formatCurrency(impact.replenishAmount)} · tăng mốc ${formatCurrency(impact.growthAmount)}`;
+    }
+
+    function computeDebtPlanMetrics(plan) {
+      return calculateDebtSnapshot(plan);
+    }
+
+    function hasMatchingDebtTopUpTransaction(plan, date, amount) {
+      return getActiveTransactions().some(tx => {
+        if (tx.date !== date) return false;
+        if (Number(tx.amount) !== Number(amount)) return false;
+        if (tx.type === 'income') return tx.accountToId === plan.linkedAccountId;
+        if (tx.type === 'transfer') return tx.accountToId === plan.linkedAccountId;
+        if (tx.type === 'adjustment') return tx.accountFromId === plan.linkedAccountId && Number(tx.amount) > 0;
+        return false;
+      });
+    }
+
+
+    function renderDebtPage() {
+      if (!el.debtTable) return;
+      fillDebtAccountSelect();
+      fillDebtPlanSelects();
+      fillDebtEntryTransactionSelect();
+      const plans = getActiveDebtPlans();
+      const rows = plans.map(plan => ({ plan, metrics: computeDebtPlanMetrics(plan) }));
+      el.debtTotalGap.textContent = formatCurrency(rows.reduce((sum, row) => sum + row.metrics.gapToTarget, 0));
+      el.debtTotalMinDue.textContent = formatCurrency(rows.reduce((sum, row) => sum + row.metrics.minimumDue, 0));
+      el.debtFundCount.textContent = String(rows.length);
+      el.debtTargetTotal.textContent = formatCurrency(rows.reduce((sum, row) => sum + row.metrics.currentTargetAmount, 0));
+
+      if (!rows.length) {
+        el.debtTable.innerHTML = '<div class="empty-state">Chưa có quỹ hoàn quỹ nào. Hãy tạo quỹ đầu tiên để theo dõi mốc mục tiêu động và phần cần bù.</div>';
+      } else {
+        el.debtTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Tên quỹ</th><th>Tài khoản</th><th>Tiến độ</th><th>Số dư hiện tại</th><th>Mốc hiện hành</th><th>Cần bù về mốc</th><th>Thiếu dồn từ kỳ trước</th><th>Cần nộp tối thiểu</th><th>Chu kỳ</th><th>Ngày hạn</th><th>Lần nộp gần nhất</th><th>Trạng thái</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${rows.map(({ plan, metrics }) => { const progressPct = Math.round(metrics.coverageRatio * 100); const progressClass = metrics.status === 'Quá hạn' ? 'danger' : metrics.status === 'Sắp hạn' ? 'warning' : ''; return `<tr><td>${escapeHtml(plan.name)}</td><td>${escapeHtml(getAccountName(plan.linkedAccountId))}</td><td><div class="progress-track"><div class="progress-fill ${progressClass}" style="width:${Math.min(progressPct,100)}%"></div></div><div class="progress-meta"><span>${progressPct}% đạt mốc</span><span>${formatCurrency(metrics.currentBalance)} / ${formatCurrency(plan.currentTargetAmount)}</span></div></td><td>${formatCurrency(metrics.currentBalance)}</td><td>${formatCurrency(plan.currentTargetAmount)}</td><td>${formatCurrency(metrics.gapToTarget)}</td><td>${formatCurrency(metrics.carryShortfall)}</td><td><strong>${formatCurrency(metrics.minimumDue)}</strong></td><td>${escapeHtml(getDebtCycleLabel(plan.cycle))}</td><td>${formatDateDisplay(formatDateInput(metrics.dueInfo.nextDue))}</td><td>${metrics.lastEntry ? `${formatDateDisplay(metrics.lastEntry.date)} · ${formatCurrency(metrics.lastEntry.amount)}` : '-'}</td><td>${metrics.status === 'Quá hạn' ? pill('Quá hạn','pill-expense') : metrics.status === 'Sắp hạn' ? pill('Sắp hạn','pill-fixed') : metrics.status === 'Cần bù' ? pill('Cần bù','pill-expense') : pill('Ổn định','pill-income')}</td><td>${escapeHtml(plan.note || '-')}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" onclick="window.startEditDebtPlan('${plan.id}')">Sửa</button><button class="btn btn-danger" type="button" onclick="window.softDeleteDebtPlan('${plan.id}')">Xóa</button></div></td></tr>`; }).join('')}</tbody></table></div>`;
+      }
+      renderDebtEntriesTable();
+      renderDebtProjection();
+    }
+
+    function getFilteredDebtEntries() {
+      const from = runtime.debtEntryList.from || '';
+      const to = runtime.debtEntryList.to || '';
+      return getActiveDebtEntries()
+        .filter(entry => (from ? entry.date >= from : true) && (to ? entry.date <= to : true))
+        .sort((a, b) => compareIso(b.date, a.date) || compareIso(b.updated_at, a.updated_at));
+    }
+
+    function changeDebtEntryPage(offset) {
+      const all = getFilteredDebtEntries();
+      const totalPages = Math.max(1, Math.ceil(all.length / runtime.debtEntryList.pageSize));
+      runtime.debtEntryList.page = Math.min(totalPages, Math.max(1, runtime.debtEntryList.page + offset));
+      renderDebtEntriesTable();
+    }
+
+    function renderDebtEntriesTable() {
+      if (!el.debtEntryTable) return;
+      const entries = getFilteredDebtEntries();
+      const totalPages = Math.max(1, Math.ceil(entries.length / runtime.debtEntryList.pageSize));
+      runtime.debtEntryList.page = Math.min(runtime.debtEntryList.page, totalPages);
+      const start = (runtime.debtEntryList.page - 1) * runtime.debtEntryList.pageSize;
+      const pageItems = entries.slice(start, start + runtime.debtEntryList.pageSize);
+      if (!entries.length) {
+        el.debtEntryTable.innerHTML = '<div class="empty-state">Không có lần nộp quỹ nào phù hợp với bộ lọc hiện tại.</div>';
+        el.debtEntryPaginationInfo.textContent = 'Trang 1 / 1';
+        el.debtEntryPrevBtn.disabled = true;
+        el.debtEntryNextBtn.disabled = true;
+        return;
+      }
+      el.debtEntryTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Quỹ</th><th>Giao dịch liên kết</th><th>Số tiền nộp</th><th>Phần bù hụt</th><th>Phần tăng mốc</th><th>Mốc mới sau khi nộp</th><th>Ghi chú</th></tr></thead><tbody>${pageItems.map(entry => `<tr><td>${formatDateDisplay(entry.date)}</td><td>${escapeHtml(getDebtPlanName(entry.planId))}</td><td>${escapeHtml(getDebtTransactionLabel(entry.transactionId))}</td><td>${formatCurrency(entry.amount)}</td><td>${formatCurrency(entry.replenishAmount)}</td><td>${formatCurrency(entry.growthAmount)}</td><td><strong>${formatCurrency(entry.targetAfterPayment)}</strong></td><td>${escapeHtml(entry.note || '-')}</td></tr>`).join('')}</tbody></table></div>`;
+      el.debtEntryPaginationInfo.textContent = `Trang ${runtime.debtEntryList.page} / ${totalPages} · ${entries.length} bản ghi`;
+      el.debtEntryPrevBtn.disabled = runtime.debtEntryList.page <= 1;
+      el.debtEntryNextBtn.disabled = runtime.debtEntryList.page >= totalPages;
+    }
+    function renderDebtProjection() {
+      if (!el.debtProjectionTable || !el.debtProjectionPlanSelect) return;
+      const planId = el.debtProjectionPlanSelect.value;
+      const plan = getActiveDebtPlans().find(p => p.id === planId);
+      const periods = Math.min(24, Math.max(1, Number(el.debtProjectionPeriodsInput?.value || 6)));
+      const plannedPayment = Math.max(0, Number(el.debtProjectionPaymentInput?.value || 0));
+      if (!plan) {
+        el.debtProjectionSummary.innerHTML = pill('Chưa có dữ liệu mô phỏng','pill-adjustment');
+        el.debtProjectionTable.innerHTML = '<div class="empty-state">Chưa có quỹ để mô phỏng.</div>';
+        return;
+      }
+      const { snapshot, rows } = simulateDebtProjection(plan, plannedPayment, periods);
+      el.debtProjectionSummary.innerHTML = `${pill(plan.name,'pill-adjustment')} ${pill('Hiện tại','pill-adjustment')} ${pill(formatCurrency(snapshot.currentBalance),'pill-adjustment')} ${pill('Cần nộp tối thiểu hiện tại','pill-expense')} ${pill(formatCurrency(snapshot.minimumDue),'pill-expense')} ${pill('Mốc hiện hành','pill-income')} ${pill(formatCurrency(plan.currentTargetAmount),'pill-income')}`;
+      el.debtProjectionTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Kỳ</th><th>Chu kỳ</th><th>Cần nộp tối thiểu kỳ này</th><th>Số tiền dự kiến nộp</th><th>Bù hụt</th><th>Tăng mốc</th><th>Mốc mới sau kỳ</th><th>Số dư dự kiến sau kỳ</th><th>Thiếu dồn từ kỳ trước</th></tr></thead><tbody>${rows.map(row => `<tr><td>${row.period}</td><td>${escapeHtml(row.dueLabel)}</td><td><strong>${formatCurrency(row.minimumDue)}</strong></td><td>${formatCurrency(row.plannedPayment)}</td><td>${formatCurrency(row.replenish)}</td><td>${formatCurrency(row.growth)}</td><td><strong>${formatCurrency(row.targetAfter)}</strong></td><td>${formatCurrency(row.projectedBalance)}</td><td>${formatCurrency(row.remainingGap)}</td></tr>`).join('')}</tbody></table></div>`;
+    }
+
+
+    function handleDebtPlanSubmit(event) {
+      event.preventDefault();
+      const name = sanitizeName(el.debtPlanNameInput.value, 80);
+      const linkedAccountId = el.debtPlanAccountInput.value || '';
+      const currentTargetAmount = Number(el.debtPlanCurrentTargetInput.value || 0);
+      const cycle = el.debtPlanCycleInput.value || 'monthly';
+      const dueDay = Number(el.debtPlanDueDayInput.value || 0);
+      const carryShortfall = Number(el.debtPlanCarryShortfallInput.value || 0);
+      const note = sanitizeText(el.debtPlanNoteInput.value, 300);
+      if (!name) { alert('Tên quỹ không hợp lệ.'); return; }
+      if (!linkedAccountId) { alert('Vui lòng chọn tài khoản liên kết cho quỹ.'); return; }
+      if (!Number.isFinite(currentTargetAmount) || currentTargetAmount < 0) { alert('Mốc mục tiêu hiện hành phải là số không âm.'); return; }
+      if (!Number.isFinite(dueDay) || dueDay < 1 || dueDay > 31) { alert('Ngày đến hạn phải nằm trong khoảng từ 1 đến 31.'); return; }
+      if (!Number.isFinite(carryShortfall) || carryShortfall < 0) { alert('Phần thiếu dồn từ kỳ trước phải là số không âm.'); return; }
+      if (runtime.editingDebtPlanId) {
+        const idx = state.debtPlans.findIndex(item => item.id === runtime.editingDebtPlanId);
+        if (idx >= 0) {
+          const old = state.debtPlans[idx];
+          state.debtPlans[idx] = { ...old, name, linkedAccountId, currentTargetAmount, cycle, dueDay, carryShortfall, note, updated_at: nowIso(), deleted_at: null };
+        }
+      } else {
+        state.debtPlans.push(makeDebtPlan(name, linkedAccountId, currentTargetAmount, cycle, dueDay, carryShortfall, note));
+      }
+      cancelDebtPlanEdit({ silent: true });
+      persistState();
+      renderAll();
+    }
+    function handleDebtEntrySubmit(event) {
+      event.preventDefault();
+      const planId = el.debtEntryPlanSelect.value || '';
+      const transactionId = el.debtEntryTransactionSelect.value || '';
+      const note = sanitizeText(el.debtEntryNoteInput.value, 300);
+      const plan = getActiveDebtPlans().find(p => p.id === planId);
+      const transaction = getActiveTransactions().find(tx => tx.id === transactionId);
+      if (!plan) { alert('Vui lòng chọn quỹ cần ghi nhận nộp.'); return; }
+      if (!transaction) { alert('Vui lòng chọn giao dịch thật liên kết.'); return; }
+      const around = calculateBalanceAroundTransaction(plan.linkedAccountId, transaction.id);
+      if (!around.found) { alert('Không xác định được vị trí giao dịch trong nhật ký.'); return; }
+      const impact = calculateDebtImpact(plan, transaction, around.before, around.after);
+      state.debtEntries.push(makeDebtEntry(plan.id, transaction.id, transaction.date, transaction.amount, impact.replenishAmount, impact.growthAmount, impact.targetAfterPayment, note));
+      const idx = state.debtPlans.findIndex(item => item.id === plan.id);
+      if (idx >= 0) {
+        state.debtPlans[idx] = { ...state.debtPlans[idx], currentTargetAmount: impact.targetAfterPayment, carryShortfall: impact.remainingCarry, updated_at: nowIso() };
+      }
+      el.debtEntryForm.reset();
+      fillDebtPlanSelects();
+      fillDebtEntryTransactionSelect();
+      renderDebtEntryTransactionInfo();
+      persistState();
+      renderAll();
+    }
+
+
+    function startEditDebtPlan(id) {
+      const plan = state.debtPlans.find(item => item.id === id && !item.deleted_at);
+      if (!plan) return;
+      runtime.editingDebtPlanId = id;
+      openPage('debt');
+      el.debtPlanNameInput.value = plan.name || '';
+      el.debtPlanAccountInput.value = plan.linkedAccountId || '';
+      el.debtPlanCurrentTargetInput.value = plan.currentTargetAmount || 0;
+      el.debtPlanCycleInput.value = plan.cycle || 'monthly';
+      el.debtPlanDueDayInput.value = plan.dueDay || 1;
+      el.debtPlanCarryShortfallInput.value = plan.carryShortfall || 0;
+      el.debtPlanNoteInput.value = plan.note || '';
+      el.debtFormTitle.textContent = 'Sửa quỹ hoàn quỹ';
+      el.debtPlanSubmitBtn.textContent = 'Cập nhật quỹ';
+      el.debtPlanCancelEditBtn.classList.remove('hidden');
+    }
+
+    function cancelDebtPlanEdit(options = {}) {
+      runtime.editingDebtPlanId = null;
+      el.debtPlanForm.reset();
+      el.debtPlanCycleInput.value = 'monthly';
+      el.debtPlanDueDayInput.value = 1;
+      el.debtFormTitle.textContent = 'Tạo quỹ hoàn quỹ';
+      el.debtPlanSubmitBtn.textContent = 'Lưu quỹ';
+      el.debtPlanCancelEditBtn.classList.add('hidden');
+      fillDebtAccountSelect();
+      if (!options.silent) renderAll();
+    }
+
+    function softDeleteDebtPlan(id) {
+      const plan = state.debtPlans.find(item => item.id === id && !item.deleted_at);
+      if (!plan) return;
+      if (!confirm('Bạn muốn xóa quỹ hoàn quỹ này?')) return;
+      plan.deleted_at = nowIso();
+      plan.updated_at = nowIso();
+      if (runtime.editingDebtPlanId === id) cancelDebtPlanEdit({ silent: true });
+      persistState();
+      renderAll();
+    }
+
+    function getDebtPlanName(id) {
+      return state.debtPlans.find(item => item.id === id)?.name || '-';
+    }
+
+    function getDebtTransactionLabel(id) {
+      const tx = state.transactions.find(item => item.id === id);
+      return tx ? `${formatDateDisplay(tx.date)} · ${formatCurrency(tx.amount)}` : '-';
     }
 
     function getActiveAccounts() { return state.accounts.filter(i => !i.deleted_at); }
@@ -1841,11 +2445,81 @@
     function mapCloudCategoryToLocal(row) { return { id: row.id, kind: row.kind, name: row.name, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
     function mapLocalTransactionToCloud(item, userId) { return { id: item.id, user_id: userId, type: item.type, date: item.date, amount: item.amount, account_from_id: item.accountFromId, account_to_id: item.accountToId, category_id: item.categoryId, note: item.note, expense_mode: item.expenseMode, device_id: item.deviceId, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
     function mapCloudTransactionToLocal(row) { return { id: row.id, type: row.type, date: row.date, amount: Number(row.amount || 0), accountFromId: row.account_from_id || null, accountToId: row.account_to_id || null, categoryId: row.category_id || null, note: row.note || '', expenseMode: row.expense_mode || (row.type === 'expense' ? 'variable' : null), deviceId: row.device_id || state.meta.deviceId, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
+    function mapLocalDebtPlanToCloud(item, userId) {
+  return {
+    id: item.id,
+    user_id: userId,
+    kind: item.kind,
+    name: item.name,
+    linked_account_id: item.linkedAccountId,
+    current_target_amount: item.currentTargetAmount,
+    cycle: item.cycle,
+    due_day: item.dueDay,
+    carry_shortfall: item.carryShortfall,
+    note: item.note,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    deleted_at: item.deleted_at
+  };
+}
 
+function mapCloudDebtPlanToLocal(row) {
+  return {
+    id: row.id,
+    kind: row.kind || 'fund_replenishment',
+    name: row.name || 'Quỹ hoàn quỹ',
+    linkedAccountId: row.linked_account_id || '',
+    currentTargetAmount: Number(row.current_target_amount || 0),
+    cycle: row.cycle || 'monthly',
+    dueDay: Number(row.due_day || 1),
+    carryShortfall: Number(row.carry_shortfall || 0),
+    note: row.note || '',
+    created_at: row.created_at || nowIso(),
+    updated_at: row.updated_at || row.created_at || nowIso(),
+    deleted_at: row.deleted_at || null
+  };
+}
+
+function mapLocalDebtEntryToCloud(item, userId) {
+  return {
+    id: item.id,
+    user_id: userId,
+    plan_id: item.planId,
+    transaction_id: item.transactionId,
+    date: item.date,
+    amount: item.amount,
+    replenish_amount: item.replenishAmount,
+    growth_amount: item.growthAmount,
+    target_after_payment: item.targetAfterPayment,
+    note: item.note,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    deleted_at: item.deleted_at
+  };
+}
+
+function mapCloudDebtEntryToLocal(row) {
+  return {
+    id: row.id,
+    planId: row.plan_id || '',
+    transactionId: row.transaction_id || '',
+    date: row.date || formatDateInput(new Date()),
+    amount: Number(row.amount || 0),
+    replenishAmount: Number(row.replenish_amount || 0),
+    growthAmount: Number(row.growth_amount || 0),
+    targetAfterPayment: Number(row.target_after_payment || 0),
+    note: row.note || '',
+    created_at: row.created_at || nowIso(),
+    updated_at: row.updated_at || row.created_at || nowIso(),
+    deleted_at: row.deleted_at || null
+  };
+}
     window.startEditTransaction = startEditTransaction;
     window.softDeleteTransaction = softDeleteTransaction;
     window.softDeleteAccount = softDeleteAccount;
     window.softDeleteCategory = softDeleteCategory;
+    window.startEditDebtPlan = startEditDebtPlan;
+    window.softDeleteDebtPlan = softDeleteDebtPlan;
   </script>
 </body>
 </html>
