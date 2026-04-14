@@ -9,17 +9,37 @@
     :root {
       --bg: #021912;
       --bg-2: #03261c;
+      --bg-3: #011a14;
       --panel: rgba(7, 57, 43, 0.92);
+      --panel-2: rgba(3, 44, 33, 0.98);
+      --sidebar-1: rgba(1, 28, 21, 0.96);
+      --sidebar-2: rgba(3, 38, 29, 0.96);
+      --glow-1: rgba(59, 173, 122, 0.18);
+      --glow-2: rgba(53, 229, 141, 0.12);
+      --surface-strong: #0d3428;
       --border: rgba(102, 255, 178, 0.12);
+      --border-soft: rgba(123, 255, 192, 0.08);
+      --border-input: rgba(123,255,192,0.14);
+      --border-hover: rgba(123,255,192,0.32);
+      --focus-border: rgba(123,255,192,0.45);
+      --focus-ring: rgba(53,229,141,0.14);
+      --active-bg-1: rgba(53,229,141,0.18);
+      --active-bg-2: rgba(53,229,141,0.06);
+      --active-ring: rgba(123,255,192,0.12);
       --text: #e9fff5;
       --muted: #a8d7c4;
       --accent: #35e58d;
       --accent-2: #7bffc0;
+      --accent-3: #1bbd72;
+      --accent-soft: rgba(53,229,141,0.10);
+      --accent-soft-border: rgba(53,229,141,0.14);
+      --accent-shadow: rgba(53,229,141,0.24);
       --danger: #ff7d7d;
       --warning: #ffd166;
+      --info: #58B0FF;
       --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
       --radius: 20px;
-      --sidebar-w: 270px;
+      --sidebar-w: 290px;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -27,15 +47,81 @@
       margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at 20% 10%, rgba(59, 173, 122, 0.18), transparent 22%),
-        radial-gradient(circle at 82% 18%, rgba(53, 229, 141, 0.12), transparent 20%),
-        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 45%, #011a14 100%);
+        radial-gradient(circle at 20% 10%, var(--glow-1), transparent 22%),
+        radial-gradient(circle at 82% 18%, var(--glow-2), transparent 20%),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
       color: var(--text);
+    }
+    body.theme-dark-green {}
+    body.theme-dark-blue {
+      --bg: #071523;
+      --bg-2: #0b2240;
+      --bg-3: #08192e;
+      --panel: rgba(19, 48, 85, 0.92);
+      --panel-2: rgba(12, 35, 63, 0.98);
+      --sidebar-1: rgba(8, 21, 38, 0.96);
+      --sidebar-2: rgba(10, 28, 48, 0.96);
+      --glow-1: rgba(76, 143, 219, 0.18);
+      --glow-2: rgba(108, 182, 255, 0.12);
+      --surface-strong: #122b49;
+      --border: rgba(121, 188, 255, 0.16);
+      --border-soft: rgba(147, 208, 255, 0.10);
+      --border-input: rgba(147,208,255,0.16);
+      --border-hover: rgba(147,208,255,0.34);
+      --focus-border: rgba(147,208,255,0.45);
+      --focus-ring: rgba(108,182,255,0.16);
+      --active-bg-1: rgba(108,182,255,0.18);
+      --active-bg-2: rgba(108,182,255,0.08);
+      --active-ring: rgba(147,208,255,0.14);
+      --text: #eaf4ff;
+      --muted: #b8d4f3;
+      --accent: #6cb6ff;
+      --accent-2: #93d0ff;
+      --accent-3: #4794e4;
+      --accent-soft: rgba(108,182,255,0.12);
+      --accent-soft-border: rgba(147,208,255,0.18);
+      --accent-shadow: rgba(108,182,255,0.22);
+      --danger: #ff8787;
+      --warning: #ffd166;
+      --info: #8ed2ff;
+    }
+    body.theme-light {
+      --bg: #f5faf7;
+      --bg-2: #e8f3ee;
+      --bg-3: #dde9e3;
+      --panel: rgba(255, 255, 255, 0.94);
+      --panel-2: rgba(247, 251, 249, 0.98);
+      --sidebar-1: rgba(233, 242, 237, 0.96);
+      --sidebar-2: rgba(225, 236, 230, 0.96);
+      --glow-1: rgba(32, 138, 85, 0.08);
+      --glow-2: rgba(53, 123, 216, 0.06);
+      --surface-strong: #f0f6f3;
+      --border: rgba(24, 50, 38, 0.12);
+      --border-soft: rgba(24, 50, 38, 0.08);
+      --border-input: rgba(24,50,38,0.16);
+      --border-hover: rgba(24,50,38,0.28);
+      --focus-border: rgba(32,138,85,0.34);
+      --focus-ring: rgba(32,138,85,0.10);
+      --active-bg-1: rgba(32,138,85,0.12);
+      --active-bg-2: rgba(32,138,85,0.05);
+      --active-ring: rgba(32,138,85,0.10);
+      --text: #183226;
+      --muted: #587667;
+      --accent: #208a55;
+      --accent-2: #2ea86a;
+      --accent-3: #166c41;
+      --accent-soft: rgba(32,138,85,0.10);
+      --accent-soft-border: rgba(32,138,85,0.14);
+      --accent-shadow: rgba(32,138,85,0.18);
+      --danger: #cf4d4d;
+      --warning: #b88400;
+      --info: #357bd8;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
     }
     .app { min-height: 100vh; display: grid; grid-template-columns: var(--sidebar-w) 1fr; }
     .sidebar {
       border-right: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(1, 28, 21, 0.96) 0%, rgba(3, 38, 29, 0.96) 100%);
+      background: linear-gradient(180deg, var(--sidebar-1) 0%, var(--sidebar-2) 100%);
       padding: 24px 20px;
       position: sticky;
       top: 0;
@@ -59,8 +145,8 @@
       display: flex; align-items: center; gap: 12px; text-align: left; font-size: 15px; cursor: pointer; transition: 0.2s ease;
     }
     .nav-btn:hover, .nav-btn.active {
-      background: linear-gradient(90deg, rgba(53,229,141,0.18), rgba(53,229,141,0.06));
-      box-shadow: inset 0 0 0 1px rgba(123,255,192,0.12);
+      background: linear-gradient(90deg, var(--active-bg-1), var(--active-bg-2));
+      box-shadow: inset 0 0 0 1px var(--active-ring);
     }
     .sidebar-actions { margin-top: auto; display: grid; gap: 10px; }
     .main { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
@@ -76,9 +162,10 @@
     .page.active { display: grid; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .grid-4 { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
     .grid-2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
     .card {
-      background: linear-gradient(180deg, var(--panel) 0%, rgba(3,44,33,0.98) 100%);
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
       border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); min-width: 0;
     }
     .card h3 { margin: 0 0 14px; font-size: 20px; }
@@ -94,36 +181,42 @@
     .field label { font-size: 13px; color: var(--muted); }
     input, select, textarea, button { font: inherit; }
     input, select, textarea {
-      width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(123,255,192,0.14);
+      width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border-input);
       background: rgba(255,255,255,0.04); color: var(--text); outline: none; transition: 0.18s ease;
     }
-    input:focus, select:focus, textarea:focus { border-color: rgba(123,255,192,0.45); box-shadow: 0 0 0 3px rgba(53,229,141,0.14); }
-    select option { background: #0d3428; color: var(--text); }
+    select[multiple] { min-height: 140px; padding-right: 8px; }
+    input:focus, select:focus, textarea:focus { border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-ring); }
+    select option { background: var(--surface-strong); color: var(--text); }
     textarea { min-height: 98px; resize: vertical; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+    .checkbox-row input[type="checkbox"] { width: auto; transform: scale(1.15); }
     .btn {
       border: 0; padding: 12px 16px; border-radius: 14px; cursor: pointer; transition: 0.2s ease;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none;
     }
     .btn:hover { transform: translateY(-1px); }
     .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #1bbd72); color: #03291d; box-shadow: 0 10px 24px rgba(53,229,141,0.24); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: #03291d; box-shadow: 0 10px 24px var(--accent-shadow); }
     .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); }
     .btn-danger { background: rgba(255,125,125,0.12); color: #ffd5d5; border: 1px solid rgba(255,125,125,0.16); }
     .btn-warning { background: rgba(255,209,102,0.12); color: #ffe39f; border: 1px solid rgba(255,209,102,0.16); }
     .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
     .toolbar .field { min-width: 170px; flex: 1; }
+    .toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .table-wrap { width: 100%; overflow: auto; border-radius: 16px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
-    table { width: 100%; border-collapse: collapse; min-width: 860px; }
-    th, td { padding: 14px 16px; border-bottom: 1px solid rgba(123,255,192,0.08); text-align: left; font-size: 14px; vertical-align: middle; }
+    table { width: 100%; border-collapse: collapse; min-width: 980px; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--border-soft); text-align: left; font-size: 14px; vertical-align: middle; }
     th { color: var(--muted); font-weight: 600; background: rgba(255,255,255,0.025); position: sticky; top: 0; z-index: 1; }
     tbody tr:hover { background: rgba(255,255,255,0.025); }
     .pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 12px; border: 1px solid transparent; white-space: nowrap; }
-    .pill-income { background: rgba(53,229,141,0.1); color: var(--accent-2); border-color: rgba(53,229,141,0.14); }
+    .pill-income { background: var(--accent-soft); color: var(--accent-2); border-color: var(--accent-soft-border); }
     .pill-expense { background: rgba(255,125,125,0.1); color: #ffb9b9; border-color: rgba(255,125,125,0.16); }
     .pill-transfer { background: rgba(255,209,102,0.1); color: #ffe39f; border-color: rgba(255,209,102,0.16); }
     .pill-adjustment { background: rgba(145,186,255,0.12); color: #cce0ff; border-color: rgba(145,186,255,0.18); }
+    .pill-fixed { background: rgba(255,209,102,0.12); color: #ffe39f; border-color: rgba(255,209,102,0.16); }
+    .pill-variable { background: rgba(124,199,255,0.12); color: #d8efff; border-color: rgba(124,199,255,0.18); }
     .pill-cloud { background: rgba(124,199,255,0.12); color: #d8efff; border-color: rgba(124,199,255,0.18); }
-    .empty-state { padding: 26px; text-align: center; color: var(--muted); border: 1px dashed rgba(123,255,192,0.15); border-radius: 16px; background: rgba(255,255,255,0.02); }
+    .empty-state { padding: 26px; text-align: center; color: var(--muted); border: 1px dashed var(--border-input); border-radius: 16px; background: rgba(255,255,255,0.02); }
     .list-simple { display: grid; gap: 10px; }
     .list-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
     .list-item strong { display: block; font-size: 14px; }
@@ -134,6 +227,7 @@
     .split-panel { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; }
     .chart-shell { position: relative; min-height: 290px; }
     .chart-shell.sm { min-height: 250px; }
+    .chart-shell.lg { min-height: 360px; }
     .actions-inline { display: flex; gap: 8px; flex-wrap: wrap; }
     .hidden { display: none !important; }
     .notice { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: rgba(124,199,255,0.08); border: 1px solid rgba(124,199,255,0.14); color: #d8efff; font-size: 13px; line-height: 1.55; }
@@ -141,13 +235,40 @@
     .search-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 14px; }
     .search-row .field { min-width: 180px; flex: 1; }
     .pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
-    @media (max-width: 1200px) { .grid-4 { grid-template-columns: repeat(2,minmax(0,1fr)); } .split-panel { grid-template-columns: 1fr; } }
+    .soft-divider { height: 1px; background: var(--border-soft); margin: 8px 0; }
+    .stacked-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .multi-dropdown { position: relative; }
+    .multi-trigger {
+      width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border-input);
+      background: rgba(255,255,255,0.04); color: var(--text);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left;
+    }
+    .multi-trigger .muted { color: var(--muted); font-size: 13px; }
+    .multi-trigger:hover { transform: none; border-color: var(--border-hover); }
+    .multi-dropdown.open .multi-trigger { border-color: var(--focus-border); box-shadow: 0 0 0 3px var(--focus-ring); }
+    .multi-menu {
+      position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; width: 100%;
+      max-height: 260px; overflow: auto; border-radius: 16px; border: 1px solid var(--border-input);
+      background: var(--surface-strong); box-shadow: var(--shadow); padding: 8px; display: none;
+    }
+    .multi-dropdown.open .multi-menu { display: block; }
+    .multi-option { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 12px; cursor: pointer; font-size: 14px; }
+    .multi-option:hover { background: rgba(255,255,255,0.05); }
+    .multi-option input { width: auto; margin: 0; accent-color: #35e58d; }
+    .multi-empty { color: var(--muted); font-size: 13px; padding: 10px; }
+    /* FIX CMP-011: dropdown flip indicator */
+    .multi-dropdown.flip-up .multi-menu { top: auto; bottom: calc(100% + 8px); }
+    @media (max-width: 1200px) {
+      .grid-4, .grid-3 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .split-panel { grid-template-columns: 1fr; }
+    }
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
-      .grid-2, .grid-4, .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .grid-4, .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
       .topbar { flex-direction: column; align-items: flex-start; }
       .topbar-actions { justify-content: flex-start; }
+      table { min-width: 820px; }
     }
   </style>
 </head>
@@ -162,17 +283,18 @@
         <div class="nav-group-title">Điều hướng</div>
         <nav class="nav" id="navMenu">
           <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
-          <button class="nav-btn" data-page="settings">⚙️ Thiết lập</button>
           <button class="nav-btn" data-page="reports">📈 Báo cáo thu chi</button>
-          <button class="nav-btn" data-page="accounts">🏦 Phân loại tài khoản</button>
+          <button class="nav-btn" data-page="compare">📚 So sánh mục thu chi các tháng</button>
+          <button class="nav-btn" data-page="debt">💳 Quản lý nguồn nợ</button>
           <button class="nav-btn" data-page="transactions">🧾 Dữ liệu giao dịch</button>
+          <button class="nav-btn" data-page="accounts">🏦 Phân loại tài khoản</button>
+          <button class="nav-btn" data-page="settings">⚙️ Thiết lập</button>
         </nav>
       </div>
       <div class="sidebar-actions">
         <button class="btn btn-primary" id="exportJsonBtn">⬇️ Xuất JSON</button>
         <label class="btn btn-secondary" for="importJsonInput">⬆️ Nhập JSON</label>
         <input id="importJsonInput" type="file" accept="application/json" class="hidden" />
-        <!-- <button class="btn btn-danger" id="resetDemoBtn">🗑️ Khôi phục dữ liệu mẫu</button> -->
       </div>
     </aside>
 
@@ -190,35 +312,29 @@
 
       <section class="page active" id="page-dashboard">
         <div class="card">
-  <h3>Lọc thời gian dashboard</h3>
-  <div class="toolbar">
-    <div class="field">
-      <label for="dashboardQuickRange">Khoảng thời gian</label>
-      <select id="dashboardQuickRange">
-        <option value="3m">3 tháng gần nhất</option>
-        <option value="30d">30 ngày gần nhất</option>
-        <option value="ytd">Từ đầu năm đến nay</option>
-        <option value="all">Toàn bộ</option>
-        <option value="custom">Tùy chỉnh</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="dashboardDateFrom">Từ ngày</label>
-      <input id="dashboardDateFrom" type="date" />
-    </div>
-    <div class="field">
-      <label for="dashboardDateTo">Đến ngày</label>
-      <input id="dashboardDateTo" type="date" />
-    </div>
-  </div>
-</div>
+          <h3>Lọc thời gian dashboard</h3>
+          <div class="toolbar">
+            <div class="field">
+              <label for="dashboardQuickRange">Khoảng thời gian</label>
+              <select id="dashboardQuickRange">
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+            <div class="field"><label for="dashboardDateFrom">Từ ngày</label><input id="dashboardDateFrom" type="date" /></div>
+            <div class="field"><label for="dashboardDateTo">Đến ngày</label><input id="dashboardDateTo" type="date" /></div>
+          </div>
+        </div>
         <div class="grid-4">
           <div class="card"><div class="metric-title">Tổng tài sản hiện có</div><div class="metric-value" id="metricNetWorth">0 ₫</div><div class="metric-meta">Tổng số dư hiện tại của tất cả tài khoản.</div></div>
-          <div class="card"><div class="metric-title">Tổng thu</div><div class="metric-value metric-positive" id="metricIncome">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch thu nhập đang hoạt động.</div></div>
-          <div class="card"><div class="metric-title">Tổng chi</div><div class="metric-value metric-negative" id="metricExpense">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch chi tiêu đang hoạt động.</div></div>
-          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="metricNetFlow">0 ₫</div><div class="metric-meta">Thu nhập trừ chi tiêu.</div></div>
+          <div class="card"><div class="metric-title">Tổng thu</div><div class="metric-value metric-positive" id="metricIncome">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch thu nhập trong kỳ lọc.</div></div>
+          <div class="card"><div class="metric-title">Tổng chi</div><div class="metric-value metric-negative" id="metricExpense">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch chi tiêu trong kỳ lọc.</div></div>
+          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="metricNetFlow">0 ₫</div><div class="metric-meta">Thu nhập trừ chi tiêu trong kỳ lọc.</div></div>
         </div>
-        <div class="split-panel">
+        <div class="grid-2">
           <div class="card">
             <h3>Báo cáo tổng tài sản</h3>
             <div class="card-subtitle">Tỷ trọng tài sản theo từng tài khoản.</div>
@@ -228,23 +344,162 @@
             </div>
           </div>
           <div class="card">
-            <h3>Biến động tài sản</h3>
-            <div class="card-subtitle">Diễn biến tổng tài sản theo thời gian giao dịch.</div>
-            <div class="chart-shell"><canvas id="cashflowLineChart"></canvas></div>
+            <h3>Phân bổ dòng tiền ròng theo tài khoản</h3>
+            <div class="card-subtitle">Trong kỳ lọc, dòng tiền ròng được giữ lại hoặc dịch chuyển qua từng tài khoản như thế nào.</div>
+            <div class="chart-shell sm"><canvas id="netFlowAllocationChart"></canvas></div>
+            <div class="stacked-summary" id="netFlowSummary"></div>
           </div>
         </div>
         <div class="grid-2">
           <div class="card">
-            <h3>Thu và chi theo tháng</h3>
-            <div class="card-subtitle">So sánh thu nhập và chi tiêu từng tháng.</div>
-            <div class="chart-shell"><canvas id="monthlyBarChart"></canvas></div>
+            <h3>Biến động tài sản</h3>
+            <div class="card-subtitle">Diễn biến tổng tài sản theo thời gian giao dịch.</div>
+            <div class="chart-shell"><canvas id="cashflowLineChart"></canvas></div>
           </div>
           <div class="card">
-            <h3>Giao dịch gần đây</h3>
-            <div class="card-subtitle">10 giao dịch mới nhất đang hoạt động.</div>
-            <div id="recentTransactionsList"></div>
+            <h3>Tỷ trọng Chi tiêu và Thu nhập</h3>
+            <div class="card-subtitle">Phân bổ các nguồn thu hoặc chi theo bộ lọc dashboard.</div>
+            <div class="toolbar">
+              <div class="field"><label for="dashboardDistributionMode">Chế độ hiển thị</label>
+                <select id="dashboardDistributionMode"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select>
+              </div>
+            </div>
+            <div class="chart-shell sm"><canvas id="dashboardDistributionDonutChart"></canvas></div>
           </div>
         </div>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="card">
+          <h3>Bộ lọc báo cáo</h3>
+          <div class="toolbar">
+            <div class="field"><label for="reportQuickRange">Khoảng thời gian</label>
+              <select id="reportQuickRange">
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+            <div class="field"><label for="reportDateFrom">Từ ngày</label><input id="reportDateFrom" type="date" /></div>
+            <div class="field"><label for="reportDateTo">Đến ngày</label><input id="reportDateTo" type="date" /></div>
+            <div class="field"><label for="reportAccountFilter">Tài khoản</label><select id="reportAccountFilter"></select></div>
+            <div class="field"><label for="reportTypeFilter">Loại giao dịch</label><select id="reportTypeFilter"><option value="all">Tất cả giao dịch</option><option value="income">Chỉ thu nhập</option><option value="expense">Chỉ chi tiêu</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+            <div class="field"><label for="reportExpenseModeFilter">Chi tiêu</label><select id="reportExpenseModeFilter"><option value="all">Cả 2</option><option value="fixed">Cố định</option><option value="variable">Không cố định</option></select></div>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="card"><div class="metric-title">Thu đã lọc</div><div class="metric-value metric-positive" id="reportIncomeTotal">0 ₫</div></div>
+          <div class="card"><div class="metric-title">Chi đã lọc</div><div class="metric-value metric-negative" id="reportExpenseTotal">0 ₫</div></div>
+          <div class="card"><div class="metric-title">Giao dịch đã lọc</div><div class="metric-value" id="reportTransactionCount">0</div></div>
+          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="reportNetAmount">0 ₫</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><h3>Tỷ trọng chi tiêu</h3><div class="chart-shell sm"><canvas id="expenseDonutChart"></canvas></div></div>
+          <div class="card"><h3>Tỷ trọng thu nhập</h3><div class="chart-shell sm"><canvas id="incomeDonutChart"></canvas></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Xu hướng Thu và Chi theo kỳ</h3>
+            <div class="card-subtitle">Biểu đồ cột chồng cho thấy thay đổi tổng nguồn thu và tổng nguồn chi theo từng tháng.</div>
+            <div class="chart-shell"><canvas id="reportTrendStackedChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Phân bổ chi tiêu theo danh mục</h3>
+            <div class="card-subtitle">Mỗi cột là tổng chi của kỳ, được chia theo từng danh mục chi tiêu.</div>
+            <div class="chart-shell"><canvas id="reportExpenseCategoryStackedChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card"><h3>Lịch sử giao dịch đã lọc</h3><div id="reportTransactionsTable"></div></div>
+      </section>
+
+      <section class="page" id="page-compare">
+        <div class="card">
+          <h3>So sánh dao động của các nguồn thu chi</h3>
+          <div class="card-subtitle">Biểu đồ cột chồng, trục hoành có thể chọn theo ngày, tháng hoặc năm. Các bộ lọc Loại giao dịch, Tài khoản và Phân loại dùng dropdown có checkbox để chọn nhiều mục; nếu không chọn mục nào thì hệ thống lấy tất cả.</div>
+          <div class="toolbar">
+            <div class="field"><label for="compareDateFrom">Từ ngày</label><input id="compareDateFrom" type="date" /></div>
+            <div class="field"><label for="compareDateTo">Đến ngày</label><input id="compareDateTo" type="date" /></div>
+            <div class="field"><label for="compareGranularity">Trục hoành</label><select id="compareGranularity"><option value="day">Ngày</option><option value="month">Tháng</option><option value="year">Năm</option></select></div>
+            <div class="field"><label>Loại giao dịch</label><div id="compareTypeFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label>Tài khoản</label><div id="compareAccountFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label>Phân loại</label><div id="compareCategoryFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label for="compareBy">So sánh theo</label><select id="compareBy"><option value="type">Loại</option><option value="account">Tài khoản</option><option value="category">Phân loại</option></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Biểu đồ so sánh</h3>
+          <div class="chart-shell lg"><canvas id="compareStackedChart"></canvas></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-debt">
+        <div class="card">
+          <h3>Quản lý nguồn nợ</h3>
+          <div class="card-subtitle">Khối này được giữ chỗ để phát triển tiếp ở vòng sau.</div>
+          <div class="empty-state">Trang quản lý nguồn nợ đang được để trống theo đúng scope hiện tại.</div>
+        </div>
+      </section>
+
+      <section class="page" id="page-transactions">
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="transactionFormTitle">Nhập giao dịch hằng ngày</h3>
+            <form id="transactionForm" class="form-grid-3">
+              <div class="field"><label for="txDateInput">Ngày giao dịch</label><input id="txDateInput" type="date" required /></div>
+              <div class="field"><label for="txTypeInput">Loại giao dịch</label><select id="txTypeInput"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+              <div class="field"><label for="txAmountInput">Số tiền</label><input id="txAmountInput" type="number" min="0" step="1000" required /></div>
+              <div class="field" id="txAccountFromField"><label for="txAccountFromInput">Tài khoản nguồn</label><select id="txAccountFromInput"></select></div>
+              <div class="field" id="txAccountToField"><label for="txAccountToInput">Tài khoản đích hoặc nhận tiền</label><select id="txAccountToInput"></select></div>
+              <div class="field"><label for="txCategoryInput">Phân loại</label><select id="txCategoryInput"></select></div>
+              <div class="field hidden" id="txExpenseModeField"><label for="txExpenseModeInput">Chi tiêu</label><select id="txExpenseModeInput"><option value="fixed">Cố định</option><option value="variable">Không cố định</option></select></div>
+              <div class="field hidden" id="txAdjustmentField"><label for="txAdjustmentModeInput">Hướng điều chỉnh</label><select id="txAdjustmentModeInput"><option value="add">Cộng thêm</option><option value="subtract">Trừ bớt</option></select></div>
+              <div class="field" style="grid-column: 1 / -1;"><label for="txNoteInput">Ghi chú</label><textarea id="txNoteInput"></textarea></div>
+              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="transactionSubmitBtn">Lưu giao dịch</button><button class="btn btn-secondary hidden" type="button" id="transactionCancelEditBtn">Hủy sửa</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Quy tắc nhập giao dịch</h3>
+            <div class="list-simple">
+              <div class="list-item"><strong>Ngày giao dịch</strong><span>Không cho nhập ngày ở tương lai.</span></div>
+              <div class="list-item"><strong>Số tiền</strong><span>Phải lớn hơn 0 và chỉ nhập số.</span></div>
+              <div class="list-item"><strong>Chi tiêu</strong><span>Chọn tài khoản nguồn, phân loại chi tiêu và xác định là cố định hay không cố định.</span></div>
+              <div class="list-item"><strong>Thu nhập</strong><span>Chọn tài khoản nhận tiền và phân loại thu nhập tương ứng.</span></div>
+              <div class="list-item"><strong>Chuyển khoản nội bộ</strong><span>Tài khoản nguồn và tài khoản đích phải khác nhau.</span></div>
+              <div class="list-item"><strong>Điều chỉnh số dư</strong><span>Chọn tài khoản bị điều chỉnh và hướng cộng hoặc trừ để hệ thống lưu giá trị đúng.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Lịch sử giao dịch</h3>
+          <div class="search-row">
+            <div class="field"><label for="transactionSearchInput">Tìm kiếm</label><input id="transactionSearchInput" type="text" placeholder="Ghi chú, tài khoản, phân loại, ngày." /></div>
+            <div class="field"><label for="transactionTypeFilter">Loại giao dịch</label><select id="transactionTypeFilter"><option value="all">Tất cả giao dịch</option><option value="income">Thu nhập</option><option value="expense">Chi tiêu</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+            <div class="field"><label for="transactionPageSize">Số dòng mỗi trang</label><select id="transactionPageSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></div>
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-secondary" id="clearSelectionBtn" type="button">Bỏ chọn</button>
+            <button class="btn btn-danger" id="bulkDeleteBtn" type="button">Xóa các mục đã chọn</button>
+            <span id="selectedCountLabel">Đã chọn 0 mục</span>
+          </div>
+          <div id="transactionsTable"></div>
+          <div class="pagination"><div id="transactionPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="transactionPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="transactionNextBtn" type="button">Trang sau</button></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-accounts">
+        <div class="card">
+          <h3>Thêm tài khoản mới</h3>
+          <form id="accountForm" class="form-grid">
+            <div class="field"><label for="accountNameInput">Tên tài khoản</label><input id="accountNameInput" type="text" maxlength="50" required /></div>
+            <div class="field"><label for="accountTypeInput">Loại tài khoản</label><select id="accountTypeInput"><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="saving">Tiết kiệm</option><option value="investment">Đầu tư</option><option value="other">Khác</option></select></div>
+            <div class="field"><label for="openingBalanceInput">Số dư khởi tạo</label><input id="openingBalanceInput" type="number" step="1000" required /></div>
+            <div class="field"><label for="accountNoteInput">Ghi chú</label><input id="accountNoteInput" type="text" maxlength="120" /></div>
+            <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Thêm tài khoản</button></div>
+          </form>
+        </div>
+        <div class="card"><h3>Danh sách tài khoản</h3><div id="accountsTable"></div></div>
       </section>
 
       <section class="page" id="page-settings">
@@ -254,7 +509,7 @@
             <div class="card-subtitle">Thông tin kỹ thuật lưu trữ đã chuyển lên console.</div>
             <form id="generalSettingsForm" class="form-grid">
               <div class="field"><label for="currencyInput">Đơn vị tiền tệ</label><input id="currencyInput" type="text" maxlength="10" /></div>
-              <div class="field"><label for="themeLabelInput">Tên chủ đề</label><input id="themeLabelInput" type="text" maxlength="30" /></div>
+              <div class="field"><label for="themeLabelInput">Chủ đề giao diện</label><select id="themeLabelInput"><option value="dark-green">Dark Green</option><option value="dark-blue">Dark Blue</option><option value="light">Light</option></select></div>
               <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Lưu thiết lập</button></div>
             </form>
             <div class="notice">Mở Developer Tools để xem localStorage, số bản ghi đang hoạt động, lần lưu gần nhất và trạng thái cloud.</div>
@@ -312,111 +567,35 @@
           </div>
         </div>
       </section>
-
-      <section class="page" id="page-reports">
-        <div class="card">
-          <h3>Bộ lọc báo cáo</h3>
-          <div class="toolbar">
-            <div class="field"><label for="reportAccountFilter">Tài khoản</label><select id="reportAccountFilter"></select></div>
-            <div class="field"><label for="reportTypeFilter">Loại giao dịch</label><select id="reportTypeFilter"><option value="all">Tất cả</option><option value="income">Thu nhập</option><option value="expense">Chi tiêu</option><option value="transfer">Chuyển khoản</option><option value="adjustment">Điều chỉnh</option></select></div>
-            <div class="field"><label for="reportDateFrom">Từ ngày</label><input id="reportDateFrom" type="date" /></div>
-            <div class="field"><label for="reportDateTo">Đến ngày</label><input id="reportDateTo" type="date" /></div>
-          </div>
-        </div>
-        <div class="grid-4">
-          <div class="card"><div class="metric-title">Thu đã lọc</div><div class="metric-value metric-positive" id="reportIncomeTotal">0 ₫</div></div>
-          <div class="card"><div class="metric-title">Chi đã lọc</div><div class="metric-value metric-negative" id="reportExpenseTotal">0 ₫</div></div>
-          <div class="card"><div class="metric-title">Giao dịch đã lọc</div><div class="metric-value" id="reportTransactionCount">0</div></div>
-          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="reportNetAmount">0 ₫</div></div>
-        </div>
-        <div class="grid-2">
-          <div class="card"><h3>Tỷ trọng chi tiêu</h3><div class="chart-shell sm"><canvas id="expenseDonutChart"></canvas></div></div>
-          <div class="card"><h3>Tỷ trọng thu nhập</h3><div class="chart-shell sm"><canvas id="incomeDonutChart"></canvas></div></div>
-        </div>
-        <div class="card"><h3>Lịch sử giao dịch đã lọc</h3><div id="reportTransactionsTable"></div></div>
-      </section>
-
-      <section class="page" id="page-accounts">
-        <div class="grid-2">
-          <div class="card">
-            <h3>Thêm tài khoản mới</h3>
-            <form id="accountForm" class="form-grid">
-              <div class="field"><label for="accountNameInput">Tên tài khoản</label><input id="accountNameInput" type="text" maxlength="50" required /></div>
-              <div class="field"><label for="accountTypeInput">Loại tài khoản</label><select id="accountTypeInput"><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="saving">Tiết kiệm</option><option value="investment">Đầu tư</option><option value="other">Khác</option></select></div>
-              <div class="field"><label for="openingBalanceInput">Số dư khởi tạo</label><input id="openingBalanceInput" type="number" step="1000" required /></div>
-              <div class="field"><label for="accountNoteInput">Ghi chú</label><input id="accountNoteInput" type="text" maxlength="120" /></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Thêm tài khoản</button></div>
-            </form>
-          </div>
-          <div class="card">
-            <h3>Nguyên lý tính số dư</h3>
-            <div class="list-simple">
-              <div class="list-item"><strong>Thu nhập</strong><span>Cộng vào tài khoản nhận tiền.</span></div>
-              <div class="list-item"><strong>Chi tiêu</strong><span>Trừ khỏi tài khoản nguồn.</span></div>
-              <div class="list-item"><strong>Chuyển khoản nội bộ</strong><span>Trừ ở nguồn và cộng ở đích.</span></div>
-              <div class="list-item"><strong>Điều chỉnh</strong><span>Có thể cộng hoặc trừ trực tiếp.</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="card"><h3>Danh sách tài khoản</h3><div id="accountsTable"></div></div>
-      </section>
-
-      <section class="page" id="page-transactions">
-        <div class="grid-2">
-          <div class="card">
-            <h3 id="transactionFormTitle">Nhập giao dịch hằng ngày</h3>
-            <form id="transactionForm" class="form-grid-3">
-              <div class="field"><label for="txDateInput">Ngày giao dịch</label><input id="txDateInput" type="date" required /></div>
-              <div class="field"><label for="txTypeInput">Loại giao dịch</label><select id="txTypeInput"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
-              <div class="field"><label for="txAmountInput">Số tiền</label><input id="txAmountInput" type="number" min="0" step="1000" required /></div>
-              <div class="field" id="txAccountFromField"><label for="txAccountFromInput">Tài khoản nguồn</label><select id="txAccountFromInput"></select></div>
-              <div class="field" id="txAccountToField"><label for="txAccountToInput">Tài khoản đích hoặc nhận tiền</label><select id="txAccountToInput"></select></div>
-              <div class="field"><label for="txCategoryInput">Phân loại</label><select id="txCategoryInput"></select></div>
-              <div class="field hidden" id="txAdjustmentField"><label for="txAdjustmentModeInput">Hướng điều chỉnh</label><select id="txAdjustmentModeInput"><option value="add">Cộng thêm</option><option value="subtract">Trừ bớt</option></select></div>
-              <div class="field" style="grid-column: 1 / -1;"><label for="txNoteInput">Ghi chú</label><textarea id="txNoteInput"></textarea></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="transactionSubmitBtn">Lưu giao dịch</button><button class="btn btn-secondary hidden" type="button" id="transactionCancelEditBtn">Hủy sửa</button></div>
-            </form>
-          </div>
-          <div class="card">
-            <h3>Validation</h3>
-            <div class="list-simple">
-              <div class="list-item"><strong>Ngày</strong><span>Không cho nhập ngày tương lai.</span></div>
-              <div class="list-item"><strong>Số tiền</strong><span>Phải lớn hơn 0.</span></div>
-              <div class="list-item"><strong>Transfer</strong><span>Nguồn và đích phải khác nhau.</span></div>
-              <div class="list-item"><strong>Adjustment</strong><span>Chọn hướng cộng hoặc trừ để lưu amount có dấu.</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Lịch sử giao dịch</h3>
-          <div class="search-row">
-            <div class="field"><label for="transactionSearchInput">Tìm kiếm</label><input id="transactionSearchInput" type="text" placeholder="Ghi chú, tài khoản, phân loại, ngày..." /></div>
-            <div class="field"><label for="transactionTypeFilter">Loại giao dịch</label><select id="transactionTypeFilter"><option value="all">Tất cả</option><option value="income">Thu nhập</option><option value="expense">Chi tiêu</option><option value="transfer">Chuyển khoản</option><option value="adjustment">Điều chỉnh</option></select></div>
-            <div class="field"><label for="transactionPageSize">Số dòng mỗi trang</label><select id="transactionPageSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></div>
-          </div>
-          <div id="transactionsTable"></div>
-          <div class="pagination"><div id="transactionPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="transactionPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="transactionNextBtn" type="button">Trang sau</button></div></div>
-        </div>
-      </section>
     </main>
   </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const STORAGE_KEY = 'personal_finance_dashboard_state_v2';
+    const STORAGE_KEY = 'personal_finance_dashboard_state_v8';
     const SUPABASE_URL = 'https://ivffdirptersuroxrbua.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_TFZaRWhzMlEG0mRzyHGGnw_zNi717A4';
     const TABLES = { accounts: 'accounts', categories: 'categories', transactions: 'transactions' };
     const PAGE_META = {
       dashboard: { title: 'Dashboard', subtitle: 'Tổng quan tài sản, dòng tiền và các giao dịch gần đây.' },
-      settings: { title: 'Thiết lập', subtitle: 'Quản lý cấu hình, xuất nhập dữ liệu và cloud sync.' },
-      reports: { title: 'Báo cáo thu chi', subtitle: 'Lọc theo tài khoản, loại giao dịch và thời gian.' },
-      accounts: { title: 'Phân loại tài khoản', subtitle: 'Quản lý ví, ngân hàng, tiết kiệm, đầu tư.' },
-      transactions: { title: 'Dữ liệu giao dịch', subtitle: 'Nhập, sửa, tìm kiếm và phân trang giao dịch.' }
+      reports: { title: 'Báo cáo thu chi', subtitle: 'Lọc theo thời gian, tài khoản, loại giao dịch và đặc tính chi tiêu.' },
+      compare: { title: 'So sánh mục thu chi các tháng', subtitle: 'Biểu đồ cột chồng so sánh dao động theo ngày, tháng hoặc năm.' },
+      debt: { title: 'Quản lý nguồn nợ', subtitle: 'Trang này đang được giữ chỗ để phát triển tiếp.' },
+      transactions: { title: 'Dữ liệu giao dịch', subtitle: 'Nhập, sửa, tìm kiếm, chọn nhiều dòng và xóa mềm giao dịch.' },
+      accounts: { title: 'Phân loại tài khoản', subtitle: 'Quản lý ví, ngân hàng, tiết kiệm, đầu tư và mốc thời gian cập nhật.' },
+      settings: { title: 'Thiết lập', subtitle: 'Quản lý cấu hình, xuất nhập dữ liệu và cloud sync.' }
     };
-    const CHART_COLORS = ['#35E58D', '#7BFFC0', '#58B0FF', '#FFD166', '#FF8E5E', '#C084FC', '#FF7D7D', '#94F2D4'];
-    const runtime = { charts: {}, editingTransactionId: null, cloudSyncTimer: null, txList: { page: 1, pageSize: 10, query: '', type: 'all' }, auth: { session: null, user: null, busy: false, lastError: '', lastInfo: 'Chưa đăng nhập cloud.' },loginCooldownUntil: 0, loginCooldownTimer: null };
+    const CHART_COLORS = ['#35E58D','#7BFFC0','#58B0FF','#FFD166','#FF8E5E','#C084FC','#FF7D7D','#94F2D4','#F59E0B','#A3E635','#22D3EE'];
+    const runtime = {
+      charts: {},
+      editingTransactionId: null,
+      cloudSyncTimer: null,
+      txList: { page: 1, pageSize: 10, query: '', type: 'all', selectedIds: new Set() },
+      auth: { session: null, user: null, busy: false, lastError: '', lastInfo: 'Chưa đăng nhập cloud.' },
+      loginCooldownUntil: 0,
+      loginCooldownTimer: null
+    };
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     const el = {};
     let state = loadState();
@@ -426,50 +605,26 @@
       bindEvents();
       bindDatePickerEvents();
       initializeCharts();
-      console.info('[FinanceApp] App started with localStorage + Supabase hybrid mode.');
       window.addEventListener('storage', handleStorageSync);
       await initializeSupabaseAuth();
       renderAll();
     });
 
     function cacheElements() {
-      el.dashboardQuickRange = document.getElementById('dashboardQuickRange');
-      el.dashboardDateFrom = document.getElementById('dashboardDateFrom');
-      el.dashboardDateTo = document.getElementById('dashboardDateTo');
-      ['navMenu','pageTitle','pageSubtitle','openTransactionsBtn','syncNowTopBtn',
-  'exportJsonBtn','importJsonInput','resetDemoBtn','settingsExportBtn','settingsImportInput',
-  'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','recentTransactionsList',
-  'generalSettingsForm','currencyInput','themeLabelInput',
-  'expenseCategoryForm','expenseCategoryInput','expenseCategoryList',
-  'incomeCategoryForm','incomeCategoryInput','incomeCategoryList',
-  'cloudStatusBox','cloudLoginForm','cloudEmailInput','cloudSyncBtn','cloudPullBtn','cloudLogoutBtn',
-  'reportAccountFilter','reportTypeFilter','reportDateFrom','reportDateTo',
-  'reportIncomeTotal','reportExpenseTotal','reportTransactionCount','reportNetAmount','reportTransactionsTable',
-  'accountForm','accountNameInput','accountTypeInput','openingBalanceInput','accountNoteInput','accountsTable',
-  'transactionFormTitle','transactionForm','txDateInput','txTypeInput','txAmountInput',
-  'txAccountFromInput','txAccountToInput','txCategoryInput','txAdjustmentModeInput','txAdjustmentField',
-  'txNoteInput','txAccountFromField','txAccountToField',
-  'transactionSubmitBtn','transactionCancelEditBtn',
-  'transactionsTable','transactionSearchInput','transactionTypeFilter','transactionPageSize',
-  'transactionPaginationInfo','transactionPrevBtn','transactionNextBtn'
-].forEach(id => el[id] = document.getElementById(id));
+      [
+        'navMenu','pageTitle','pageSubtitle','openTransactionsBtn','syncNowTopBtn','exportJsonBtn','importJsonInput','settingsExportBtn','settingsImportInput',
+        'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','netFlowSummary',
+        'generalSettingsForm','currencyInput','themeLabelInput','expenseCategoryForm','expenseCategoryInput','expenseCategoryList','incomeCategoryForm','incomeCategoryInput','incomeCategoryList',
+        'cloudStatusBox','cloudLoginForm','cloudEmailInput','cloudSyncBtn','cloudPullBtn','cloudLogoutBtn',
+        'dashboardQuickRange','dashboardDateFrom','dashboardDateTo','dashboardDistributionMode',
+        'reportQuickRange','reportAccountFilter','reportTypeFilter','reportExpenseModeFilter','reportDateFrom','reportDateTo','reportIncomeTotal','reportExpenseTotal','reportTransactionCount','reportNetAmount','reportTransactionsTable',
+        'compareDateFrom','compareDateTo','compareGranularity','compareTypeFilter','compareAccountFilter','compareCategoryFilter','compareBy',
+        'accountForm','accountNameInput','accountTypeInput','openingBalanceInput','accountNoteInput','accountsTable',
+        'transactionFormTitle','transactionForm','txDateInput','txTypeInput','txAmountInput','txAccountFromInput','txAccountToInput','txCategoryInput','txExpenseModeInput','txExpenseModeField','txAdjustmentModeInput','txAdjustmentField','txNoteInput','txAccountFromField','txAccountToField','transactionSubmitBtn','transactionCancelEditBtn','transactionsTable','transactionSearchInput','transactionTypeFilter','transactionPageSize','transactionPaginationInfo','transactionPrevBtn','transactionNextBtn','bulkDeleteBtn','clearSelectionBtn','selectedCountLabel'
+      ].forEach(id => el[id] = document.getElementById(id));
     }
 
     function bindEvents() {
-      el.dashboardQuickRange.addEventListener('change', () => {
-  applyDashboardQuickRange(el.dashboardQuickRange.value);
-  renderDashboard();
-});
-
-el.dashboardDateFrom.addEventListener('change', () => {
-  el.dashboardQuickRange.value = 'custom';
-  renderDashboard();
-});
-
-el.dashboardDateTo.addEventListener('change', () => {
-  el.dashboardQuickRange.value = 'custom';
-  renderDashboard();
-});
       el.navMenu.addEventListener('click', handleNavClick);
       el.openTransactionsBtn.addEventListener('click', () => openPage('transactions'));
       el.syncNowTopBtn.addEventListener('click', () => syncCloudData('both'));
@@ -477,9 +632,6 @@ el.dashboardDateTo.addEventListener('change', () => {
       el.settingsExportBtn.addEventListener('click', exportJson);
       el.importJsonInput.addEventListener('change', handleImportJson);
       el.settingsImportInput.addEventListener('change', handleImportJson);
-      if (el.resetDemoBtn) {
-  el.resetDemoBtn.addEventListener('click', resetDemoData);
-}
       el.generalSettingsForm.addEventListener('submit', handleSaveGeneralSettings);
       el.expenseCategoryForm.addEventListener('submit', event => handleAddCategory(event, 'expense'));
       el.incomeCategoryForm.addEventListener('submit', event => handleAddCategory(event, 'income'));
@@ -487,29 +639,96 @@ el.dashboardDateTo.addEventListener('change', () => {
       el.transactionForm.addEventListener('submit', handleTransactionSubmit);
       el.transactionCancelEditBtn.addEventListener('click', cancelTransactionEdit);
       el.txTypeInput.addEventListener('change', updateTransactionFormVisibility);
-      [el.reportAccountFilter, el.reportTypeFilter, el.reportDateFrom, el.reportDateTo].forEach(item => item.addEventListener('change', renderReportsPage));
       el.transactionSearchInput.addEventListener('input', () => { runtime.txList.query = el.transactionSearchInput.value.trim(); runtime.txList.page = 1; renderTransactionsTable(); });
       el.transactionTypeFilter.addEventListener('change', () => { runtime.txList.type = el.transactionTypeFilter.value; runtime.txList.page = 1; renderTransactionsTable(); });
       el.transactionPageSize.addEventListener('change', () => { runtime.txList.pageSize = Number(el.transactionPageSize.value || 10); runtime.txList.page = 1; renderTransactionsTable(); });
       el.transactionPrevBtn.addEventListener('click', () => changeTransactionPage(-1));
       el.transactionNextBtn.addEventListener('click', () => changeTransactionPage(1));
+      el.bulkDeleteBtn.addEventListener('click', bulkDeleteTransactions);
+      el.clearSelectionBtn.addEventListener('click', clearTransactionSelection);
+
+      el.dashboardQuickRange.addEventListener('change', () => { applyQuickRange(el.dashboardQuickRange, el.dashboardDateFrom, el.dashboardDateTo); renderDashboard(); });
+      // FIX DASH-007: validate from <= to
+      el.dashboardDateFrom.addEventListener('change', () => {
+        if (el.dashboardDateTo.value && el.dashboardDateFrom.value > el.dashboardDateTo.value) {
+          alert('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+          el.dashboardDateFrom.value = '';
+          return;
+        }
+        el.dashboardQuickRange.value = 'custom';
+        renderDashboard();
+      });
+      el.dashboardDateTo.addEventListener('change', () => {
+        if (el.dashboardDateFrom.value && el.dashboardDateTo.value < el.dashboardDateFrom.value) {
+          alert('Ngày kết thúc không được nhỏ hơn ngày bắt đầu.');
+          el.dashboardDateTo.value = '';
+          return;
+        }
+        el.dashboardQuickRange.value = 'custom';
+        renderDashboard();
+      });
+      el.dashboardDistributionMode.addEventListener('change', renderDashboard);
+
+      el.reportQuickRange.addEventListener('change', () => { applyQuickRange(el.reportQuickRange, el.reportDateFrom, el.reportDateTo); renderReportsPage(); });
+      el.reportDateFrom.addEventListener('change', () => {
+        if (el.reportDateTo.value && el.reportDateFrom.value > el.reportDateTo.value) {
+          alert('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+          el.reportDateFrom.value = '';
+          return;
+        }
+        el.reportQuickRange.value = 'custom';
+        renderReportsPage();
+      });
+      el.reportDateTo.addEventListener('change', () => {
+        if (el.reportDateFrom.value && el.reportDateTo.value < el.reportDateFrom.value) {
+          alert('Ngày kết thúc không được nhỏ hơn ngày bắt đầu.');
+          el.reportDateTo.value = '';
+          return;
+        }
+        el.reportQuickRange.value = 'custom';
+        renderReportsPage();
+      });
+      [el.reportAccountFilter, el.reportTypeFilter, el.reportExpenseModeFilter].forEach(node => node.addEventListener('change', renderReportsPage));
+
+      // FIX DASH-007 for compare page
+      el.compareDateFrom.addEventListener('change', () => {
+        if (el.compareDateTo.value && el.compareDateFrom.value > el.compareDateTo.value) {
+          alert('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+          el.compareDateFrom.value = '';
+          return;
+        }
+        renderComparePage();
+      });
+      el.compareDateTo.addEventListener('change', () => {
+        if (el.compareDateFrom.value && el.compareDateTo.value < el.compareDateFrom.value) {
+          alert('Ngày kết thúc không được nhỏ hơn ngày bắt đầu.');
+          el.compareDateTo.value = '';
+          return;
+        }
+        renderComparePage();
+      });
+      [el.compareGranularity, el.compareBy].forEach(node => node && node.addEventListener('change', renderComparePage));
+      document.addEventListener('click', handleDocumentClick);
+
       el.cloudLoginForm.addEventListener('submit', handleCloudLogin);
       el.cloudSyncBtn.addEventListener('click', () => syncCloudData('both'));
       el.cloudPullBtn.addEventListener('click', () => syncCloudData('pull'));
       el.cloudLogoutBtn.addEventListener('click', handleCloudLogout);
+
       el.txDateInput.value = formatDateInput(new Date());
       el.dashboardQuickRange.value = '3m';
-      applyDashboardQuickRange('3m');
+      applyQuickRange(el.dashboardQuickRange, el.dashboardDateFrom, el.dashboardDateTo);
+      el.reportQuickRange.value = '3m';
+      applyQuickRange(el.reportQuickRange, el.reportDateFrom, el.reportDateTo);
+      initializeCompareDefaultRange();
       const loginButton = el.cloudLoginForm?.querySelector('button[type="submit"]');
-if (loginButton) {
-  loginButton.textContent = 'Gửi magic link';
-}
+      if (loginButton) loginButton.textContent = 'Gửi magic link';
       updateTransactionFormVisibility();
     }
 
     function bindDatePickerEvents() {
       document.querySelectorAll('input[type="date"]').forEach(input => {
-        const openPicker = () => { if (typeof input.showPicker === 'function') { try { input.showPicker(); } catch (error) {} } };
+        const openPicker = () => { if (typeof input.showPicker === 'function') { try { input.showPicker(); } catch (_) {} } };
         input.addEventListener('focus', openPicker);
         input.addEventListener('click', openPicker);
       });
@@ -521,316 +740,1112 @@ if (loginButton) {
       runtime.auth.session = session || null;
       runtime.auth.user = session?.user || null;
       runtime.auth.lastInfo = runtime.auth.user ? `Đã đăng nhập cloud với ${runtime.auth.user.email}` : 'Chưa đăng nhập cloud.';
+      renderCloudStatus();
+      if (runtime.auth.user) await syncCloudData('pull');
       supabase.auth.onAuthStateChange(async (event, sessionValue) => {
         runtime.auth.session = sessionValue || null;
         runtime.auth.user = sessionValue?.user || null;
         runtime.auth.lastError = '';
         runtime.auth.lastInfo = runtime.auth.user ? `Đăng nhập thành công: ${runtime.auth.user.email}` : 'Đã đăng xuất cloud.';
         renderCloudStatus();
-        if (runtime.auth.user) await syncCloudData('both');
+        if (runtime.auth.user && event !== 'INITIAL_SESSION') await syncCloudData('pull');
       });
     }
 
     function initializeCharts() {
       Chart.defaults.color = 'rgba(233,255,245,0.85)';
       Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
-      runtime.charts.assetDonut = new Chart(document.getElementById('assetDonutChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: CHART_COLORS, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } } });
-      runtime.charts.cashflowLine = new Chart(document.getElementById('cashflowLineChart'), { type: 'line', data: { labels: [], datasets: [{ label: 'Tổng tài sản', data: [], fill: true, tension: 0.28, borderWidth: 3, borderColor: '#35E58D', backgroundColor: 'rgba(53,229,141,0.12)', pointRadius: 3, pointHoverRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-      runtime.charts.monthlyBar = new Chart(document.getElementById('monthlyBarChart'), { type: 'bar', data: { labels: [], datasets: [{ label: 'Thu', data: [], backgroundColor: 'rgba(53,229,141,0.72)', borderRadius: 8 }, { label: 'Chi', data: [], backgroundColor: 'rgba(255,125,125,0.72)', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } } });
-      runtime.charts.expenseDonut = new Chart(document.getElementById('expenseDonutChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: CHART_COLORS, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } } });
-      runtime.charts.incomeDonut = new Chart(document.getElementById('incomeDonutChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: CHART_COLORS, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } } });
+      Chart.defaults.plugins.legend.labels.usePointStyle = true;
+      runtime.charts.assetDonut = createDonutChart('assetDonutChart');
+      runtime.charts.netFlowAllocation = createBarChart('netFlowAllocationChart', true);
+      runtime.charts.dashboardDistributionDonut = createDonutChart('dashboardDistributionDonutChart');
+      runtime.charts.cashflowLine = new Chart(document.getElementById('cashflowLineChart'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Tổng tài sản', data: [], fill: true, tension: 0.28, borderWidth: 3, borderColor: '#35E58D', backgroundColor: 'rgba(53,229,141,0.12)', pointRadius: 3, pointHoverRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: getCommonScales() }
+      });
+      runtime.charts.expenseDonut = createDonutChart('expenseDonutChart');
+      runtime.charts.incomeDonut = createDonutChart('incomeDonutChart');
+      runtime.charts.reportTrendStacked = createStackedBarChart('reportTrendStackedChart', 'Kỳ');
+      runtime.charts.reportExpenseCategoryStacked = createStackedBarChart('reportExpenseCategoryStackedChart', 'Kỳ');
+      runtime.charts.compareStacked = createStackedBarChart('compareStackedChart', 'Kỳ');
+    }
+
+    function createDonutChart(id) {
+      return new Chart(document.getElementById(id), {
+        type: 'doughnut',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: CHART_COLORS, borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    function createBarChart(id, horizontal = false) {
+      return new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels: [], datasets: [{ label: 'Giá trị', data: [], backgroundColor: 'rgba(88,176,255,0.72)', borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, indexAxis: horizontal ? 'y' : 'x', plugins: { legend: { display: false } }, scales: getCommonScales(horizontal) }
+      });
+    }
+
+    function createStackedBarChart(id, xTitle) {
+      return new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, title: { display: false, text: xTitle } }, y: { stacked: true, ticks: { callback: value => compactCurrency(value) } } } }
+      });
+    }
+
+    function getCommonScales(horizontal = false) {
+      return horizontal
+        ? { x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { callback: value => compactCurrency(value) } }, y: { grid: { color: 'rgba(255,255,255,0.04)' } } }
+        : { x: { grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { callback: value => compactCurrency(value) } } };
     }
 
     function createDefaultState() {
       const now = nowIso();
-      const accounts = [makeAccount('Tiền mặt','cash',5000000,''), makeAccount('Ngân hàng 1','bank',7000000,''), makeAccount('Ngân hàng 2','bank',300000,''), makeAccount('Tài khoản tiết kiệm','saving',9500000,''), makeAccount('Tài khoản đầu tư','investment',2000000,'')];
-      const expense = ['Ăn uống','Di chuyển','Sức khỏe','Nhà cửa','Mua sắm','Giải trí','Trả nợ','Chi phí khác'].map(name => makeCategory('expense', name));
-      const income = ['Lương','Thu nợ','Tiền lãi','Thu nhập khác'].map(name => makeCategory('income', name));
-      const acc = name => accounts.find(item => item.name === name)?.id;
-      const exp = name => expense.find(item => item.name === name)?.id;
-      const inc = name => income.find(item => item.name === name)?.id;
-      return {
-        version: 2,
-        meta: { currency: 'VND', themeLabel: 'dark-green', lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() },
-        accounts,
-        categories: { expense, income },
-        transactions: [
-          makeTransaction('income','2026-04-01',22000000,null,acc('Ngân hàng 1'),inc('Lương'),'Lương tháng 4'),
-          makeTransaction('expense','2026-04-02',120000,acc('Tiền mặt'),null,exp('Ăn uống'),'Ăn sáng và cà phê'),
-          makeTransaction('expense','2026-04-03',450000,acc('Ngân hàng 1'),null,exp('Di chuyển'),'Đổ xăng và gửi xe'),
-          makeTransaction('expense','2026-04-05',1800000,acc('Ngân hàng 1'),null,exp('Nhà cửa'),'Tiền điện nước'),
-          makeTransaction('transfer','2026-04-06',5000000,acc('Ngân hàng 1'),acc('Tài khoản tiết kiệm'),null,'Chuyển vào tiết kiệm'),
-          makeTransaction('income','2026-04-08',650000,null,acc('Tài khoản đầu tư'),inc('Tiền lãi'),'Lợi nhuận đầu tư'),
-          makeTransaction('expense','2026-04-10',890000,acc('Ngân hàng 2'),null,exp('Mua sắm'),'Mua đồ dùng cá nhân'),
-          makeTransaction('income','2026-04-12',1800000,null,acc('Tiền mặt'),inc('Thu nhập khác'),'Làm thêm'),
-          makeTransaction('adjustment','2026-04-15',100000,acc('Tiền mặt'),null,null,'Điều chỉnh số dư quỹ tiền mặt'),
-          makeTransaction('income','2026-05-01',22500000,null,acc('Ngân hàng 1'),inc('Lương'),'Lương tháng 5')
-        ]
-      };
+      return { version: 7, meta: { currency: 'VND', themeLabel: 'dark-green', lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() }, accounts: [], categories: { expense: [], income: [] }, transactions: [] };
     }
 
     function makeAccount(name, type, openingBalance, note) { const t = nowIso(); return { id: createId('acc'), name, type, openingBalance: Number(openingBalance || 0), note, created_at: t, updated_at: t, deleted_at: null }; }
     function makeCategory(kind, name) { const t = nowIso(); return { id: createId(kind === 'expense' ? 'exp' : 'inc'), kind, name, created_at: t, updated_at: t, deleted_at: null }; }
-    function makeTransaction(type, date, amount, accountFromId, accountToId, categoryId, note) { const t = nowIso(); return { id: createId('tx'), type, date, amount: Number(amount || 0), accountFromId, accountToId, categoryId, note, deviceId: createStableDeviceId(), created_at: t, updated_at: t, deleted_at: null }; }
 
-    function renderAll() { fillBaseForms(); renderCloudStatus(); renderSettingsPage(); renderAccountsPage(); renderTransactionFormOptions(); renderTransactionsTable(); renderDashboard(); renderReportsPage(); logStateSnapshot('renderAll'); }
-    function fillBaseForms() { el.currencyInput.value = state.meta.currency || 'VND'; el.themeLabelInput.value = state.meta.themeLabel || 'dark-green'; fillAccountSelect(el.reportAccountFilter, true, 'Tất cả tài khoản'); fillAccountSelect(el.txAccountFromInput, false); fillAccountSelect(el.txAccountToInput, false); updateTransactionFormVisibility(); }
-    function renderSettingsPage() { renderCategoryList('expense', el.expenseCategoryList); renderCategoryList('income', el.incomeCategoryList); }
+    function applyTheme(themeName = state?.meta?.themeLabel || 'dark-green') {
+      const allowedThemes = ['dark-green', 'dark-blue', 'light'];
+      const finalTheme = allowedThemes.includes(themeName) ? themeName : 'dark-green';
+      document.body.classList.remove('theme-dark-green', 'theme-dark-blue', 'theme-light');
+      document.body.classList.add(`theme-${finalTheme}`);
+    }
+
+    function renderAll() {
+      applyTheme(state.meta.themeLabel || 'dark-green');
+      fillBaseForms();
+      renderCloudStatus();
+      renderSettingsPage();
+      renderAccountsPage();
+      renderTransactionFormOptions();
+      renderTransactionsTable();
+      renderDashboard();
+      renderReportsPage();
+      renderComparePage();
+      updateSelectedCountLabel();
+      logStateSnapshot('renderAll');
+    }
+
+    function fillBaseForms() {
+      el.currencyInput.value = state.meta.currency || 'VND';
+      el.themeLabelInput.value = state.meta.themeLabel || 'dark-green';
+      fillAccountSelect(el.reportAccountFilter, true, 'Tất cả tài khoản');
+      fillCompareAccountFilter();
+      fillAccountSelect(el.txAccountFromInput, false);
+      fillAccountSelect(el.txAccountToInput, false);
+      fillCompareCategoryFilter();
+      updateTransactionFormVisibility();
+    }
+
+    function renderSettingsPage() {
+      renderCategoryList('expense', el.expenseCategoryList);
+      renderCategoryList('income', el.incomeCategoryList);
+    }
+
     function renderCloudStatus() {
-      const user = runtime.auth.user; const lastCloudSync = state.meta.lastCloudSyncAt ? new Date(state.meta.lastCloudSyncAt).toLocaleString('vi-VN') : 'Chưa có'; const lastSaved = state.meta.lastSavedAt ? new Date(state.meta.lastSavedAt).toLocaleString('vi-VN') : 'Chưa có';
-      el.cloudStatusBox.innerHTML = `<div><span class="pill pill-cloud">Cloud ${user ? 'đã kết nối' : 'chưa kết nối'}</span></div><div><strong>Trạng thái:</strong> ${escapeHtml(runtime.auth.lastInfo || '')}</div><div><strong>Lưu local gần nhất:</strong> ${escapeHtml(lastSaved)}</div><div><strong>Đồng bộ cloud gần nhất:</strong> ${escapeHtml(lastCloudSync)}</div><div><strong>Thiết bị:</strong> ${escapeHtml(state.meta.deviceId)}</div>${runtime.auth.lastError ? `<div style="color:${'var(--danger)'}"><strong>Lỗi:</strong> ${escapeHtml(runtime.auth.lastError)}</div>` : ''}`;
-      el.cloudSyncBtn.disabled = !user || runtime.auth.busy; el.cloudPullBtn.disabled = !user || runtime.auth.busy; el.cloudLogoutBtn.disabled = !user || runtime.auth.busy; el.syncNowTopBtn.disabled = !user || runtime.auth.busy;
+      const user = runtime.auth.user;
+      const lastCloudSync = state.meta.lastCloudSyncAt ? new Date(state.meta.lastCloudSyncAt).toLocaleString('vi-VN') : 'Chưa có';
+      const lastSaved = state.meta.lastSavedAt ? new Date(state.meta.lastSavedAt).toLocaleString('vi-VN') : 'Chưa có';
+      el.cloudStatusBox.innerHTML = `<div><span class="pill pill-cloud">Cloud ${user ? 'đã kết nối' : 'chưa kết nối'}</span></div><div><strong>Trạng thái:</strong> ${escapeHtml(runtime.auth.lastInfo || '')}</div><div><strong>Lưu local gần nhất:</strong> ${escapeHtml(lastSaved)}</div><div><strong>Đồng bộ cloud gần nhất:</strong> ${escapeHtml(lastCloudSync)}</div><div><strong>Thiết bị:</strong> ${escapeHtml(state.meta.deviceId)}</div>${runtime.auth.lastError ? `<div style="color:#ff7d7d"><strong>Lỗi:</strong> ${escapeHtml(runtime.auth.lastError)}</div>` : ''}`;
+      el.cloudSyncBtn.disabled = !user || runtime.auth.busy;
+      el.cloudPullBtn.disabled = !user || runtime.auth.busy;
+      el.cloudLogoutBtn.disabled = !user || runtime.auth.busy;
+      el.syncNowTopBtn.disabled = !user || runtime.auth.busy;
     }
-    function renderAccountsPage() { const accounts = getActiveAccounts(); const balances = calculateAccountBalances(); if (!accounts.length) { el.accountsTable.innerHTML = '<div class="empty-state">Chưa có tài khoản nào.</div>'; return; } el.accountsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Tên tài khoản</th><th>Loại</th><th>Số dư khởi tạo</th><th>Số dư hiện tại</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${accounts.map(account => { const balance = balances[account.id] || 0; const linked = getActiveTransactions().some(tx => tx.accountFromId === account.id || tx.accountToId === account.id); return `<tr><td>${escapeHtml(account.name)}</td><td>${mapAccountType(account.type)}</td><td>${formatCurrency(account.openingBalance)}</td><td><strong>${formatCurrency(balance)}</strong></td><td>${escapeHtml(account.note || '-')}</td><td><button class="btn btn-secondary" type="button" onclick="window.softDeleteAccount('${account.id}')" ${linked ? 'disabled' : ''}>Xóa</button></td></tr>`; }).join('')}</tbody></table></div>`; }
-    function applyDashboardQuickRange(mode = '3m') {
-  const today = new Date();
-  let from = '';
-  let to = formatDateInput(today);
 
-  if (mode === '3m') {
-    from = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
-  } else if (mode === '30d') {
-    const start = new Date(today);
-    start.setDate(start.getDate() - 29);
-    from = formatDateInput(start);
-  } else if (mode === 'ytd') {
-    from = formatDateInput(new Date(today.getFullYear(), 0, 1));
-  } else if (mode === 'all') {
-    from = '';
-    to = '';
-  } else {
-    return;
-  }
+    function renderAccountsPage() {
+      const accounts = getActiveAccounts();
+      const balances = calculateAccountBalances();
+      if (!accounts.length) { el.accountsTable.innerHTML = '<div class="empty-state">Chưa có tài khoản nào.</div>'; return; }
+      const utdNow = nowIso();
+      el.accountsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Tên tài khoản</th><th>Loại</th><th>Số dư khởi tạo</th><th>Số dư hiện tại</th><th>Ngày khởi tạo</th><th>UTD</th><th>Khoảng thời gian</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${accounts.map(account => {
+        const linked = getActiveTransactions().some(tx => tx.accountFromId === account.id || tx.accountToId === account.id);
+        return `<tr><td>${escapeHtml(account.name)}</td><td>${mapAccountType(account.type)}</td><td>${formatCurrency(account.openingBalance)}</td><td><strong>${formatCurrency(balances[account.id] || 0)}</strong></td><td>${formatDateTime(account.created_at)}</td><td>${formatDateTime(utdNow)}</td><td>${formatDurationBetween(account.created_at, utdNow)}</td><td>${escapeHtml(account.note || '-')}</td><td><button class="btn btn-secondary" type="button" onclick="window.softDeleteAccount('${account.id}')" ${linked ? 'disabled' : ''}>Xóa</button></td></tr>`;
+      }).join('')}</tbody></table></div>`;
+    }
 
-  el.dashboardDateFrom.value = from;
-  el.dashboardDateTo.value = to;
-}
-
-function getDashboardDateRange() {
-  return {
-    from: el.dashboardDateFrom.value || '',
-    to: el.dashboardDateTo.value || ''
-  };
-}
-
-function getFilteredDashboardTransactions() {
-  const { from, to } = getDashboardDateRange();
-
-  return getActiveTransactions().filter(tx => {
-    const matchFrom = from ? tx.date >= from : true;
-    const matchTo = to ? tx.date <= to : true;
-    return matchFrom && matchTo;
-  });
-}
     function renderDashboard() {
-      const balances = calculateAccountBalances(); const netWorth = Object.values(balances).reduce((sum, value) => sum + value, 0); const transactions = getFilteredDashboardTransactions(); const incomeTotal = transactions.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + tx.amount, 0); const expenseTotal = transactions.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0); const netFlow = incomeTotal - expenseTotal;
-      el.metricNetWorth.textContent = formatCurrency(netWorth); el.metricIncome.textContent = formatCurrency(incomeTotal); el.metricExpense.textContent = formatCurrency(expenseTotal); el.metricNetFlow.textContent = formatCurrency(netFlow); el.metricNetFlow.className = 'metric-value ' + (netFlow >= 0 ? 'metric-positive' : 'metric-negative');
-      const accounts = getActiveAccounts(); const assetLabels = accounts.map(a => a.name); const assetValues = accounts.map(a => balances[a.id] || 0); updateDonutChart(runtime.charts.assetDonut, assetLabels, assetValues); renderAssetLegend(assetLabels, assetValues);
-      const { from } = getDashboardDateRange();
-const lineData = buildNetWorthSeries(transactions, from);
-const monthlyData = buildMonthlyIncomeExpenseSeries(transactions);
-runtime.charts.cashflowLine.data.labels = lineData.labels;
-runtime.charts.cashflowLine.data.datasets[0].data = lineData.values;
-runtime.charts.cashflowLine.update();
-
-runtime.charts.monthlyBar.data.labels = monthlyData.labels;
-runtime.charts.monthlyBar.data.datasets[0].data = monthlyData.income;
-runtime.charts.monthlyBar.data.datasets[1].data = monthlyData.expense;
-runtime.charts.monthlyBar.update();
-renderRecentTransactions();
+      const balances = calculateAccountBalances();
+      const transactions = getFilteredDashboardTransactions();
+      const incomeTotal = sumBy(transactions.filter(tx => tx.type === 'income'), 'amount');
+      const expenseTotal = sumBy(transactions.filter(tx => tx.type === 'expense'), 'amount');
+      const netFlow = incomeTotal - expenseTotal;
+      el.metricNetWorth.textContent = formatCurrency(Object.values(balances).reduce((sum, v) => sum + v, 0));
+      el.metricIncome.textContent = formatCurrency(incomeTotal);
+      el.metricExpense.textContent = formatCurrency(expenseTotal);
+      el.metricNetFlow.textContent = formatCurrency(netFlow);
+      el.metricNetFlow.className = 'metric-value ' + (netFlow >= 0 ? 'metric-positive' : 'metric-negative');
+      const accounts = getActiveAccounts();
+      const assetLabels = accounts.map(a => a.name);
+      const assetValues = accounts.map(a => balances[a.id] || 0);
+      updateDonutChart(runtime.charts.assetDonut, assetLabels, assetValues);
+      renderAssetLegend(assetLabels, assetValues);
+      const { from } = getDateRangeFromInputs(el.dashboardDateFrom, el.dashboardDateTo);
+      const lineData = buildNetWorthSeries(transactions, from);
+      runtime.charts.cashflowLine.data.labels = lineData.labels;
+      runtime.charts.cashflowLine.data.datasets[0].data = lineData.values;
+      runtime.charts.cashflowLine.update();
+      renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow);
+      updateDashboardDistributionDonut(transactions, el.dashboardDistributionMode.value);
     }
-    function renderReportsPage() { const filtered = getFilteredReportTransactions(); const incomeTotal = filtered.filter(tx => tx.type === 'income').reduce((sum, tx) => sum + tx.amount, 0); const expenseTotal = filtered.filter(tx => tx.type === 'expense').reduce((sum, tx) => sum + tx.amount, 0); const netAmount = incomeTotal - expenseTotal; el.reportIncomeTotal.textContent = formatCurrency(incomeTotal); el.reportExpenseTotal.textContent = formatCurrency(expenseTotal); el.reportTransactionCount.textContent = String(filtered.length); el.reportNetAmount.textContent = formatCurrency(netAmount); el.reportNetAmount.className = 'metric-value ' + (netAmount >= 0 ? 'metric-positive' : 'metric-negative'); updateDonutChart(runtime.charts.expenseDonut, Object.keys(aggregateByCategory(filtered.filter(tx => tx.type === 'expense'))), Object.values(aggregateByCategory(filtered.filter(tx => tx.type === 'expense')))); updateDonutChart(runtime.charts.incomeDonut, Object.keys(aggregateByCategory(filtered.filter(tx => tx.type === 'income'))), Object.values(aggregateByCategory(filtered.filter(tx => tx.type === 'income')))); renderReportTransactionsTable(filtered); }
-    function renderReportTransactionsTable(items) { if (!items.length) { el.reportTransactionsTable.innerHTML = '<div class="empty-state">Không có giao dịch phù hợp với bộ lọc hiện tại.</div>'; return; } el.reportTransactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Loại</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th></tr></thead><tbody>${[...items].sort((a,b) => new Date(b.date) - new Date(a.date) || compareIso(b.updated_at, a.updated_at)).map(tx => `<tr><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note || '-')}</td></tr>`).join('')}</tbody></table></div>`; }
-    function renderRecentTransactions(sourceTransactions = getActiveTransactions()) { const items = [...sourceTransactions].sort((a,b) => new Date(b.date) - new Date(a.date) || compareIso(b.updated_at, a.updated_at)).slice(0,10); if (!items.length) { el.recentTransactionsList.innerHTML = '<div class="empty-state">Chưa có giao dịch nào để hiển thị.</div>'; return; } el.recentTransactionsList.innerHTML = `<div class="list-simple">${items.map(tx => `<div class="list-item"><div><strong>${escapeHtml(getCategoryNameByTransaction(tx))}</strong><span>${formatDateDisplay(tx.date)} · ${escapeHtml(getTransactionAccountText(tx))}</span></div><div style="text-align:right;">${getTypeBadge(tx.type)}<div style="margin-top:8px;font-weight:700;">${formatCurrency(tx.amount)}</div></div></div>`).join('')}</div>`; }
+
+    function renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow) {
+      const allocation = buildNetFlowAllocationByAccount(transactions, netFlow);
+      const labels = allocation.labels.length ? allocation.labels : ['Không có dữ liệu'];
+      const values = allocation.values.length ? allocation.values : [0];
+      runtime.charts.netFlowAllocation.data.labels = labels;
+      runtime.charts.netFlowAllocation.data.datasets[0].data = values;
+      runtime.charts.netFlowAllocation.data.datasets[0].backgroundColor = values.map(v => v >= 0 ? 'rgba(53,229,141,0.72)' : 'rgba(255,125,125,0.72)');
+      runtime.charts.netFlowAllocation.update();
+      const detail = allocation.labels.length
+        ? allocation.labels.map((label, i) => `${pill(label, values[i] >= 0 ? 'pill-income' : 'pill-expense')} ${pill(formatCurrency(values[i]), values[i] >= 0 ? 'pill-income' : 'pill-expense')}`).join(' ')
+        : pill(netFlow === 0 ? 'Không phát sinh dòng tiền ròng trong kỳ lọc' : 'Không xác định được phân bổ', 'pill-adjustment');
+      el.netFlowSummary.innerHTML = `${pill('Thu nhập','pill-income')} ${pill(formatCurrency(incomeTotal),'pill-income')} ${pill('Chi tiêu','pill-expense')} ${pill(formatCurrency(expenseTotal),'pill-expense')} ${pill('Ròng',netFlow>=0?'pill-income':'pill-expense')} ${pill(formatCurrency(netFlow),netFlow>=0?'pill-income':'pill-expense')} ${detail}`;
+    }
+
+    function buildNetFlowAllocationByAccount(transactions, netFlow) {
+      if (!transactions.length || netFlow === 0) return { labels: [], values: [] };
+      const deltas = {};
+      getActiveAccounts().forEach(a => { deltas[a.id] = 0; });
+      transactions.forEach(tx => {
+        if (tx.type === 'income' && tx.accountToId) deltas[tx.accountToId] = (deltas[tx.accountToId] || 0) + tx.amount;
+        else if (tx.type === 'expense' && tx.accountFromId) deltas[tx.accountFromId] = (deltas[tx.accountFromId] || 0) - tx.amount;
+        else if (tx.type === 'transfer') {
+          if (tx.accountFromId) deltas[tx.accountFromId] = (deltas[tx.accountFromId] || 0) - tx.amount;
+          if (tx.accountToId) deltas[tx.accountToId] = (deltas[tx.accountToId] || 0) + tx.amount;
+        } else if (tx.type === 'adjustment' && tx.accountFromId) deltas[tx.accountFromId] = (deltas[tx.accountFromId] || 0) + tx.amount;
+      });
+      const direction = netFlow > 0 ? 1 : -1;
+      const sameDir = getActiveAccounts().map(a => ({ label: a.name, raw: deltas[a.id] || 0 })).filter(r => direction > 0 ? r.raw > 0 : r.raw < 0);
+      const base = sumBy(sameDir.map(r => ({ amount: Math.abs(r.raw) })), 'amount');
+      if (!sameDir.length || base === 0) return { labels: [], values: [] };
+      const rows = sameDir.map(r => ({ label: r.label, value: Number(((Math.abs(r.raw) / base) * Math.abs(netFlow) * direction).toFixed(2)) }));
+      return { labels: rows.map(r => r.label), values: rows.map(r => r.value) };
+    }
+
+    function updateDashboardDistributionDonut(transactions, mode) {
+      const list = transactions.filter(tx => tx.type === mode);
+      const map = aggregateByCategory(list);
+      updateDonutChart(runtime.charts.dashboardDistributionDonut, Object.keys(map), Object.values(map));
+    }
+
+    function renderReportsPage() {
+      const filtered = getFilteredReportTransactions();
+      const incomeTotal = sumBy(filtered.filter(tx => tx.type === 'income'), 'amount');
+      const expenseTotal = sumBy(filtered.filter(tx => tx.type === 'expense'), 'amount');
+      const netAmount = incomeTotal - expenseTotal;
+      el.reportIncomeTotal.textContent = formatCurrency(incomeTotal);
+      el.reportExpenseTotal.textContent = formatCurrency(expenseTotal);
+      el.reportTransactionCount.textContent = String(filtered.length);
+      el.reportNetAmount.textContent = formatCurrency(netAmount);
+      el.reportNetAmount.className = 'metric-value ' + (netAmount >= 0 ? 'metric-positive' : 'metric-negative');
+      const expFiltered = filtered.filter(tx => tx.type === 'expense');
+      const incFiltered = filtered.filter(tx => tx.type === 'income');
+      updateDonutChart(runtime.charts.expenseDonut, Object.keys(aggregateByCategory(expFiltered)), Object.values(aggregateByCategory(expFiltered)));
+      updateDonutChart(runtime.charts.incomeDonut, Object.keys(aggregateByCategory(incFiltered)), Object.values(aggregateByCategory(incFiltered)));
+      renderReportTrendStackedChart(filtered);
+      renderReportExpenseCategoryStackedChart(expFiltered);
+      renderReportTransactionsTable(filtered);
+      toggleReportExpenseModeVisibility();
+    }
+
+    function renderReportTrendStackedChart(transactions) {
+      const grouped = groupTransactionsByPeriod(transactions.filter(tx => tx.type === 'income' || tx.type === 'expense'), 'month');
+      const labels = Object.keys(grouped).sort();
+      runtime.charts.reportTrendStacked.data.labels = labels.length ? labels : ['Chưa có dữ liệu'];
+      runtime.charts.reportTrendStacked.data.datasets = [
+        { label: 'Thu nhập', data: labels.map(l => sumBy(grouped[l].filter(tx => tx.type === 'income'), 'amount')), backgroundColor: 'rgba(53,229,141,0.72)' },
+        { label: 'Chi tiêu', data: labels.map(l => sumBy(grouped[l].filter(tx => tx.type === 'expense'), 'amount')), backgroundColor: 'rgba(255,125,125,0.72)' }
+      ];
+      runtime.charts.reportTrendStacked.update();
+    }
+
+    function renderReportExpenseCategoryStackedChart(expenseTransactions) {
+      const grouped = groupTransactionsByPeriod(expenseTransactions, 'month');
+      const labels = Object.keys(grouped).sort();
+      const categories = [...new Set(expenseTransactions.map(tx => getCategoryNameByTransaction(tx)))];
+      runtime.charts.reportExpenseCategoryStacked.data.labels = labels.length ? labels : ['Chưa có dữ liệu'];
+      runtime.charts.reportExpenseCategoryStacked.data.datasets = categories.map((cat, i) => ({
+        label: cat,
+        data: labels.map(l => sumBy(grouped[l].filter(tx => getCategoryNameByTransaction(tx) === cat), 'amount')),
+        backgroundColor: CHART_COLORS[i % CHART_COLORS.length]
+      }));
+      runtime.charts.reportExpenseCategoryStacked.update();
+    }
+
+    function renderReportTransactionsTable(items) {
+      if (!items.length) { el.reportTransactionsTable.innerHTML = '<div class="empty-state">Không có giao dịch phù hợp với bộ lọc hiện tại.</div>'; return; }
+      el.reportTransactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Loại</th><th>Chi tiêu</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th></tr></thead><tbody>${[...items].sort(sortTransactionsDesc).map(tx => `<tr><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${tx.type==='expense'?getExpenseModeBadge(tx.expenseMode):'-'}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note||'-')}</td></tr>`).join('')}</tbody></table></div>`;
+    }
+
+    // FIX CMP-013: compare page renders chart only, dropdowns re-bind their own change events
+    function renderComparePage() {
+      fillCompareTypeFilter();
+      fillCompareAccountFilter();
+      fillCompareCategoryFilter();
+      renderCompareChart();
+    }
+
+    function renderCompareChart() {
+      const filtered = getFilteredCompareTransactions();
+      const grouped = groupTransactionsByPeriod(filtered, el.compareGranularity.value);
+      const labels = Object.keys(grouped).sort();
+      const compareBy = el.compareBy.value;
+      const seriesNames = getCompareSeriesNames(filtered, compareBy);
+      runtime.charts.compareStacked.data.labels = labels.length ? labels : ['Chưa có dữ liệu'];
+      runtime.charts.compareStacked.data.datasets = seriesNames.map((name, i) => ({
+        label: name,
+        data: labels.map(l => sumBy(grouped[l].filter(tx => getCompareSeriesKey(tx, compareBy) === name), 'amount')),
+        backgroundColor: CHART_COLORS[i % CHART_COLORS.length]
+      }));
+      runtime.charts.compareStacked.update();
+    }
+
+    function getCompareSeriesNames(transactions, compareBy) {
+      if (!transactions.length) return ['Không có dữ liệu'];
+      return [...new Set(transactions.map(tx => getCompareSeriesKey(tx, compareBy)))];
+    }
+
+    function getCompareSeriesKey(tx, compareBy) {
+      if (compareBy === 'account') return getTransactionAccountText(tx);
+      if (compareBy === 'category') return getCategoryNameByTransaction(tx);
+      return tx.type === 'income' ? 'Thu nhập' : tx.type === 'expense' ? 'Chi tiêu' : tx.type === 'transfer' ? 'Chuyển khoản nội bộ' : 'Điều chỉnh số dư';
+    }
+
+    function handleDocumentClick(event) {
+      const trigger = event.target.closest('.multi-trigger');
+      const container = event.target.closest('.multi-dropdown');
+      if (trigger && container) {
+        const willOpen = !container.classList.contains('open');
+        closeAllMultiDropdowns();
+        if (willOpen) {
+          container.classList.add('open');
+          // FIX CMP-011: flip dropdown if near bottom of viewport
+          requestAnimationFrame(() => {
+            const menu = container.querySelector('.multi-menu');
+            if (!menu) return;
+            const rect = menu.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight - 16) {
+              container.classList.add('flip-up');
+            } else {
+              container.classList.remove('flip-up');
+            }
+          });
+        }
+        return;
+      }
+      if (!container) closeAllMultiDropdowns();
+    }
+
+    function closeAllMultiDropdowns() {
+      document.querySelectorAll('.multi-dropdown.open').forEach(n => { n.classList.remove('open'); n.classList.remove('flip-up'); });
+    }
+
+    // FIX CMP-013: renderCustomMultiDropdown binds change events that only update chart, not rebuild dropdown
+    function renderCustomMultiDropdown(container, options, selectedValues, placeholder, onChangeFn) {
+      if (!container) return;
+      const selectedSet = new Set(selectedValues || []);
+      const summary = getMultiDropdownSummary(options, selectedSet, placeholder);
+      const wasOpen = container.classList.contains('open');
+      container.innerHTML = `
+        <button type="button" class="btn btn-secondary multi-trigger">
+          <span id="summary-${container.id}">${summary}</span>
+          <span class="muted">${selectedSet.size ? `${selectedSet.size} mục` : 'Tất cả'}</span>
+        </button>
+        <div class="multi-menu">
+          ${options.length ? options.map(opt => `
+            <label class="multi-option">
+              <input type="checkbox" value="${escapeHtml(opt.value)}" ${selectedSet.has(opt.value) ? 'checked' : ''} />
+              <span>${escapeHtml(opt.label)}</span>
+            </label>
+          `).join('') : '<div class="multi-empty">Không có lựa chọn</div>'}
+        </div>
+      `;
+      if (wasOpen) container.classList.add('open');
+      // Bind checkbox changes — update summary label + trigger chart only, no full re-render
+      container.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', () => {
+          const checkedVals = [...container.querySelectorAll('input[type="checkbox"]:checked')].map(i => i.value);
+          const newSet = new Set(checkedVals);
+          const newSummary = getMultiDropdownSummary(options, newSet, placeholder);
+          const summaryEl = container.querySelector(`#summary-${container.id}`);
+          if (summaryEl) summaryEl.textContent = newSummary;
+          const countEl = container.querySelector('.muted');
+          if (countEl) countEl.textContent = newSet.size ? `${newSet.size} mục` : 'Tất cả';
+          if (onChangeFn) onChangeFn();
+        });
+      });
+    }
+
+    function getMultiDropdownSummary(options, selectedSet, placeholder) {
+      if (!selectedSet.size) return placeholder;
+      const sel = options.filter(o => selectedSet.has(o.value));
+      if (sel.length === 1) return sel[0].label;
+      if (sel.length === options.length) return `Tất cả ${options.length} mục`;
+      return `Đã chọn ${sel.length} mục`;
+    }
+
+    function renderCategoryList(type, container) {
+      const list = getActiveCategories(type);
+      if (!list.length) { container.innerHTML = '<div class="empty-state">Chưa có phân loại nào.</div>'; return; }
+      container.innerHTML = `<div class="list-simple">${list.map(item => `<div class="list-item"><div><strong>${escapeHtml(item.name)}</strong><span>${type==='expense'?'Danh mục chi tiêu':'Danh mục thu nhập'}</span></div><button class="btn btn-secondary" type="button" onclick="window.softDeleteCategory('${type}','${item.id}')">Xóa</button></div>`).join('')}</div>`;
+    }
+
+    function renderAssetLegend(labels, values) {
+      const total = values.reduce((s, v) => s + v, 0);
+      if (!labels.length || total === 0) { el.assetLegend.innerHTML = '<div class="empty-state">Chưa đủ dữ liệu để hiển thị tỷ trọng tài sản.</div>'; return; }
+      el.assetLegend.innerHTML = labels.map((l, i) => `<div class="legend-row"><span class="legend-swatch" style="background:${CHART_COLORS[i%CHART_COLORS.length]}"></span><span>${escapeHtml(l)}</span><span>${formatCurrency(values[i]||0)} · ${(((values[i]||0)/total)*100).toFixed(1)}%</span></div>`).join('');
+    }
+
+    function renderTransactionFormOptions() {
+      fillAccountSelect(el.txAccountFromInput, false);
+      fillAccountSelect(el.txAccountToInput, false);
+      updateTransactionCategoryOptions();
+      updateTransactionFormVisibility();
+    }
+
+    function updateTransactionCategoryOptions() {
+      const type = el.txTypeInput.value;
+      const items = type === 'expense' ? getActiveCategories('expense') : type === 'income' ? getActiveCategories('income') : [];
+      el.txCategoryInput.innerHTML = (!items.length || type === 'transfer' || type === 'adjustment') ? '<option value="">Không áp dụng</option>' : items.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+    }
+
+    function updateTransactionFormVisibility() {
+      updateTransactionCategoryOptions();
+      const type = el.txTypeInput.value;
+      el.txAccountFromField.classList.remove('hidden');
+      el.txAccountToField.classList.remove('hidden');
+      el.txAdjustmentField.classList.add('hidden');
+      el.txExpenseModeField.classList.add('hidden');
+      el.txCategoryInput.disabled = false;
+      if (type === 'expense') {
+        el.txAccountFromField.querySelector('label').textContent = 'Tài khoản nguồn';
+        el.txAccountToField.classList.add('hidden');
+        el.txExpenseModeField.classList.remove('hidden');
+      } else if (type === 'income') {
+        el.txAccountToField.querySelector('label').textContent = 'Tài khoản nhận tiền';
+        el.txAccountFromField.classList.add('hidden');
+      } else if (type === 'transfer') {
+        el.txAccountFromField.querySelector('label').textContent = 'Tài khoản nguồn';
+        el.txAccountToField.querySelector('label').textContent = 'Tài khoản đích';
+        el.txCategoryInput.disabled = true;
+      } else {
+        el.txAccountFromField.querySelector('label').textContent = 'Tài khoản bị điều chỉnh';
+        el.txAccountToField.classList.add('hidden');
+        el.txAdjustmentField.classList.remove('hidden');
+        el.txCategoryInput.disabled = true;
+      }
+    }
+
+    function renderTransactionsTable() {
+      const all = getFilteredTransactionsForList();
+      const totalPages = Math.max(1, Math.ceil(all.length / runtime.txList.pageSize));
+      runtime.txList.page = Math.min(runtime.txList.page, totalPages);
+      const start = (runtime.txList.page - 1) * runtime.txList.pageSize;
+      const pageItems = all.slice(start, start + runtime.txList.pageSize);
+      if (!all.length) {
+        el.transactionsTable.innerHTML = '<div class="empty-state">Không có giao dịch phù hợp với bộ lọc tìm kiếm hiện tại.</div>';
+        el.transactionPaginationInfo.textContent = 'Trang 1 / 1';
+        el.transactionPrevBtn.disabled = true;
+        el.transactionNextBtn.disabled = true;
+        return;
+      }
+      el.transactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="selectAllTransactions" ${pageItems.every(i => runtime.txList.selectedIds.has(i.id)) ? 'checked' : ''}></th><th>Ngày</th><th>Loại</th><th>Chi tiêu</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${pageItems.map(tx => `<tr><td><input type="checkbox" class="tx-select" data-id="${tx.id}" ${runtime.txList.selectedIds.has(tx.id)?'checked':''}></td><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${tx.type==='expense'?getExpenseModeBadge(tx.expenseMode):'-'}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note||'-')}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" onclick="window.startEditTransaction('${tx.id}')">Sửa</button><button class="btn btn-danger" type="button" onclick="window.softDeleteTransaction('${tx.id}')">Xóa</button></div></td></tr>`).join('')}</tbody></table></div>`;
+      bindTransactionSelectionEvents();
+      el.transactionPaginationInfo.textContent = `Trang ${runtime.txList.page} / ${totalPages} · ${all.length} giao dịch`;
+      el.transactionPrevBtn.disabled = runtime.txList.page <= 1;
+      el.transactionNextBtn.disabled = runtime.txList.page >= totalPages;
+      updateSelectedCountLabel();
+    }
+
+    function bindTransactionSelectionEvents() {
+      const selectAll = document.getElementById('selectAllTransactions');
+      if (selectAll) {
+        selectAll.addEventListener('change', () => {
+          document.querySelectorAll('.tx-select').forEach(n => {
+            const id = n.dataset.id; n.checked = selectAll.checked;
+            if (selectAll.checked) runtime.txList.selectedIds.add(id); else runtime.txList.selectedIds.delete(id);
+          });
+          updateSelectedCountLabel();
+        });
+      }
+      document.querySelectorAll('.tx-select').forEach(n => {
+        n.addEventListener('change', () => {
+          const id = n.dataset.id;
+          if (n.checked) runtime.txList.selectedIds.add(id); else runtime.txList.selectedIds.delete(id);
+          updateSelectedCountLabel();
+        });
+      });
+    }
+
+    function updateSelectedCountLabel() { el.selectedCountLabel.textContent = `Đã chọn ${runtime.txList.selectedIds.size} mục`; }
+
+    function clearTransactionSelection() { runtime.txList.selectedIds.clear(); renderTransactionsTable(); }
+
+    function bulkDeleteTransactions() {
+      if (!runtime.txList.selectedIds.size) { alert('Chưa có giao dịch nào được chọn.'); return; }
+      if (!confirm(`Bạn muốn xóa ${runtime.txList.selectedIds.size} giao dịch đã chọn?`)) return;
+      const deletedAt = nowIso();
+      state.transactions.forEach(tx => {
+        if (runtime.txList.selectedIds.has(tx.id) && !tx.deleted_at) { tx.deleted_at = deletedAt; tx.updated_at = deletedAt; tx.deviceId = state.meta.deviceId; }
+      });
+      runtime.txList.selectedIds.clear();
+      persistState();
+      renderAll();
+    }
+
+    function getFilteredTransactionsForList() {
+      const keyword = runtime.txList.query.toLowerCase();
+      const selectedType = runtime.txList.type;
+      return [...getActiveTransactions()]
+        .filter(tx => selectedType === 'all' ? true : tx.type === selectedType)
+        .filter(tx => {
+          if (!keyword) return true;
+          const haystack = [tx.date, String(tx.amount), tx.note||'', getTransactionAccountText(tx), getCategoryNameByTransaction(tx), tx.expenseMode||''].join(' ').toLowerCase();
+          return haystack.includes(keyword);
+        })
+        .sort(sortTransactionsDesc);
+    }
+
+    function changeTransactionPage(offset) {
+      const all = getFilteredTransactionsForList();
+      const totalPages = Math.max(1, Math.ceil(all.length / runtime.txList.pageSize));
+      runtime.txList.page = Math.min(totalPages, Math.max(1, runtime.txList.page + offset));
+      renderTransactionsTable();
+    }
+
+    async function handleCloudLogin(event) {
+      event.preventDefault();
+      const email = (el.cloudEmailInput.value || '').trim();
+      if (!email) { alert('Vui lòng nhập email để đăng nhập cloud.'); return; }
+      if (Date.now() < runtime.loginCooldownUntil) { const s = Math.ceil((runtime.loginCooldownUntil - Date.now()) / 1000); alert(`Vui lòng chờ ${s} giây rồi thử lại.`); return; }
+      runtime.auth.busy = true; renderCloudStatus();
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: getSiteURL() } });
+      runtime.auth.busy = false;
+      if (error) {
+        runtime.auth.lastError = error.message || '';
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('rate limit') || msg.includes('too many requests') || msg.includes('email rate limit exceeded')) {
+          startMagicLinkCooldown(60);
+          runtime.auth.lastInfo = 'Bạn vừa gửi quá nhanh. Hệ thống đã tạm khóa gửi lại trong 60 giây.';
+        } else { runtime.auth.lastInfo = 'Không gửi được magic link.'; }
+      } else {
+        runtime.auth.lastError = '';
+        runtime.auth.lastInfo = `Đã gửi magic link tới ${email}.`;
+        startMagicLinkCooldown(60);
+      }
+      renderCloudStatus();
+    }
+
+    async function handleCloudLogout() {
+      runtime.auth.busy = true; renderCloudStatus();
+      const { error } = await supabase.auth.signOut();
+      runtime.auth.busy = false;
+      runtime.auth.lastError = error ? error.message : '';
+      runtime.auth.lastInfo = error ? runtime.auth.lastInfo : 'Đã đăng xuất cloud.';
+      renderCloudStatus();
+    }
+
+    async function syncCloudData(mode = 'both') {
+      if (!runtime.auth.user) { alert('Bạn cần đăng nhập cloud trước khi đồng bộ.'); return; }
+      runtime.auth.busy = true;
+      runtime.auth.lastError = '';
+      runtime.auth.lastInfo = mode === 'pull' ? 'Đang tải dữ liệu từ cloud...' : 'Đang đồng bộ dữ liệu với cloud...';
+      renderCloudStatus();
+      try {
+        if (mode === 'pull') {
+          const cloudState = await fetchCloudState();
+          const cloudHasData = (cloudState.accounts?.length || 0) > 0 || (cloudState.categories?.expense?.length || 0) > 0 || (cloudState.categories?.income?.length || 0) > 0 || (cloudState.transactions?.length || 0) > 0;
+          // FIX AUTH-009/010: only replace local if it's the first sync AND local has no data
+          const localHasData = state.accounts.length > 0 || state.transactions.length > 0;
+          const shouldReplaceLocalFromCloud = !state.meta.lastCloudSyncAt && cloudHasData && !localHasData;
+          state = shouldReplaceLocalFromCloud
+            ? normalizeState({ ...cloudState, meta: { ...cloudState.meta, currency: cloudState.meta?.currency || state.meta.currency, themeLabel: state.meta.themeLabel || cloudState.meta?.themeLabel || 'dark-green', deviceId: state.meta.deviceId, lastSavedAt: state.meta.lastSavedAt, lastCloudSyncAt: nowIso() } })
+            : mergeStates(state, cloudState, { keepLocalMeta: true });
+          state.meta.lastCloudSyncAt = nowIso();
+          persistState({ skipCloud: true });
+        } else {
+          const cloudState = await fetchCloudState();
+          state = mergeStates(state, cloudState, { keepLocalMeta: true });
+          await pushLocalStateToCloud(state);
+          state.meta.lastCloudSyncAt = nowIso();
+          persistState({ skipCloud: true });
+        }
+        renderAll();
+        runtime.auth.lastInfo = 'Đồng bộ cloud thành công.';
+      } catch (error) {
+        console.error(error);
+        runtime.auth.lastError = error.message || 'Không thể đồng bộ cloud.';
+      } finally {
+        runtime.auth.busy = false;
+        renderCloudStatus();
+      }
+    }
+
+    async function fetchCloudState() {
+      const userId = runtime.auth.user.id;
+      const [aR, cR, tR] = await Promise.all([
+        supabase.from(TABLES.accounts).select('*').eq('user_id', userId),
+        supabase.from(TABLES.categories).select('*').eq('user_id', userId),
+        supabase.from(TABLES.transactions).select('*').eq('user_id', userId)
+      ]);
+      const failed = [aR, cR, tR].find(r => r.error);
+      if (failed?.error) throw failed.error;
+      return {
+        version: 7, meta: clone(state.meta),
+        accounts: (aR.data || []).map(mapCloudAccountToLocal),
+        categories: { expense: (cR.data || []).filter(r => r.kind === 'expense').map(mapCloudCategoryToLocal), income: (cR.data || []).filter(r => r.kind === 'income').map(mapCloudCategoryToLocal) },
+        transactions: (tR.data || []).map(mapCloudTransactionToLocal)
+      };
+    }
+
+    async function pushLocalStateToCloud(currentState) {
+      const userId = runtime.auth.user.id;
+      const aR = await supabase.from(TABLES.accounts).upsert(currentState.accounts.map(i => mapLocalAccountToCloud(i, userId)), { onConflict: 'id' });
+      if (aR.error) throw aR.error;
+      const cR = await supabase.from(TABLES.categories).upsert([...currentState.categories.expense, ...currentState.categories.income].map(i => mapLocalCategoryToCloud(i, userId)), { onConflict: 'id' });
+      if (cR.error) throw cR.error;
+      const tR = await supabase.from(TABLES.transactions).upsert(currentState.transactions.map(i => mapLocalTransactionToCloud(i, userId)), { onConflict: 'id' });
+      if (tR.error) throw tR.error;
+    }
+
+    function scheduleCloudSync() {
+      if (!runtime.auth.user) return;
+      clearTimeout(runtime.cloudSyncTimer);
+      runtime.cloudSyncTimer = setTimeout(() => syncCloudData('both'), 900);
+    }
+
+    function handleStorageSync(event) {
+      if (event.key !== STORAGE_KEY || !event.newValue) return;
+      try { const external = normalizeState(JSON.parse(event.newValue)); state = mergeStates(state, external, { keepLocalMeta: true }); renderAll(); } catch (e) { console.error(e); }
+    }
+
+    function handleSaveGeneralSettings(event) {
+      event.preventDefault();
+      const currency = (el.currencyInput.value || '').trim().toUpperCase();
+      const allowedThemes = ['dark-green', 'dark-blue', 'light'];
+      const theme = allowedThemes.includes(el.themeLabelInput.value) ? el.themeLabelInput.value : 'dark-green';
+      if (!currency || currency.length > 10) { alert('Đơn vị tiền tệ không hợp lệ.'); return; }
+      state.meta.currency = currency;
+      state.meta.themeLabel = theme;
+      applyTheme(state.meta.themeLabel);
+      persistState();
+      renderAll();
+    }
+
+    function handleAddCategory(event, type) {
+      event.preventDefault();
+      const input = type === 'expense' ? el.expenseCategoryInput : el.incomeCategoryInput;
+      const name = sanitizeName(input.value, 50);
+      if (!name) { alert('Vui lòng nhập tên phân loại hợp lệ.'); return; }
+      if (getActiveCategories(type).some(i => i.name.toLowerCase() === name.toLowerCase())) { alert('Phân loại này đã tồn tại.'); return; }
+      const category = makeCategory(type, name);
+      (type === 'expense' ? state.categories.expense : state.categories.income).push(category);
+      input.value = '';
+      persistState();
+      renderAll();
+    }
+
+    function handleAccountSubmit(event) {
+      event.preventDefault();
+      const name = sanitizeName(el.accountNameInput.value, 50);
+      const openingBalance = Number(el.openingBalanceInput.value || 0);
+      const note = sanitizeText(el.accountNoteInput.value, 120);
+      if (!name) { alert('Tên tài khoản không hợp lệ.'); return; }
+      if (!Number.isFinite(openingBalance) || openingBalance < 0) { alert('Số dư khởi tạo phải là số không âm.'); return; }
+      if (getActiveAccounts().some(i => i.name.toLowerCase() === name.toLowerCase())) { alert('Tên tài khoản đã tồn tại.'); return; }
+      state.accounts.push(makeAccount(name, el.accountTypeInput.value, openingBalance, note));
+      el.accountForm.reset();
+      el.accountTypeInput.value = 'cash';
+      persistState();
+      renderAll();
+    }
+
+    function handleTransactionSubmit(event) {
+      event.preventDefault();
+      const payload = collectTransactionFormData();
+      if (!payload) return;
+      if (runtime.editingTransactionId) {
+        const idx = state.transactions.findIndex(i => i.id === runtime.editingTransactionId);
+        if (idx >= 0) {
+          const old = state.transactions[idx];
+          state.transactions[idx] = { ...old, ...payload, id: old.id, created_at: old.created_at, updated_at: nowIso(), deviceId: state.meta.deviceId, deleted_at: null };
+        }
+      } else {
+        state.transactions.push({ id: createId('tx'), ...payload, deviceId: state.meta.deviceId, created_at: nowIso(), updated_at: nowIso(), deleted_at: null });
+      }
+      state.transactions.sort(sortTransactionsAsc);
+      cancelTransactionEdit({ silent: true });
+      persistState();
+      renderAll();
+    }
+
+    function collectTransactionFormData() {
+      const type = el.txTypeInput.value;
+      const date = el.txDateInput.value;
+      const amountRaw = Number(el.txAmountInput.value || 0);
+      const note = sanitizeText(el.txNoteInput.value, 300);
+      const accountFromId = el.txAccountFromInput.value || null;
+      const accountToId = el.txAccountToInput.value || null;
+      const categoryId = el.txCategoryInput.value || null;
+      const adjustmentMode = el.txAdjustmentModeInput.value;
+      const expenseMode = el.txExpenseModeInput.value || 'variable';
+      const today = formatDateInput(new Date());
+      if (!date || date > today) { alert('Ngày giao dịch không hợp lệ hoặc đang ở tương lai.'); return null; }
+      if (!Number.isFinite(amountRaw) || amountRaw <= 0) { alert('Số tiền phải lớn hơn 0.'); return null; }
+      const activeAccountIds = new Set(getActiveAccounts().map(i => i.id));
+      const activeExpenseIds = new Set(getActiveCategories('expense').map(i => i.id));
+      const activeIncomeIds = new Set(getActiveCategories('income').map(i => i.id));
+      if (type === 'expense') {
+        if (!accountFromId || !activeAccountIds.has(accountFromId)) { alert('Chi tiêu cần tài khoản nguồn hợp lệ.'); return null; }
+        if (!categoryId || !activeExpenseIds.has(categoryId)) { alert('Chi tiêu cần phân loại chi tiêu hợp lệ.'); return null; }
+      }
+      if (type === 'income') {
+        if (!accountToId || !activeAccountIds.has(accountToId)) { alert('Thu nhập cần tài khoản nhận tiền hợp lệ.'); return null; }
+        if (!categoryId || !activeIncomeIds.has(categoryId)) { alert('Thu nhập cần phân loại thu nhập hợp lệ.'); return null; }
+      }
+      if (type === 'transfer') {
+        if (!accountFromId || !accountToId || !activeAccountIds.has(accountFromId) || !activeAccountIds.has(accountToId)) { alert('Chuyển khoản nội bộ cần tài khoản nguồn và đích hợp lệ.'); return null; }
+        if (accountFromId === accountToId) { alert('Tài khoản nguồn và đích phải khác nhau.'); return null; }
+      }
+      if (type === 'adjustment' && (!accountFromId || !activeAccountIds.has(accountFromId))) { alert('Điều chỉnh số dư cần chọn tài khoản hợp lệ.'); return null; }
+      const amount = type === 'adjustment' ? (adjustmentMode === 'subtract' ? -Math.abs(amountRaw) : Math.abs(amountRaw)) : amountRaw;
+      return { type, date, amount, accountFromId, accountToId, categoryId, note, expenseMode: type === 'expense' ? expenseMode : null };
+    }
+
+    function cancelTransactionEdit(options = {}) {
+      runtime.editingTransactionId = null;
+      el.transactionForm.reset();
+      el.txDateInput.value = formatDateInput(new Date());
+      el.txTypeInput.value = 'expense';
+      el.txAdjustmentModeInput.value = 'add';
+      el.txExpenseModeInput.value = 'fixed';
+      el.transactionFormTitle.textContent = 'Nhập giao dịch hằng ngày';
+      el.transactionSubmitBtn.textContent = 'Lưu giao dịch';
+      el.transactionCancelEditBtn.classList.add('hidden');
+      updateTransactionFormVisibility();
+      if (!options.silent) renderAll();
+    }
+
+    function startEditTransaction(id) {
+      const tx = state.transactions.find(i => i.id === id && !i.deleted_at);
+      if (!tx) return;
+      runtime.editingTransactionId = id;
+      openPage('transactions');
+      el.txDateInput.value = tx.date;
+      el.txTypeInput.value = tx.type;
+      updateTransactionFormVisibility();
+      el.txAmountInput.value = tx.type === 'adjustment' ? Math.abs(tx.amount) : tx.amount;
+      if (tx.accountFromId) el.txAccountFromInput.value = tx.accountFromId;
+      if (tx.accountToId) el.txAccountToInput.value = tx.accountToId;
+      if (tx.categoryId) el.txCategoryInput.value = tx.categoryId;
+      el.txAdjustmentModeInput.value = tx.type === 'adjustment' && tx.amount < 0 ? 'subtract' : 'add';
+      el.txExpenseModeInput.value = tx.expenseMode || 'fixed';
+      el.txNoteInput.value = tx.note || '';
+      el.transactionFormTitle.textContent = 'Sửa giao dịch';
+      el.transactionSubmitBtn.textContent = 'Cập nhật giao dịch';
+      el.transactionCancelEditBtn.classList.remove('hidden');
+    }
+
+    function softDeleteTransaction(id) {
+      const tx = state.transactions.find(i => i.id === id && !i.deleted_at);
+      if (!tx) return;
+      if (!confirm('Bạn muốn xóa giao dịch này?')) return;
+      tx.deleted_at = nowIso(); tx.updated_at = nowIso(); tx.deviceId = state.meta.deviceId;
+      runtime.txList.selectedIds.delete(id);
+      if (runtime.editingTransactionId === id) cancelTransactionEdit({ silent: true });
+      persistState();
+      renderAll();
+    }
+
+    function softDeleteAccount(id) {
+      const account = state.accounts.find(i => i.id === id && !i.deleted_at);
+      if (!account) return;
+      if (getActiveTransactions().some(tx => tx.accountFromId === id || tx.accountToId === id)) { alert('Tài khoản này còn giao dịch đang hoạt động nên chưa thể xóa.'); return; }
+      account.deleted_at = nowIso(); account.updated_at = nowIso();
+      persistState();
+      renderAll();
+    }
+
+    function softDeleteCategory(type, id) {
+      const list = type === 'expense' ? state.categories.expense : state.categories.income;
+      const category = list.find(i => i.id === id && !i.deleted_at);
+      if (!category) return;
+      if (getActiveTransactions().some(tx => tx.categoryId === id)) { alert('Phân loại này đang được dùng trong giao dịch nên chưa thể xóa.'); return; }
+      category.deleted_at = nowIso(); category.updated_at = nowIso();
+      persistState();
+      renderAll();
+    }
+
+    function getFilteredDashboardTransactions() {
+      const { from, to } = getDateRangeFromInputs(el.dashboardDateFrom, el.dashboardDateTo);
+      return getActiveTransactions().filter(tx => (from ? tx.date >= from : true) && (to ? tx.date <= to : true));
+    }
+
+    function getFilteredReportTransactions() {
+      const { from, to } = getDateRangeFromInputs(el.reportDateFrom, el.reportDateTo);
+      const accountId = el.reportAccountFilter.value;
+      const type = el.reportTypeFilter.value;
+      const expenseMode = el.reportExpenseModeFilter.value;
+      return getActiveTransactions().filter(tx => {
+        const typeMatch = type === 'all' ? true : tx.type === type;
+        const accountMatch = !accountId || accountId === 'all' ? true : tx.accountFromId === accountId || tx.accountToId === accountId;
+        const dateMatch = (from ? tx.date >= from : true) && (to ? tx.date <= to : true);
+        const expenseModeMatch = tx.type !== 'expense' ? true : (expenseMode === 'all' ? true : tx.expenseMode === expenseMode);
+        return typeMatch && accountMatch && dateMatch && expenseModeMatch;
+      });
+    }
+
+    function getFilteredCompareTransactions() {
+      const { from, to } = getDateRangeFromInputs(el.compareDateFrom, el.compareDateTo);
+      const types = getMultiSelectValues(el.compareTypeFilter);
+      const accounts = getMultiSelectValues(el.compareAccountFilter);
+      const categories = getMultiSelectValues(el.compareCategoryFilter);
+      return getActiveTransactions().filter(tx => {
+        const typeMatch = !types.length ? true : types.includes(tx.type);
+        const accountMatch = !accounts.length ? true : accounts.includes(tx.accountFromId) || accounts.includes(tx.accountToId);
+        const categoryMatch = !categories.length ? true : categories.includes(tx.categoryId);
+        const dateMatch = (from ? tx.date >= from : true) && (to ? tx.date <= to : true);
+        return typeMatch && accountMatch && categoryMatch && dateMatch;
+      });
+    }
+
+    function calculateAccountBalances() {
+      const balances = {};
+      getActiveAccounts().forEach(a => { balances[a.id] = Number(a.openingBalance || 0); });
+      getActiveTransactions().forEach(tx => applyTransactionToBalances(tx, balances));
+      return balances;
+    }
+
     function applyTransactionToBalances(tx, balances) {
-  if (tx.type === 'income' && tx.accountToId) {
-    balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
-  } else if (tx.type === 'expense' && tx.accountFromId) {
-    balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount;
-  } else if (tx.type === 'transfer') {
-    if (tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount;
-    if (tx.accountToId) balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
-  } else if (tx.type === 'adjustment' && tx.accountFromId) {
-    balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) + tx.amount;
-  }
-}
-    function renderCategoryList(type, container) { const list = getActiveCategories(type); if (!list.length) { container.innerHTML = '<div class="empty-state">Chưa có phân loại nào.</div>'; return; } container.innerHTML = `<div class="list-simple">${list.map(item => `<div class="list-item"><div><strong>${escapeHtml(item.name)}</strong><span>${type === 'expense' ? 'Danh mục chi tiêu' : 'Danh mục thu nhập'}</span></div><button class="btn btn-secondary" type="button" onclick="window.softDeleteCategory('${type}','${item.id}')">Xóa</button></div>`).join('')}</div>`; }
-    function renderAssetLegend(labels, values) { const total = values.reduce((sum,v) => sum + v, 0); if (!labels.length || total === 0) { el.assetLegend.innerHTML = '<div class="empty-state">Chưa đủ dữ liệu để hiển thị tỷ trọng tài sản.</div>'; return; } el.assetLegend.innerHTML = labels.map((label,index) => `<div class="legend-row"><span class="legend-swatch" style="background:${CHART_COLORS[index % CHART_COLORS.length]}"></span><span>${escapeHtml(label)}</span><span>${formatCurrency(values[index] || 0)} · ${(((values[index] || 0)/ total) * 100).toFixed(1)}%</span></div>`).join(''); }
-    function renderTransactionFormOptions() { fillAccountSelect(el.txAccountFromInput, false); fillAccountSelect(el.txAccountToInput, false); updateTransactionCategoryOptions(); updateTransactionFormVisibility(); }
-    function updateTransactionCategoryOptions() { const type = el.txTypeInput.value; const items = type === 'expense' ? getActiveCategories('expense') : type === 'income' ? getActiveCategories('income') : []; el.txCategoryInput.innerHTML = (!items.length || type === 'transfer' || type === 'adjustment') ? '<option value="">Không áp dụng</option>' : items.map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join(''); }
-    function updateTransactionFormVisibility() { updateTransactionCategoryOptions(); const type = el.txTypeInput.value; el.txAccountFromField.classList.remove('hidden'); el.txAccountToField.classList.remove('hidden'); el.txAdjustmentField.classList.add('hidden'); el.txCategoryInput.disabled = false; if (type === 'expense') { el.txAccountFromField.querySelector('label').textContent = 'Tài khoản nguồn'; el.txAccountToField.classList.add('hidden'); } else if (type === 'income') { el.txAccountToField.querySelector('label').textContent = 'Tài khoản nhận tiền'; el.txAccountFromField.classList.add('hidden'); } else if (type === 'transfer') { el.txAccountFromField.querySelector('label').textContent = 'Tài khoản nguồn'; el.txAccountToField.querySelector('label').textContent = 'Tài khoản đích'; el.txCategoryInput.disabled = true; } else { el.txAccountFromField.querySelector('label').textContent = 'Tài khoản bị điều chỉnh'; el.txAccountToField.classList.add('hidden'); el.txAdjustmentField.classList.remove('hidden'); el.txCategoryInput.disabled = true; } }
-    function renderTransactionsTable() { const all = getFilteredTransactionsForList(); const totalPages = Math.max(1, Math.ceil(all.length / runtime.txList.pageSize)); runtime.txList.page = Math.min(runtime.txList.page, totalPages); const start = (runtime.txList.page - 1) * runtime.txList.pageSize; const pageItems = all.slice(start, start + runtime.txList.pageSize); if (!all.length) { el.transactionsTable.innerHTML = '<div class="empty-state">Không có giao dịch phù hợp với bộ lọc tìm kiếm hiện tại.</div>'; el.transactionPaginationInfo.textContent = 'Trang 1 / 1'; el.transactionPrevBtn.disabled = true; el.transactionNextBtn.disabled = true; return; } el.transactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Loại</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${pageItems.map(tx => `<tr><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note || '-')}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" onclick="window.startEditTransaction('${tx.id}')">Sửa</button><button class="btn btn-danger" type="button" onclick="window.softDeleteTransaction('${tx.id}')">Xóa</button></div></td></tr>`).join('')}</tbody></table></div>`; el.transactionPaginationInfo.textContent = `Trang ${runtime.txList.page} / ${totalPages} · ${all.length} giao dịch`; el.transactionPrevBtn.disabled = runtime.txList.page <= 1; el.transactionNextBtn.disabled = runtime.txList.page >= totalPages; }
-    function getFilteredTransactionsForList() { const keyword = runtime.txList.query.toLowerCase(); const selectedType = runtime.txList.type; return [...getActiveTransactions()].filter(tx => selectedType === 'all' ? true : tx.type === selectedType).filter(tx => { if (!keyword) return true; const haystack = [tx.date, String(tx.amount), tx.note || '', getTransactionAccountText(tx), getCategoryNameByTransaction(tx)].join(' ').toLowerCase(); return haystack.includes(keyword); }).sort((a,b) => new Date(b.date) - new Date(a.date) || compareIso(b.updated_at, a.updated_at)); }
-    function changeTransactionPage(offset) { const all = getFilteredTransactionsForList(); const totalPages = Math.max(1, Math.ceil(all.length / runtime.txList.pageSize)); runtime.txList.page = Math.min(totalPages, Math.max(1, runtime.txList.page + offset)); renderTransactionsTable(); }
-async function handleCloudLogin(event) {
-  event.preventDefault();
-
-  const email = (el.cloudEmailInput.value || '').trim();
-  if (!email) {
-    alert('Vui lòng nhập email để đăng nhập cloud.');
-    return;
-  }
-
-  if (Date.now() < runtime.loginCooldownUntil) {
-    const remainingSec = Math.ceil((runtime.loginCooldownUntil - Date.now()) / 1000);
-    alert(`Vui lòng chờ ${remainingSec} giây rồi thử lại.`);
-    return;
-  }
-
-  runtime.auth.busy = true;
-  renderCloudStatus();
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${window.location.origin}${window.location.pathname}`
+      if (tx.type === 'income' && tx.accountToId) balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
+      else if (tx.type === 'expense' && tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount;
+      else if (tx.type === 'transfer') {
+        if (tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount;
+        if (tx.accountToId) balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
+      } else if (tx.type === 'adjustment' && tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) + tx.amount;
     }
-  });
 
-  runtime.auth.busy = false;
-
-  if (error) {
-    runtime.auth.lastError = error.message || '';
-
-    const message = (error.message || '').toLowerCase();
-
-    if (
-      message.includes('rate limit') ||
-      message.includes('too many requests') ||
-      message.includes('email rate limit exceeded')
-    ) {
-      startMagicLinkCooldown(60);
-      runtime.auth.lastInfo = 'Bạn vừa gửi quá nhanh. Hệ thống đã tạm khóa gửi lại trong 60 giây.';
-    } else {
-      runtime.auth.lastInfo = 'Không gửi được magic link.';
-    }
-  } else {
-    runtime.auth.lastError = '';
-    runtime.auth.lastInfo = `Đã gửi magic link tới ${email}.`;
-    startMagicLinkCooldown(60);
-  }
-
-  renderCloudStatus();
-}
-    async function handleCloudLogout() { runtime.auth.busy = true; renderCloudStatus(); const { error } = await supabase.auth.signOut(); runtime.auth.busy = false; runtime.auth.lastError = error ? error.message : ''; runtime.auth.lastInfo = error ? runtime.auth.lastInfo : 'Đã đăng xuất cloud.'; renderCloudStatus(); }
-    async function syncCloudData(mode = 'both') { if (!runtime.auth.user) { alert('Bạn cần đăng nhập cloud trước khi đồng bộ.'); return; } runtime.auth.busy = true; runtime.auth.lastError = ''; runtime.auth.lastInfo = mode === 'pull' ? 'Đang tải dữ liệu từ cloud...' : 'Đang đồng bộ dữ liệu với cloud...'; renderCloudStatus(); try { if (mode === 'pull') { const cloudState = await fetchCloudState(); state = mergeStates(state, cloudState, { keepLocalMeta: true }); state.meta.lastCloudSyncAt = nowIso(); persistState({ skipCloud: true }); renderAll(); } else { const cloudState = await fetchCloudState(); state = mergeStates(state, cloudState, { keepLocalMeta: true }); await pushLocalStateToCloud(state); state.meta.lastCloudSyncAt = nowIso(); persistState({ skipCloud: true }); renderAll(); } runtime.auth.lastInfo = 'Đồng bộ cloud thành công.'; } catch (error) { console.error(error); runtime.auth.lastError = error.message || 'Không thể đồng bộ cloud.'; } finally { runtime.auth.busy = false; renderCloudStatus(); } }
-    async function fetchCloudState() { const userId = runtime.auth.user.id; const [accountsResp, categoriesResp, transactionsResp] = await Promise.all([supabase.from(TABLES.accounts).select('*').eq('user_id', userId), supabase.from(TABLES.categories).select('*').eq('user_id', userId), supabase.from(TABLES.transactions).select('*').eq('user_id', userId)]); const failed = [accountsResp, categoriesResp, transactionsResp].find(item => item.error); if (failed?.error) throw failed.error; const cloudAccounts = (accountsResp.data || []).map(mapCloudAccountToLocal); const cloudCategories = (categoriesResp.data || []).map(mapCloudCategoryToLocal); const cloudTransactions = (transactionsResp.data || []).map(mapCloudTransactionToLocal); return { version: 2, meta: { currency: state.meta.currency, themeLabel: state.meta.themeLabel, lastSavedAt: state.meta.lastSavedAt, lastCloudSyncAt: state.meta.lastCloudSyncAt, deviceId: state.meta.deviceId }, accounts: cloudAccounts, categories: { expense: cloudCategories.filter(item => item.kind === 'expense'), income: cloudCategories.filter(item => item.kind === 'income') }, transactions: cloudTransactions }; }
-    async function pushLocalStateToCloud(currentState) { const userId = runtime.auth.user.id; const accountRows = currentState.accounts.map(item => mapLocalAccountToCloud(item, userId)); const categoryRows = [...currentState.categories.expense, ...currentState.categories.income].map(item => mapLocalCategoryToCloud(item, userId)); const transactionRows = currentState.transactions.map(item => mapLocalTransactionToCloud(item, userId)); const [accountsResp, categoriesResp, transactionsResp] = await Promise.all([supabase.from(TABLES.accounts).upsert(accountRows, { onConflict: 'id' }), supabase.from(TABLES.categories).upsert(categoryRows, { onConflict: 'id' }), supabase.from(TABLES.transactions).upsert(transactionRows, { onConflict: 'id' })]); const failed = [accountsResp, categoriesResp, transactionsResp].find(item => item.error); if (failed?.error) throw failed.error; }
-    function scheduleCloudSync() { if (!runtime.auth.user) return; clearTimeout(runtime.cloudSyncTimer); runtime.cloudSyncTimer = setTimeout(() => syncCloudData('both'), 900); }
-    function handleStorageSync(event) { if (event.key !== STORAGE_KEY || !event.newValue) return; try { const external = normalizeState(JSON.parse(event.newValue)); state = mergeStates(state, external, { keepLocalMeta: true }); renderAll(); } catch (error) { console.error(error); } }
-    function handleSaveGeneralSettings(event) { event.preventDefault(); const currency = (el.currencyInput.value || '').trim().toUpperCase(); const theme = (el.themeLabelInput.value || '').trim(); if (!currency || currency.length > 10) { alert('Đơn vị tiền tệ không hợp lệ.'); return; } state.meta.currency = currency; state.meta.themeLabel = theme || 'dark-green'; persistState(); renderAll(); }
-    function handleAddCategory(event, type) { event.preventDefault(); const input = type === 'expense' ? el.expenseCategoryInput : el.incomeCategoryInput; const name = sanitizeName(input.value, 50); if (!name) { alert('Vui lòng nhập tên phân loại hợp lệ.'); return; } if (getActiveCategories(type).some(item => item.name.toLowerCase() === name.toLowerCase())) { alert('Phân loại này đã tồn tại.'); return; } const category = makeCategory(type, name); (type === 'expense' ? state.categories.expense : state.categories.income).push(category); input.value = ''; persistState(); renderAll(); }
-    function handleAccountSubmit(event) { event.preventDefault(); const name = sanitizeName(el.accountNameInput.value, 50); const openingBalance = Number(el.openingBalanceInput.value || 0); const note = sanitizeText(el.accountNoteInput.value, 120); if (!name) { alert('Tên tài khoản không hợp lệ.'); return; } if (!Number.isFinite(openingBalance) || openingBalance < 0) { alert('Số dư khởi tạo phải là số không âm.'); return; } if (getActiveAccounts().some(item => item.name.toLowerCase() === name.toLowerCase())) { alert('Tên tài khoản đã tồn tại.'); return; } state.accounts.push(makeAccount(name, el.accountTypeInput.value, openingBalance, note)); el.accountForm.reset(); el.accountTypeInput.value = 'cash'; persistState(); renderAll(); }
-    function handleTransactionSubmit(event) { event.preventDefault(); const payload = collectTransactionFormData(); if (!payload) return; if (runtime.editingTransactionId) { const index = state.transactions.findIndex(item => item.id === runtime.editingTransactionId); if (index >= 0) { const old = state.transactions[index]; state.transactions[index] = { ...old, ...payload, id: old.id, created_at: old.created_at, updated_at: nowIso(), deviceId: state.meta.deviceId, deleted_at: null }; } } else { state.transactions.push({ id: createId('tx'), ...payload, deviceId: state.meta.deviceId, created_at: nowIso(), updated_at: nowIso(), deleted_at: null }); } state.transactions.sort((a,b) => new Date(a.date) - new Date(b.date) || compareIso(a.updated_at, b.updated_at)); cancelTransactionEdit({ silent: true }); persistState(); renderAll(); }
-    function collectTransactionFormData() { const type = el.txTypeInput.value; const date = el.txDateInput.value; const amountRaw = Number(el.txAmountInput.value || 0); const note = sanitizeText(el.txNoteInput.value, 300); const accountFromId = el.txAccountFromInput.value || null; const accountToId = el.txAccountToInput.value || null; const categoryId = el.txCategoryInput.value || null; const adjustmentMode = el.txAdjustmentModeInput.value; const today = formatDateInput(new Date()); if (!date || date > today) { alert('Ngày giao dịch không hợp lệ hoặc đang ở tương lai.'); return null; } if (!Number.isFinite(amountRaw) || amountRaw <= 0) { alert('Số tiền phải lớn hơn 0.'); return null; } const activeAccountIds = new Set(getActiveAccounts().map(item => item.id)); const activeExpenseIds = new Set(getActiveCategories('expense').map(item => item.id)); const activeIncomeIds = new Set(getActiveCategories('income').map(item => item.id)); if (type === 'expense') { if (!accountFromId || !activeAccountIds.has(accountFromId)) { alert('Chi tiêu cần tài khoản nguồn hợp lệ.'); return null; } if (!categoryId || !activeExpenseIds.has(categoryId)) { alert('Chi tiêu cần phân loại chi tiêu hợp lệ.'); return null; } } if (type === 'income') { if (!accountToId || !activeAccountIds.has(accountToId)) { alert('Thu nhập cần tài khoản nhận tiền hợp lệ.'); return null; } if (!categoryId || !activeIncomeIds.has(categoryId)) { alert('Thu nhập cần phân loại thu nhập hợp lệ.'); return null; } } if (type === 'transfer') { if (!accountFromId || !accountToId || !activeAccountIds.has(accountFromId) || !activeAccountIds.has(accountToId)) { alert('Chuyển khoản nội bộ cần tài khoản nguồn và đích hợp lệ.'); return null; } if (accountFromId === accountToId) { alert('Tài khoản nguồn và đích phải khác nhau.'); return null; } } if (type === 'adjustment' && (!accountFromId || !activeAccountIds.has(accountFromId))) { alert('Điều chỉnh số dư cần chọn tài khoản hợp lệ.'); return null; } const amount = type === 'adjustment' ? (adjustmentMode === 'subtract' ? -Math.abs(amountRaw) : Math.abs(amountRaw)) : amountRaw; return { type, date, amount, accountFromId, accountToId, categoryId, note }; }
-    function cancelTransactionEdit(options = {}) { runtime.editingTransactionId = null; el.transactionForm.reset(); el.txDateInput.value = formatDateInput(new Date()); el.txTypeInput.value = 'expense'; el.txAdjustmentModeInput.value = 'add'; el.transactionFormTitle.textContent = 'Nhập giao dịch hằng ngày'; el.transactionSubmitBtn.textContent = 'Lưu giao dịch'; el.transactionCancelEditBtn.classList.add('hidden'); updateTransactionFormVisibility(); if (!options.silent) renderAll(); }
-    function startMagicLinkCooldown(seconds = 60) {
-  runtime.loginCooldownUntil = Date.now() + seconds * 1000;
-
-  clearInterval(runtime.loginCooldownTimer);
-
-  const updateButton = () => {
-    const remainingMs = runtime.loginCooldownUntil - Date.now();
-    const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
-    const button = el.cloudLoginForm?.querySelector('button[type="submit"]');
-
-    if (!button) return;
-
-    if (remainingSec > 0) {
-      button.disabled = true;
-      button.textContent = `Gửi lại sau ${remainingSec}s`;
-    } else {
-      button.disabled = false;
-      button.textContent = 'Gửi magic link';
-      clearInterval(runtime.loginCooldownTimer);
-      runtime.loginCooldownTimer = null;
-    }
-  };
-
-  updateButton();
-  runtime.loginCooldownTimer = setInterval(updateButton, 1000);
-}
-    function startEditTransaction(id) { const tx = state.transactions.find(item => item.id === id && !item.deleted_at); if (!tx) return; runtime.editingTransactionId = id; openPage('transactions'); el.txDateInput.value = tx.date; el.txTypeInput.value = tx.type; updateTransactionFormVisibility(); el.txAmountInput.value = tx.type === 'adjustment' ? Math.abs(tx.amount) : tx.amount; if (tx.accountFromId) el.txAccountFromInput.value = tx.accountFromId; if (tx.accountToId) el.txAccountToInput.value = tx.accountToId; if (tx.categoryId) el.txCategoryInput.value = tx.categoryId; el.txAdjustmentModeInput.value = tx.type === 'adjustment' && tx.amount < 0 ? 'subtract' : 'add'; el.txNoteInput.value = tx.note || ''; el.transactionFormTitle.textContent = 'Sửa giao dịch'; el.transactionSubmitBtn.textContent = 'Cập nhật giao dịch'; el.transactionCancelEditBtn.classList.remove('hidden'); }
-    function softDeleteTransaction(id) { const tx = state.transactions.find(item => item.id === id && !item.deleted_at); if (!tx) return; if (!confirm('Bạn muốn xóa giao dịch này?')) return; tx.deleted_at = nowIso(); tx.updated_at = nowIso(); tx.deviceId = state.meta.deviceId; if (runtime.editingTransactionId === id) cancelTransactionEdit({ silent: true }); persistState(); renderAll(); }
-    function softDeleteAccount(id) { const account = state.accounts.find(item => item.id === id && !item.deleted_at); if (!account) return; if (getActiveTransactions().some(tx => tx.accountFromId === id || tx.accountToId === id)) { alert('Tài khoản này còn giao dịch đang hoạt động nên chưa thể xóa.'); return; } account.deleted_at = nowIso(); account.updated_at = nowIso(); persistState(); renderAll(); }
-    function softDeleteCategory(type, id) { const list = type === 'expense' ? state.categories.expense : state.categories.income; const category = list.find(item => item.id === id && !item.deleted_at); if (!category) return; if (getActiveTransactions().some(tx => tx.categoryId === id)) { alert('Phân loại này đang được dùng trong giao dịch nên chưa thể xóa.'); return; } category.deleted_at = nowIso(); category.updated_at = nowIso(); persistState(); renderAll(); }
-    function getFilteredReportTransactions() { const accountId = el.reportAccountFilter.value; const type = el.reportTypeFilter.value; const from = el.reportDateFrom.value; const to = el.reportDateTo.value; return getActiveTransactions().filter(tx => { const matchType = type === 'all' ? true : tx.type === type; const matchFrom = from ? tx.date >= from : true; const matchTo = to ? tx.date <= to : true; const matchAccount = !accountId || accountId === 'all' ? true : tx.accountFromId === accountId || tx.accountToId === accountId; return matchType && matchFrom && matchTo && matchAccount; }); }
-    function calculateAccountBalances() { const balances = {}; getActiveAccounts().forEach(account => balances[account.id] = Number(account.openingBalance || 0)); getActiveTransactions().forEach(tx => { if (tx.type === 'income' && tx.accountToId) balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount; else if (tx.type === 'expense' && tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount; else if (tx.type === 'transfer') { if (tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount; if (tx.accountToId) balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount; } else if (tx.type === 'adjustment' && tx.accountFromId) balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) + tx.amount; }); return balances; }
     function buildNetWorthSeries(sourceTransactions = getActiveTransactions(), fromDate = '') {
-  const balances = {};
-  getActiveAccounts().forEach(account => {
-    balances[account.id] = Number(account.openingBalance || 0);
-  });
+      const balances = {};
+      getActiveAccounts().forEach(a => { balances[a.id] = Number(a.openingBalance || 0); });
+      const allTx = [...getActiveTransactions()].sort(sortTransactionsAsc);
+      if (fromDate) allTx.filter(tx => tx.date < fromDate).forEach(tx => applyTransactionToBalances(tx, balances));
+      const labels = [], values = [];
+      [...sourceTransactions].sort(sortTransactionsAsc).forEach(tx => {
+        applyTransactionToBalances(tx, balances);
+        labels.push(formatDateDisplay(tx.date));
+        values.push(Object.values(balances).reduce((s, v) => s + v, 0));
+      });
+      return labels.length ? { labels, values } : { labels: ['Chưa có dữ liệu'], values: [0] };
+    }
 
-  const allTransactions = [...getActiveTransactions()]
-    .sort((a, b) => new Date(a.date) - new Date(b.date) || compareIso(a.updated_at, b.updated_at));
+    function aggregateByCategory(transactions) {
+      const result = {};
+      transactions.forEach(tx => { const name = getCategoryNameByTransaction(tx); result[name] = (result[name] || 0) + Math.abs(tx.amount); });
+      if (!Object.keys(result).length) result['Không có dữ liệu'] = 0;
+      return result;
+    }
 
-  if (fromDate) {
-    allTransactions
-      .filter(tx => tx.date < fromDate)
-      .forEach(tx => applyTransactionToBalances(tx, balances));
-  }
+    function groupTransactionsByPeriod(transactions, granularity = 'month') {
+      return transactions.reduce((acc, tx) => {
+        const key = formatPeriodKey(tx.date, granularity);
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(tx);
+        return acc;
+      }, {});
+    }
 
-  const labels = [];
-  const values = [];
+    function formatPeriodKey(date, granularity) {
+      const [year, month, day] = date.split('-');
+      if (granularity === 'day') return `${day}/${month}/${year}`;
+      if (granularity === 'year') return year;
+      return `${month}/${year}`;
+    }
 
-  sourceTransactions
-    .sort((a, b) => new Date(a.date) - new Date(b.date) || compareIso(a.updated_at, b.updated_at))
-    .forEach(tx => {
-      applyTransactionToBalances(tx, balances);
-      labels.push(formatDateDisplay(tx.date));
-      values.push(Object.values(balances).reduce((sum, v) => sum + v, 0));
-    });
-  if (!labels.length) {
-    const totalOpening = Object.values(balances).reduce((s, v) => s + v, 0);
-    return { labels: ['Đầu kỳ'], values: [totalOpening] };
-  }
-  return labels.length ? { labels, values } : { labels: ['Chưa có dữ liệu'], values: [0] };
-}
-    function buildMonthlyIncomeExpenseSeries(sourceTransactions = getActiveTransactions()) { const map = {}; sourceTransactions.forEach(tx => { if (tx.type !== 'income' && tx.type !== 'expense') return; const key = tx.date.slice(0,7); if (!map[key]) map[key] = { income: 0, expense: 0 }; map[key][tx.type] += tx.amount; }); const labels = Object.keys(map).sort(); return labels.length ? { labels, income: labels.map(key => map[key].income), expense: labels.map(key => map[key].expense) } : { labels: ['Chưa có dữ liệu'], income: [0], expense: [0] }; }
-    function aggregateByCategory(transactions) { const result = {}; transactions.forEach(tx => { const name = getCategoryNameByTransaction(tx); result[name] = (result[name] || 0) + Math.abs(tx.amount); }); if (!Object.keys(result).length) result['Không có dữ liệu'] = 0; return result; }
-    function updateDonutChart(chart, labels, values) { chart.data.labels = labels.length ? labels : ['Không có dữ liệu']; chart.data.datasets[0].data = values.length ? values : [0]; chart.data.datasets[0].backgroundColor = labels.length ? labels.map((_, index) => CHART_COLORS[index % CHART_COLORS.length]) : ['rgba(255,255,255,0.14)']; chart.update(); }
-    function handleNavClick(event) { const button = event.target.closest('.nav-btn'); if (!button) return; openPage(button.dataset.page); }
-    function openPage(pageName) { document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageName)); document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); document.getElementById(`page-${pageName}`).classList.add('active'); el.pageTitle.textContent = PAGE_META[pageName].title; el.pageSubtitle.textContent = PAGE_META[pageName].subtitle; }
-    function persistState(options = {}) { state.meta.lastSavedAt = nowIso(); localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); if (!options.skipCloud) scheduleCloudSync(); logStateSnapshot('persist'); }
-    function loadState() { try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? normalizeState(JSON.parse(raw)) : normalizeState(createDefaultState()); } catch (error) { console.error(error); return normalizeState(createDefaultState()); } }
-    function normalizeState(input) { const base = createDefaultState(); return { version: 2, meta: { currency: input?.meta?.currency || base.meta.currency, themeLabel: input?.meta?.themeLabel || base.meta.themeLabel, lastSavedAt: input?.meta?.lastSavedAt || base.meta.lastSavedAt, lastCloudSyncAt: input?.meta?.lastCloudSyncAt || null, deviceId: input?.meta?.deviceId || base.meta.deviceId }, accounts: normalizeArray(input?.accounts, base.accounts).map(item => ({ id: item.id || createId('acc'), name: item.name || 'Tài khoản', type: item.type || 'other', openingBalance: Number(item.openingBalance || item.opening_balance || 0), note: item.note || '', created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null })), categories: { expense: normalizeCategoryList(input?.categories?.expense || input?.categories || [], 'expense', base.categories.expense), income: normalizeCategoryList(input?.categories?.income || input?.categories || [], 'income', base.categories.income) }, transactions: normalizeArray(input?.transactions, base.transactions).map(item => ({ id: item.id || createId('tx'), type: item.type || 'expense', date: item.date || formatDateInput(new Date()), amount: Number(item.amount || 0), accountFromId: item.accountFromId || item.account_from_id || null, accountToId: item.accountToId || item.account_to_id || null, categoryId: item.categoryId || item.category_id || null, note: item.note || '', deviceId: item.deviceId || item.device_id || base.meta.deviceId, created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null })) }; }
-    function normalizeCategoryList(input, kind, fallback) { const source = Array.isArray(input) ? input.filter(item => (item.kind || kind) === kind) : fallback; return normalizeArray(source, fallback).map(item => ({ id: item.id || createId(kind === 'expense' ? 'exp' : 'inc'), kind, name: item.name || 'Danh mục', created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null })); }
+    function updateDonutChart(chart, labels, values) {
+      chart.data.labels = labels.length ? labels : ['Không có dữ liệu'];
+      chart.data.datasets[0].data = values.length ? values : [0];
+      chart.data.datasets[0].backgroundColor = labels.length ? labels.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]) : ['rgba(255,255,255,0.14)'];
+      chart.update();
+    }
+
+    function applyQuickRange(selectEl, fromEl, toEl) {
+      const mode = selectEl.value;
+      const today = new Date();
+      let from = '', to = formatDateInput(today);
+      if (mode === '3m') from = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
+      else if (mode === '30d') { const s = new Date(today); s.setDate(s.getDate() - 29); from = formatDateInput(s); }
+      else if (mode === 'ytd') from = formatDateInput(new Date(today.getFullYear(), 0, 1));
+      else if (mode === 'all') { from = ''; to = ''; }
+      else return;
+      fromEl.value = from;
+      toEl.value = to;
+    }
+
+    function initializeCompareDefaultRange() {
+      const today = new Date();
+      el.compareDateTo.value = formatDateInput(today);
+      el.compareDateFrom.value = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
+    }
+
+    function toggleReportExpenseModeVisibility() {
+      const wrap = el.reportExpenseModeFilter.closest('.field');
+      if (!wrap) return;
+      wrap.classList.toggle('hidden', !(el.reportTypeFilter.value === 'expense' || el.reportTypeFilter.value === 'all'));
+    }
+
+    function getDateRangeFromInputs(fromEl, toEl) { return { from: fromEl.value || '', to: toEl.value || '' }; }
+
+    function handleNavClick(event) {
+      const button = event.target.closest('.nav-btn');
+      if (!button) return;
+      openPage(button.dataset.page);
+    }
+
+    function openPage(pageName) {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageName));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${pageName}`).classList.add('active');
+      el.pageTitle.textContent = PAGE_META[pageName].title;
+      el.pageSubtitle.textContent = PAGE_META[pageName].subtitle;
+      if (pageName === 'compare') renderComparePage();
+      if (pageName === 'reports') renderReportsPage();
+    }
+
+    // FIX ERR-001: persistState với try/catch
+    function persistState(options = {}) {
+      state.meta.lastSavedAt = nowIso();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.error('[FinanceApp] Không thể lưu vào localStorage:', err);
+        runtime.auth.lastError = 'Không thể lưu dữ liệu cục bộ. Bộ nhớ trình duyệt có thể đã đầy.';
+        renderCloudStatus();
+        return;
+      }
+      if (!options.skipCloud) scheduleCloudSync();
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? normalizeState(JSON.parse(raw)) : normalizeState(createDefaultState());
+      } catch (e) {
+        console.error(e);
+        return normalizeState(createDefaultState());
+      }
+    }
+
+    function normalizeState(input) {
+      const base = createDefaultState();
+      return {
+        version: 7,
+        meta: {
+          currency: input?.meta?.currency || base.meta.currency,
+          themeLabel: input?.meta?.themeLabel || base.meta.themeLabel,
+          lastSavedAt: input?.meta?.lastSavedAt || base.meta.lastSavedAt,
+          lastCloudSyncAt: input?.meta?.lastCloudSyncAt || null,
+          deviceId: input?.meta?.deviceId || base.meta.deviceId
+        },
+        accounts: normalizeArray(input?.accounts, base.accounts).map(item => ({ id: item.id || createId('acc'), name: item.name || 'Tài khoản', type: item.type || 'other', openingBalance: Number(item.openingBalance || item.opening_balance || 0), note: item.note || '', created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null })),
+        categories: {
+          expense: normalizeCategoryList(input?.categories?.expense || [], 'expense', base.categories.expense),
+          income: normalizeCategoryList(input?.categories?.income || [], 'income', base.categories.income)
+        },
+        transactions: normalizeArray(input?.transactions, base.transactions).map(item => ({ id: item.id || createId('tx'), type: item.type || 'expense', date: item.date || formatDateInput(new Date()), amount: Number(item.amount || 0), accountFromId: item.accountFromId || item.account_from_id || null, accountToId: item.accountToId || item.account_to_id || null, categoryId: item.categoryId || item.category_id || null, note: item.note || '', expenseMode: item.expenseMode || item.expense_mode || (item.type === 'expense' ? 'variable' : null), deviceId: item.deviceId || item.device_id || base.meta.deviceId, created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null }))
+      };
+    }
+
+    function normalizeCategoryList(input, kind, fallback) {
+      const source = Array.isArray(input) ? input.filter(i => (i.kind || kind) === kind) : fallback;
+      return normalizeArray(source, fallback).map(item => ({ id: item.id || createId(kind === 'expense' ? 'exp' : 'inc'), kind, name: item.name || 'Danh mục', created_at: item.created_at || nowIso(), updated_at: item.updated_at || item.created_at || nowIso(), deleted_at: item.deleted_at || null }));
+    }
+
     function normalizeArray(value, fallback) { return Array.isArray(value) ? value : fallback; }
-    function exportJson() { const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `tai-chinh-ca-nhan-${formatDateFile(new Date())}.json`; a.click(); URL.revokeObjectURL(url); }
-    function handleImportJson(event) { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const parsed = normalizeState(JSON.parse(reader.result)); const mode = prompt('Nhập chế độ import: merge để gộp tránh trùng, hoặc replace để ghi đè toàn bộ.', 'merge'); if (!mode) { event.target.value = ''; return; } state = mode.toLowerCase() === 'replace' ? parsed : mergeStates(state, parsed, { keepLocalMeta: true }); persistState(); renderAll(); alert('Đã nhập dữ liệu JSON thành công.'); } catch (error) { console.error(error); alert('Tệp JSON không hợp lệ.'); } finally { event.target.value = ''; } }; reader.readAsText(file, 'utf-8'); }
-    function mergeStates(localState, incomingState, options = {}) { return normalizeState({ version: 2, meta: { currency: options.keepLocalMeta ? localState.meta.currency : incomingState.meta.currency || localState.meta.currency, themeLabel: options.keepLocalMeta ? localState.meta.themeLabel : incomingState.meta.themeLabel || localState.meta.themeLabel, lastSavedAt: nowIso(), lastCloudSyncAt: localState.meta.lastCloudSyncAt || incomingState.meta.lastCloudSyncAt || null, deviceId: localState.meta.deviceId || incomingState.meta.deviceId || createStableDeviceId() }, accounts: mergeRecords(localState.accounts, incomingState.accounts), categories: { expense: mergeRecords(localState.categories.expense, incomingState.categories.expense), income: mergeRecords(localState.categories.income, incomingState.categories.income) }, transactions: mergeRecords(localState.transactions, incomingState.transactions) }); }
-    function mergeRecords(left, right) { const map = new Map(); [...(left || []), ...(right || [])].forEach(record => { if (!record?.id) return; const existing = map.get(record.id); if (!existing || compareIso(record.updated_at, existing.updated_at) > 0) map.set(record.id, clone(record)); }); return Array.from(map.values()); }
-    function resetDemoData() { if (!confirm('Bạn muốn khôi phục toàn bộ dữ liệu mẫu?')) return; state = normalizeState(createDefaultState()); cancelTransactionEdit({ silent: true }); persistState(); renderAll(); }
-    function fillAccountSelect(selectEl, includeAll = false, allLabel = 'Tất cả') { const options = []; if (includeAll) options.push(`<option value="all">${escapeHtml(allLabel)}</option>`); options.push(...getActiveAccounts().map(account => `<option value="${account.id}">${escapeHtml(account.name)}</option>`)); selectEl.innerHTML = options.join(''); }
-    function getActiveAccounts() { return state.accounts.filter(item => !item.deleted_at); }
-    function getActiveCategories(type) { return (type === 'expense' ? state.categories.expense : state.categories.income).filter(item => !item.deleted_at); }
-    function getActiveTransactions() { return state.transactions.filter(item => !item.deleted_at); }
-    function getAccountName(id) { return state.accounts.find(item => item.id === id)?.name || '-'; }
-    function getCategoryNameByTransaction(tx) { if (tx.type === 'expense') return state.categories.expense.find(item => item.id === tx.categoryId)?.name || 'Chưa phân loại chi'; if (tx.type === 'income') return state.categories.income.find(item => item.id === tx.categoryId)?.name || 'Chưa phân loại thu'; if (tx.type === 'transfer') return 'Chuyển khoản nội bộ'; return 'Điều chỉnh số dư'; }
-    function getTransactionAccountText(tx) { if (tx.type === 'expense') return getAccountName(tx.accountFromId); if (tx.type === 'income') return getAccountName(tx.accountToId); if (tx.type === 'transfer') return `${getAccountName(tx.accountFromId)} → ${getAccountName(tx.accountToId)}`; return getAccountName(tx.accountFromId); }
-    function getTypeBadge(type) { return type === 'income' ? '<span class="pill pill-income">Thu nhập</span>' : type === 'expense' ? '<span class="pill pill-expense">Chi tiêu</span>' : type === 'transfer' ? '<span class="pill pill-transfer">Chuyển khoản</span>' : '<span class="pill pill-adjustment">Điều chỉnh</span>'; }
-    function mapAccountType(type) { return ({ cash: 'Tiền mặt', bank: 'Ngân hàng', saving: 'Tiết kiệm', investment: 'Đầu tư', other: 'Khác' })[type] || type; }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `tai-chinh-ca-nhan-${formatDateFile(new Date())}.json`; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleImportJson(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = normalizeState(JSON.parse(reader.result));
+          const mode = prompt('Nhập chế độ import: merge để gộp tránh trùng, hoặc replace để ghi đè toàn bộ.', 'merge');
+          if (!mode) { event.target.value = ''; return; }
+          state = mode.toLowerCase() === 'replace' ? parsed : mergeStates(state, parsed, { keepLocalMeta: true });
+          persistState(); renderAll(); alert('Đã nhập dữ liệu JSON thành công.');
+        } catch (e) { console.error(e); alert('Tệp JSON không hợp lệ.'); }
+        finally { event.target.value = ''; }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    // FIX JSON-008: dedup category by name after merge
+    function deduplicateCategoriesByName(list) {
+      const seen = new Set();
+      return list.filter(item => {
+        if (item.deleted_at) return true; // giữ soft-deleted, không dedup
+        const key = `${item.kind}::${item.name.toLowerCase()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function mergeStates(localState, incomingState, options = {}) {
+      const merged = normalizeState({
+        version: 7,
+        meta: {
+          currency: options.keepLocalMeta ? localState.meta.currency : incomingState.meta.currency || localState.meta.currency,
+          themeLabel: options.keepLocalMeta ? localState.meta.themeLabel : incomingState.meta.themeLabel || localState.meta.themeLabel,
+          lastSavedAt: nowIso(),
+          lastCloudSyncAt: localState.meta.lastCloudSyncAt || incomingState.meta.lastCloudSyncAt || null,
+          deviceId: localState.meta.deviceId || incomingState.meta.deviceId || createStableDeviceId()
+        },
+        accounts: mergeRecords(localState.accounts, incomingState.accounts),
+        categories: {
+          expense: deduplicateCategoriesByName(mergeRecords(localState.categories.expense, incomingState.categories.expense)),
+          income: deduplicateCategoriesByName(mergeRecords(localState.categories.income, incomingState.categories.income))
+        },
+        transactions: mergeRecords(localState.transactions, incomingState.transactions)
+      });
+      return merged;
+    }
+
+    function mergeRecords(left, right) {
+      const map = new Map();
+      [...(left || []), ...(right || [])].forEach(record => {
+        if (!record?.id) return;
+        const existing = map.get(record.id);
+        if (!existing || compareIso(record.updated_at, existing.updated_at) > 0) map.set(record.id, clone(record));
+      });
+      return Array.from(map.values());
+    }
+
+    function fillAccountSelect(selectEl, includeAll = false, allLabel = 'Tất cả') {
+      const options = [];
+      if (includeAll) options.push(`<option value="all">${escapeHtml(allLabel)}</option>`);
+      options.push(...getActiveAccounts().map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`));
+      selectEl.innerHTML = options.join('');
+    }
+
+    function getMultiSelectValues(selectEl) {
+      if (!selectEl) return [];
+      if (selectEl.tagName === 'SELECT') return [...selectEl.selectedOptions].map(o => o.value);
+      return [...selectEl.querySelectorAll('input[type="checkbox"]:checked')].map(i => i.value);
+    }
+
+    function fillCompareTypeFilter() {
+      const selected = getMultiSelectValues(el.compareTypeFilter);
+      renderCustomMultiDropdown(el.compareTypeFilter,
+        [{ value: 'income', label: 'Thu nhập' }, { value: 'expense', label: 'Chi tiêu' }, { value: 'transfer', label: 'Chuyển khoản nội bộ' }, { value: 'adjustment', label: 'Điều chỉnh số dư' }],
+        selected, 'Chọn loại giao dịch', renderCompareChart);
+    }
+
+    function fillCompareAccountFilter() {
+      const selected = getMultiSelectValues(el.compareAccountFilter);
+      renderCustomMultiDropdown(el.compareAccountFilter, getActiveAccounts().map(a => ({ value: a.id, label: a.name })), selected, 'Chọn tài khoản', renderCompareChart);
+    }
+
+    function fillCompareCategoryFilter() {
+      const selected = getMultiSelectValues(el.compareCategoryFilter);
+      const all = [...getActiveCategories('expense'), ...getActiveCategories('income')];
+      renderCustomMultiDropdown(el.compareCategoryFilter, all.map(i => ({ value: i.id, label: i.name })), selected, 'Chọn phân loại', renderCompareChart);
+    }
+
+    function getActiveAccounts() { return state.accounts.filter(i => !i.deleted_at); }
+    function getActiveCategories(type) { return (type === 'expense' ? state.categories.expense : state.categories.income).filter(i => !i.deleted_at); }
+    function getActiveTransactions() { return state.transactions.filter(i => !i.deleted_at); }
+    function getAccountName(id) { return state.accounts.find(i => i.id === id)?.name || '-'; }
+    function getCategoryNameByTransaction(tx) {
+      if (tx.type === 'expense') return state.categories.expense.find(i => i.id === tx.categoryId)?.name || 'Chưa phân loại chi';
+      if (tx.type === 'income') return state.categories.income.find(i => i.id === tx.categoryId)?.name || 'Chưa phân loại thu';
+      if (tx.type === 'transfer') return 'Chuyển khoản nội bộ';
+      return 'Điều chỉnh số dư';
+    }
+    function getTransactionAccountText(tx) {
+      if (tx.type === 'expense') return getAccountName(tx.accountFromId);
+      if (tx.type === 'income') return getAccountName(tx.accountToId);
+      if (tx.type === 'transfer') return `${getAccountName(tx.accountFromId)} → ${getAccountName(tx.accountToId)}`;
+      return getAccountName(tx.accountFromId);
+    }
+    function getTypeBadge(type) {
+      return type === 'income' ? pill('Thu nhập','pill-income') : type === 'expense' ? pill('Chi tiêu','pill-expense') : type === 'transfer' ? pill('Chuyển khoản nội bộ','pill-transfer') : pill('Điều chỉnh số dư','pill-adjustment');
+    }
+    function getExpenseModeBadge(mode) { return mode === 'fixed' ? pill('Cố định','pill-fixed') : pill('Không cố định','pill-variable'); }
+    function pill(text, cls) { return `<span class="pill ${cls}">${text}</span>`; }
+    function mapAccountType(type) { return ({ cash:'Tiền mặt', bank:'Ngân hàng', saving:'Tiết kiệm', investment:'Đầu tư', other:'Khác' })[type] || type; }
     function formatCurrency(value) { const currency = state.meta.currency || 'VND'; return `${new Intl.NumberFormat('vi-VN').format(Number(value || 0))} ${currency === 'VND' ? '₫' : currency}`; }
-    function formatDateDisplay(dateString) { if (!dateString) return '-'; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
+    function compactCurrency(value) { const n = Number(value || 0); if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(1)+' tỷ'; if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1)+' triệu'; if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(0)+' nghìn'; return String(n); }
+    function formatDateDisplay(d) { if (!d) return '-'; const [y,m,day] = d.split('-'); return `${day}/${m}/${y}`; }
+    function formatDateTime(value) { return value ? new Date(value).toLocaleString('vi-VN') : '-'; }
+    function formatDurationBetween(startValue, endValue) {
+      const start = new Date(startValue), end = new Date(endValue);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return '-';
+      let years = end.getFullYear() - start.getFullYear();
+      let months = end.getMonth() - start.getMonth();
+      let days = end.getDate() - start.getDate();
+      if (days < 0) { days += new Date(end.getFullYear(), end.getMonth(), 0).getDate(); months -= 1; }
+      if (months < 0) { months += 12; years -= 1; }
+      const parts = [];
+      if (years) parts.push(`${years} năm`);
+      if (months) parts.push(`${months} tháng`);
+      if (days || !parts.length) parts.push(`${days} ngày`);
+      return parts.join(' ');
+    }
     function formatDateInput(date) { return date.toISOString().slice(0, 10); }
     function formatDateFile(date) { return date.toISOString().replace(/[:.]/g, '-').slice(0, 19); }
     function nowIso() { return new Date().toISOString(); }
     function sanitizeName(value, maxLength = 50) { const text = String(value || '').trim().replace(/\s+/g, ' '); return !text || text.length > maxLength ? '' : text; }
     function sanitizeText(value, maxLength = 300) { return String(value || '').trim().slice(0, maxLength); }
-    function createStableDeviceId() { const key = 'finance_app_device_id'; const existing = localStorage.getItem(key); if (existing) return existing; const newId = `device_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`; localStorage.setItem(key, newId); return newId; }
-    function createId(prefix) { return typeof crypto !== 'undefined' && crypto.randomUUID ? `${prefix}_${crypto.randomUUID()}` : `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`; }
+    function createStableDeviceId() { const key = 'finance_app_device_id'; const existing = localStorage.getItem(key); if (existing) return existing; const newId = `device_${Math.random().toString(36).slice(2,10)}_${Date.now().toString(36)}`; localStorage.setItem(key, newId); return newId; }
+    function createId(prefix) { return typeof crypto !== 'undefined' && crypto.randomUUID ? `${prefix}_${crypto.randomUUID()}` : `${prefix}_${Math.random().toString(36).slice(2,10)}_${Date.now().toString(36)}`; }
     function compareIso(a, b) { return new Date(a || 0).getTime() - new Date(b || 0).getTime(); }
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
-    function escapeHtml(value) { return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
+    function sumBy(items, key) { return items.reduce((s, i) => s + Number(i[key] || 0), 0); }
+    function sortTransactionsAsc(a, b) { return new Date(a.date) - new Date(b.date) || compareIso(a.updated_at, b.updated_at); }
+    function sortTransactionsDesc(a, b) { return new Date(b.date) - new Date(a.date) || compareIso(b.updated_at, a.updated_at); }
+    function escapeHtml(value) { return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
     function logStateSnapshot(source) { console.info('[FinanceApp] State snapshot', { source, deviceId: state.meta.deviceId, lastSavedAt: state.meta.lastSavedAt, lastCloudSyncAt: state.meta.lastCloudSyncAt, activeAccounts: getActiveAccounts().length, activeExpenseCategories: getActiveCategories('expense').length, activeIncomeCategories: getActiveCategories('income').length, activeTransactions: getActiveTransactions().length, cloudUser: runtime.auth.user?.email || null }); }
+    function getSiteURL() { return window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin; }
+    function startMagicLinkCooldown(seconds = 60) {
+      runtime.loginCooldownUntil = Date.now() + seconds * 1000;
+      clearInterval(runtime.loginCooldownTimer);
+      const updateButton = () => {
+        const rem = Math.max(0, Math.ceil((runtime.loginCooldownUntil - Date.now()) / 1000));
+        const btn = el.cloudLoginForm?.querySelector('button[type="submit"]');
+        if (!btn) return;
+        if (rem > 0) { btn.disabled = true; btn.textContent = `Gửi lại sau ${rem}s`; }
+        else { btn.disabled = false; btn.textContent = 'Gửi magic link'; clearInterval(runtime.loginCooldownTimer); runtime.loginCooldownTimer = null; }
+      };
+      updateButton();
+      runtime.loginCooldownTimer = setInterval(updateButton, 1000);
+    }
+
     function mapLocalAccountToCloud(item, userId) { return { id: item.id, user_id: userId, name: item.name, type: item.type, opening_balance: item.openingBalance, note: item.note, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
     function mapCloudAccountToLocal(row) { return { id: row.id, name: row.name, type: row.type, openingBalance: Number(row.opening_balance || 0), note: row.note || '', created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
     function mapLocalCategoryToCloud(item, userId) { return { id: item.id, user_id: userId, kind: item.kind, name: item.name, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
     function mapCloudCategoryToLocal(row) { return { id: row.id, kind: row.kind, name: row.name, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
-    function mapLocalTransactionToCloud(item, userId) { return { id: item.id, user_id: userId, type: item.type, date: item.date, amount: item.amount, account_from_id: item.accountFromId, account_to_id: item.accountToId, category_id: item.categoryId, note: item.note, device_id: item.deviceId, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
-    function mapCloudTransactionToLocal(row) { return { id: row.id, type: row.type, date: row.date, amount: Number(row.amount || 0), accountFromId: row.account_from_id || null, accountToId: row.account_to_id || null, categoryId: row.category_id || null, note: row.note || '', deviceId: row.device_id || state.meta.deviceId, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
-    window.startEditTransaction = startEditTransaction; window.softDeleteTransaction = softDeleteTransaction; window.softDeleteAccount = softDeleteAccount; window.softDeleteCategory = softDeleteCategory;
+    function mapLocalTransactionToCloud(item, userId) { return { id: item.id, user_id: userId, type: item.type, date: item.date, amount: item.amount, account_from_id: item.accountFromId, account_to_id: item.accountToId, category_id: item.categoryId, note: item.note, expense_mode: item.expenseMode, device_id: item.deviceId, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
+    function mapCloudTransactionToLocal(row) { return { id: row.id, type: row.type, date: row.date, amount: Number(row.amount || 0), accountFromId: row.account_from_id || null, accountToId: row.account_to_id || null, categoryId: row.category_id || null, note: row.note || '', expenseMode: row.expense_mode || (row.type === 'expense' ? 'variable' : null), deviceId: row.device_id || state.meta.deviceId, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
+
+    window.startEditTransaction = startEditTransaction;
+    window.softDeleteTransaction = softDeleteTransaction;
+    window.softDeleteAccount = softDeleteAccount;
+    window.softDeleteCategory = softDeleteCategory;
   </script>
 </body>
 </html>
