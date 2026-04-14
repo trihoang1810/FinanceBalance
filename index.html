@@ -2117,6 +2117,26 @@ async function pushLocalStateToCloud(currentState) {
     function getActiveDebtPlans() { return (state.debtPlans || []).filter(i => !i.deleted_at); }
     function getActiveDebtEntries() { return (state.debtEntries || []).filter(i => !i.deleted_at); }
 
+    function isDebtTransactionAlreadyUsed(transactionId, planId = null) {
+  if (!transactionId) return false;
+
+  return getActiveDebtEntries().some(entry => {
+    if (entry.transactionId !== transactionId) return false;
+
+    // Mặc định: chặn trùng toàn cục, 1 giao dịch chỉ được dùng 1 lần
+    if (!planId) return true;
+
+    // Nếu muốn chỉ chặn trong cùng 1 quỹ thì đổi return này thành:
+    // return entry.planId === planId;
+    return true;
+  });
+}
+
+function getAvailableDebtPlanLinkedTransactions(plan) {
+  return getDebtPlanLinkedTransactions(plan)
+    .filter(tx => !isDebtTransactionAlreadyUsed(tx.id, plan.id));
+}
+
     function fillDebtAccountSelect() {
       if (!el.debtPlanAccountInput) return;
       const accounts = getActiveAccounts();
@@ -2272,26 +2292,34 @@ async function pushLocalStateToCloud(currentState) {
       }).join('')}</div>`;
     }
 
-    function fillDebtEntryTransactionSelect() {
-      if (!el.debtEntryTransactionSelect) return;
-      const plan = getActiveDebtPlans().find(p => p.id === el.debtEntryPlanSelect.value);
-      if (!plan) {
-        el.debtEntryTransactionSelect.innerHTML = '<option value="">Chọn quỹ trước</option>';
-        el.debtEntryTransactionSelect.disabled = true;
-        renderDebtEntryTransactionInfo();
-        return;
-      }
-      const items = getDebtPlanLinkedTransactions(plan);
-      if (!items.length) {
-        el.debtEntryTransactionSelect.innerHTML = '<option value="">Không có giao dịch phù hợp</option>';
-        el.debtEntryTransactionSelect.disabled = true;
-        renderDebtEntryTransactionInfo();
-        return;
-      }
-      el.debtEntryTransactionSelect.disabled = false;
-      el.debtEntryTransactionSelect.innerHTML = items.map(tx => `<option value="${tx.id}">${formatDateDisplay(tx.date)} · ${formatCurrency(tx.amount)} · ${escapeHtml(tx.note || getTransactionAccountText(tx))}</option>`).join('');
-      renderDebtEntryTransactionInfo();
-    }
+  function fillDebtEntryTransactionSelect() {
+  if (!el.debtEntryTransactionSelect) return;
+
+  const plan = getActiveDebtPlans().find(p => p.id === el.debtEntryPlanSelect.value);
+
+  if (!plan) {
+    el.debtEntryTransactionSelect.innerHTML = '<option value="">Chọn quỹ trước</option>';
+    el.debtEntryTransactionSelect.disabled = true;
+    renderDebtEntryTransactionInfo();
+    return;
+  }
+
+  const items = getAvailableDebtPlanLinkedTransactions(plan);
+
+  if (!items.length) {
+    el.debtEntryTransactionSelect.innerHTML = '<option value="">Không còn giao dịch chưa liên kết</option>';
+    el.debtEntryTransactionSelect.disabled = true;
+    renderDebtEntryTransactionInfo();
+    return;
+  }
+
+  el.debtEntryTransactionSelect.disabled = false;
+  el.debtEntryTransactionSelect.innerHTML = items
+    .map(tx => `<option value="${tx.id}">${formatDateDisplay(tx.date)} · ${formatCurrency(tx.amount)} · ${escapeHtml(tx.note || getTransactionAccountText(tx))}</option>`)
+    .join('');
+
+  renderDebtEntryTransactionInfo();
+}
 
     function renderDebtEntryTransactionInfo() {
       if (!el.debtEntryTransactionInfo) return;
@@ -2394,7 +2422,7 @@ async function pushLocalStateToCloud(currentState) {
       }
       const { snapshot, rows } = simulateDebtProjection(plan, plannedPayment, periods);
       el.debtProjectionSummary.innerHTML = `${pill(plan.name,'pill-adjustment')} ${pill('Hiện tại','pill-adjustment')} ${pill(formatCurrency(snapshot.currentBalance),'pill-adjustment')} ${pill('Cần nộp tối thiểu hiện tại','pill-expense')} ${pill(formatCurrency(snapshot.minimumDue),'pill-expense')} ${pill('Mốc hiện hành','pill-income')} ${pill(formatCurrency(plan.currentTargetAmount),'pill-income')}`;
-      el.debtProjectionTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Kỳ</th><th>Chu kỳ</th><th>Cần nộp tối thiểu kỳ này</th><th>Số tiền dự kiến nộp</th><th>Bù hụt</th><th>Tăng mốc</th><th>Mốc mới sau kỳ</th><th>Số dư dự kiến sau kỳ</th><th>Thiếu dồn từ kỳ trước</th></tr></thead><tbody>${rows.map(row => `<tr><td>${row.period}</td><td>${escapeHtml(row.dueLabel)}</td><td><strong>${formatCurrency(row.minimumDue)}</strong></td><td>${formatCurrency(row.plannedPayment)}</td><td>${formatCurrency(row.replenish)}</td><td>${formatCurrency(row.growth)}</td><td><strong>${formatCurrency(row.targetAfter)}</strong></td><td>${formatCurrency(row.projectedBalance)}</td><td>${formatCurrency(row.remainingGap)}</td></tr>`).join('')}</tbody></table></div>`;
+      el.debtProjectionTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Kỳ</th><th>Chu kỳ</th><th>Cần nộp tối thiểu kỳ này</th><th>Số tiền dự kiến nộp</th><th>Bù hụt</th><th>Tăng mốc</th><th>Mốc mới sau kỳ</th><th>Số dư dự kiến sau kỳ</th><th>Thiếu dồn từ kỳ trước</th></tr></thead><tbody>${rows.map(row => `<tr><td>${row.period}</td><td>${escapeHtml(row.dueLabel)}</td><td><strong>${formatCurrency(row.minimumDue)}</strong></td><td>${formatCurrency(row.plannedPayment)}</td><td>${formatCurrency(row.replenish)}</td><td>${formatCurrency(row.growth)}</td><td><strong>${formatCurrency(row.targetAfter)}</strong></td><td>${formatCurrency(row.projectedBalance)}</td><td>${formatCurrency(row.carry)}</td></tr>`).join('')}</tbody></table></div>`;
     }
 
 
@@ -2425,30 +2453,72 @@ async function pushLocalStateToCloud(currentState) {
       persistState();
       renderAll();
     }
-    function handleDebtEntrySubmit(event) {
-      event.preventDefault();
-      const planId = el.debtEntryPlanSelect.value || '';
-      const transactionId = el.debtEntryTransactionSelect.value || '';
-      const note = sanitizeText(el.debtEntryNoteInput.value, 300);
-      const plan = getActiveDebtPlans().find(p => p.id === planId);
-      const transaction = getActiveTransactions().find(tx => tx.id === transactionId);
-      if (!plan) { alert('Vui lòng chọn quỹ cần ghi nhận nộp.'); return; }
-      if (!transaction) { alert('Vui lòng chọn giao dịch thật liên kết.'); return; }
-      const around = calculateBalanceAroundTransaction(plan.linkedAccountId, transaction.id);
-      if (!around.found) { alert('Không xác định được vị trí giao dịch trong nhật ký.'); return; }
-      const impact = calculateDebtImpact(plan, transaction, around.before, around.after);
-      state.debtEntries.push(makeDebtEntry(plan.id, transaction.id, transaction.date, transaction.amount, impact.replenishAmount, impact.growthAmount, impact.targetAfterPayment, note));
-      const idx = state.debtPlans.findIndex(item => item.id === plan.id);
-      if (idx >= 0) {
-        state.debtPlans[idx] = { ...state.debtPlans[idx], currentTargetAmount: impact.targetAfterPayment, carryShortfall: impact.remainingCarry, updated_at: nowIso() };
-      }
-      el.debtEntryForm.reset();
-      fillDebtPlanSelects();
-      fillDebtEntryTransactionSelect();
-      renderDebtEntryTransactionInfo();
-      persistState();
-      renderAll();
-    }
+function handleDebtEntrySubmit(event) {
+  event.preventDefault();
+
+  const planId = el.debtEntryPlanSelect.value || '';
+  const transactionId = el.debtEntryTransactionSelect.value || '';
+  const note = sanitizeText(el.debtEntryNoteInput.value, 300);
+
+  const plan = getActiveDebtPlans().find(p => p.id === planId);
+  const transaction = getActiveTransactions().find(tx => tx.id === transactionId);
+
+  if (!plan) {
+    alert('Vui lòng chọn quỹ cần ghi nhận nộp.');
+    return;
+  }
+
+  if (!transaction) {
+    alert('Vui lòng chọn giao dịch thật liên kết.');
+    return;
+  }
+
+  if (isDebtTransactionAlreadyUsed(transaction.id, plan.id)) {
+    alert('Giao dịch này đã được dùng để ghi nhận nộp quỹ rồi. Vui lòng chọn giao dịch khác.');
+    fillDebtEntryTransactionSelect();
+    renderDebtEntryTransactionInfo();
+    return;
+  }
+
+  const around = calculateBalanceAroundTransaction(plan.linkedAccountId, transaction.id);
+
+  if (!around.found) {
+    alert('Không xác định được vị trí giao dịch trong nhật ký.');
+    return;
+  }
+
+  const impact = calculateDebtImpact(plan, transaction, around.before, around.after);
+
+  state.debtEntries.push(
+    makeDebtEntry(
+      plan.id,
+      transaction.id,
+      transaction.date,
+      transaction.amount,
+      impact.replenishAmount,
+      impact.growthAmount,
+      impact.targetAfterPayment,
+      note
+    )
+  );
+
+  const idx = state.debtPlans.findIndex(item => item.id === plan.id);
+  if (idx >= 0) {
+    state.debtPlans[idx] = {
+      ...state.debtPlans[idx],
+      currentTargetAmount: impact.targetAfterPayment,
+      carryShortfall: impact.remainingCarry,
+      updated_at: nowIso()
+    };
+  }
+
+  el.debtEntryForm.reset();
+  fillDebtPlanSelects();
+  fillDebtEntryTransactionSelect();
+  renderDebtEntryTransactionInfo();
+  persistState();
+  renderAll();
+}
 
 
     function startEditDebtPlan(id) {
