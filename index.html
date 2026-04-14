@@ -130,12 +130,116 @@
       flex-direction: column;
       gap: 20px;
     }
-    .brand {
-      padding: 12px 14px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-    }
+.brand {
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+.brand.brand-compact {
+  padding: 16px 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015));
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 0 0 1px rgba(123,255,192,0.04),
+    0 10px 24px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 96px;
+}
+
+.brand-icon {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon svg {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+
+.brand-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-title {
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1;
+  flex-wrap: wrap;
+}
+
+.brand-title-main {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: #f3fff8;
+}
+
+.brand-title-accent {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--accent);
+}
+
+.brand-subtitle {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  color: rgba(168, 215, 196, 0.62);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .brand.brand-compact {
+    min-height: 84px;
+    padding: 14px 16px;
+  }
+
+  .brand-title-main,
+  .brand-title-accent {
+    font-size: 16px;
+  }
+
+  .brand-subtitle {
+    font-size: 9px;
+    letter-spacing: 1.8px;
+  }
+}
+.brand-logo {
+  width: 100%;
+  max-width: 220px;
+  display: block;
+}
+
+.brand-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.brand-fallback {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .brand {
+    max-width: 420px;
+  }
+}
     .brand h1 { margin: 0; font-size: 20px; line-height: 1.25; }
     .brand p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
     .nav-group-title { color: rgba(233,255,245,0.6); font-size: 14px; margin: 6px 10px 0; }
@@ -284,30 +388,56 @@
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>Tài chính cá nhân</h1>
-        <p>Chart.js qua CDN, lưu local và đồng bộ Supabase</p>
-      </div>
-      <div>
-        <div class="nav-group-title">Điều hướng</div>
-        <nav class="nav" id="navMenu">
-          <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
-          <button class="nav-btn" data-page="reports">📈 Báo cáo thu chi</button>
-          <button class="nav-btn" data-page="compare">📚 So sánh mục thu chi các tháng</button>
-          <button class="nav-btn" data-page="debt">💳 Quản lý nguồn nợ</button>
-          <button class="nav-btn" data-page="transactions">🧾 Dữ liệu giao dịch</button>
-          <button class="nav-btn" data-page="accounts">🏦 Phân loại tài khoản</button>
-          <button class="nav-btn" data-page="settings">⚙️ Thiết lập</button>
-        </nav>
-      </div>
-      <div class="sidebar-actions">
-        <button class="btn btn-primary" id="exportJsonBtn">⬇️ Xuất JSON</button>
-        <label class="btn btn-secondary" for="importJsonInput">⬆️ Nhập JSON</label>
-        <input id="importJsonInput" type="file" accept="application/json" class="hidden" />
-      </div>
-    </aside>
+<aside class="sidebar">
+  <div class="brand brand-compact">
+    <div class="brand-icon">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#iconGrad)"/>
+        <rect x="14" y="14" width="36" height="36" rx="10" fill="#0C2E24" fill-opacity="0.18"/>
+        <path d="M22 40V25" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M31 40V19" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M40 40V30" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M19 43H43" stroke="#05251C" stroke-width="2.8" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="iconGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#12E7A0"/>
+            <stop offset="1" stop-color="#05C88A"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
 
+    <div class="brand-copy">
+      <div class="brand-title">
+        <span class="brand-title-main">FINANCE</span>
+        <span class="brand-title-accent">PRO</span>
+      </div>
+      <div class="brand-meta">
+        <span class="brand-subtitle">TRIHOANG EDITION</span>
+        <span class="brand-version">v1.0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="nav-group-title">Điều hướng</div>
+    <nav class="nav" id="navMenu">
+      <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+      <button class="nav-btn" data-page="reports">📈 Báo cáo thu chi</button>
+      <button class="nav-btn" data-page="compare">📚 So sánh mục thu chi các tháng</button>
+      <button class="nav-btn" data-page="debt">💳 Quản lý nguồn nợ</button>
+      <button class="nav-btn" data-page="transactions">🧾 Dữ liệu giao dịch</button>
+      <button class="nav-btn" data-page="accounts">🏦 Phân loại tài khoản</button>
+      <button class="nav-btn" data-page="settings">⚙️ Thiết lập</button>
+    </nav>
+  </div>
+
+  <div class="sidebar-actions">
+    <button class="btn btn-primary" id="exportJsonBtn">⬇️ Xuất JSON</button>
+    <label class="btn btn-secondary" for="importJsonInput">⬆️ Nhập JSON</label>
+    <input id="importJsonInput" type="file" accept="application/json" class="hidden" />
+  </div>
+</aside>
     <main class="main">
       <section class="topbar">
         <div>
