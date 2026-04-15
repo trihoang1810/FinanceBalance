@@ -1,6 +1,26 @@
 # Ứng dụng quản lý tài chính cá nhân
 
-Ứng dụng web một trang dùng để theo dõi tài khoản, giao dịch, báo cáo tài sản, phân tích thu chi và quản lý quỹ hoàn quỹ. Giao diện được viết trong một tệp `index.html`, dùng **Chart.js** để vẽ biểu đồ, **localStorage** để lưu dữ liệu cục bộ và có hỗ trợ đồng bộ đám mây qua **Supabase**.
+Ung dung web mot trang theo doi tai khoan, giao dich, bao cao tai san, phan tich thu chi va quan ly quy hoan quy. Giao dien duoc tach thanh `index.html`, `src/css/styles.css`, `src/js/app.js`, `src/js/config.js` va `src/js/utils.js`, dung **Chart.js** de ve bieu do, **localStorage** de luu du lieu cuc bo va co ho tro dong bo dam may qua **Supabase**.
+
+## Cấu trúc thư mục đề xuất
+
+```text
+.
+|-- index.html
+|-- README.md
+|-- src/
+|   |-- css/
+|   |   `-- styles.css
+|   `-- js/
+|       |-- app.js
+|       |-- config.js
+|       `-- utils.js
+|-- data/
+|   `-- exports/
+|       `-- tai-chinh-ca-nhan-2026-04-14T09-18-20.json
+`-- docs/
+    `-- tai-lieu-giai-thich-trang-hoan-quy-dong.docx
+```
 
 ## Mục tiêu của ứng dụng
 
@@ -325,8 +345,8 @@ và mở rộng logic tải lên, tải xuống trong mã nguồn.
 
 ### Cách đơn giản nhất
 
-1. đặt tệp `index.html` vào một thư mục riêng
-2. mở bằng trình duyệt hiện đại
+1. giữ nguyên cấu trúc thư mục của dự án
+2. mở `index.html` bằng trình duyệt hiện đại
 3. bắt đầu tạo tài khoản, danh mục và giao dịch
 
 ### Cách khuyến nghị
