@@ -3,6 +3,7 @@ export const SUPABASE_URL = 'https://ivffdirptersuroxrbua.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_TFZaRWhzMlEG0mRzyHGGnw_zNi717A4';
 
 export const TABLES = {
+  appSettings: 'app_settings',
   accounts: 'accounts',
   categories: 'categories',
   transactions: 'transactions',
@@ -24,12 +25,12 @@ export const CHART_COLORS = ['#35E58D','#7BFFC0','#58B0FF','#FFD166','#FF8E5E','
 
 export const ELEMENT_IDS = [
   'navMenu','pageTitle','pageSubtitle','openTransactionsBtn','syncNowTopBtn','exportJsonBtn','importJsonInput','settingsExportBtn','settingsImportInput',
-  'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','netFlowSummary','dashboardDebtAlerts',
-  'generalSettingsForm','currencyInput','themeLabelInput','expenseCategoryForm','expenseCategoryInput','expenseCategoryList','incomeCategoryForm','incomeCategoryInput','incomeCategoryList',
+  'metricNetWorth','metricIncome','metricExpense','metricNetFlow','assetLegend','netFlowSummary','dashboardDebtAlerts','dashboardExpenseTargetSummary','dashboardExpenseTargetProgressFill','dashboardExpenseTargetMeta','dashboardExpenseTargetHint',
+  'generalSettingsForm','currencyInput','themeLabelInput','monthlyExpenseTargetInput','suggestMonthlyTargetBtn','monthlyExpenseTargetRecommendation','expenseCategoryForm','expenseCategoryInput','expenseCategoryList','incomeCategoryForm','incomeCategoryInput','incomeCategoryList',
   'cloudStatusBox','cloudLoginForm','cloudEmailInput','cloudSyncBtn','cloudPullBtn','cloudLogoutBtn',
   'dashboardQuickRange','dashboardDateFrom','dashboardDateTo','dashboardDistributionMode',
   'reportQuickRange','reportAccountFilter','reportTypeFilter','reportExpenseModeFilter','reportDateFrom','reportDateTo','reportIncomeTotal','reportExpenseTotal','reportTransactionCount','reportNetAmount','reportTransactionsTable',
-  'compareDateFrom','compareDateTo','compareGranularity','compareTypeFilter','compareAccountFilter','compareCategoryFilter','compareBy',
+  'compareQuickRange','compareDateFrom','compareDateTo','compareGranularity','compareTypeFilter','compareAccountFilter','compareCategoryFilter','compareBy',
   'debtTotalGap','debtTotalMinDue','debtFundCount','debtTargetTotal','debtPlanForm','debtFormTitle','debtPlanNameInput','debtPlanAccountInput','debtPlanCurrentTargetInput','debtPlanCycleInput','debtPlanDueDayInput','debtPlanCarryShortfallInput','debtPlanNoteInput','debtPlanSubmitBtn','debtPlanCancelEditBtn','debtTable','debtEntryForm','debtEntryPlanSelect','debtEntryTransactionSelect','debtEntryTransactionInfo','debtEntryNoteInput','debtEntrySubmitBtn','debtEntryTable','debtEntryDateFrom','debtEntryDateTo','debtEntryPageSize','debtEntryPaginationInfo','debtEntryPrevBtn','debtEntryNextBtn','debtProjectionPlanSelect','debtProjectionPaymentInput','debtProjectionPeriodsInput','debtProjectionSummary','debtProjectionTable',
   'accountForm','accountNameInput','accountTypeInput','openingBalanceInput','accountNoteInput','accountsTable',
   'transactionFormTitle','transactionForm','txDateInput','txTypeInput','txAmountInput','txAccountFromInput','txAccountToInput','txCategoryInput','txExpenseModeInput','txExpenseModeField','txAdjustmentModeInput','txAdjustmentField','txNoteInput','txAccountFromField','txAccountToField','transactionSubmitBtn','transactionCancelEditBtn','transactionsTable','transactionSearchInput','transactionTypeFilter','transactionPageSize','transactionPaginationInfo','transactionPrevBtn','transactionNextBtn','bulkDeleteBtn','clearSelectionBtn','selectedCountLabel'

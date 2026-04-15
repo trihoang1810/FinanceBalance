@@ -40,6 +40,8 @@
       el.importJsonInput.addEventListener('change', handleImportJson);
       el.settingsImportInput.addEventListener('change', handleImportJson);
       el.generalSettingsForm.addEventListener('submit', handleSaveGeneralSettings);
+      el.suggestMonthlyTargetBtn.addEventListener('click', applySuggestedMonthlyExpenseTarget);
+      el.monthlyExpenseTargetInput.addEventListener('input', renderMonthlyExpenseTargetRecommendation);
       el.expenseCategoryForm.addEventListener('submit', event => handleAddCategory(event, 'expense'));
       el.incomeCategoryForm.addEventListener('submit', event => handleAddCategory(event, 'income'));
       el.accountForm.addEventListener('submit', handleAccountSubmit);
@@ -97,6 +99,7 @@
       });
       [el.reportAccountFilter, el.reportTypeFilter, el.reportExpenseModeFilter].forEach(node => node.addEventListener('change', renderReportsPage));
 
+      el.compareQuickRange.addEventListener('change', () => { applyQuickRange(el.compareQuickRange, el.compareDateFrom, el.compareDateTo); renderComparePage(); });
       // FIX DASH-007 for compare page
       el.compareDateFrom.addEventListener('change', () => {
         if (el.compareDateTo.value && el.compareDateFrom.value > el.compareDateTo.value) {
@@ -104,6 +107,7 @@
           el.compareDateFrom.value = '';
           return;
         }
+        el.compareQuickRange.value = 'custom';
         renderComparePage();
       });
       el.compareDateTo.addEventListener('change', () => {
@@ -112,6 +116,7 @@
           el.compareDateTo.value = '';
           return;
         }
+        el.compareQuickRange.value = 'custom';
         renderComparePage();
       });
       [el.compareGranularity, el.compareBy].forEach(node => node && node.addEventListener('change', renderComparePage));
@@ -159,10 +164,12 @@
       el.cloudLogoutBtn.addEventListener('click', handleCloudLogout);
 
       el.txDateInput.value = formatDateInput(new Date());
-      el.dashboardQuickRange.value = '3m';
+      el.dashboardQuickRange.value = 'current-month';
       applyQuickRange(el.dashboardQuickRange, el.dashboardDateFrom, el.dashboardDateTo);
-      el.reportQuickRange.value = '3m';
+      el.reportQuickRange.value = 'current-month';
       applyQuickRange(el.reportQuickRange, el.reportDateFrom, el.reportDateTo);
+      el.compareQuickRange.value = 'current-month';
+      applyQuickRange(el.compareQuickRange, el.compareDateFrom, el.compareDateTo);
       initializeCompareDefaultRange();
       const loginButton = el.cloudLoginForm?.querySelector('button[type="submit"]');
       if (loginButton) loginButton.textContent = 'Gửi magic link';
@@ -247,7 +254,7 @@
 
     function createDefaultState() {
       const now = nowIso();
-      return { version: 12, meta: { currency: 'VND', themeLabel: 'dark-green', lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() }, accounts: [], categories: { expense: [], income: [] }, transactions: [], debtPlans: [], debtEntries: [] };
+      return { version: 12, meta: { currency: 'VND', themeLabel: 'dark-green', monthlyExpenseTarget: 0, settingsUpdatedAt: now, lastSavedAt: now, lastCloudSyncAt: null, deviceId: createStableDeviceId() }, accounts: [], categories: { expense: [], income: [] }, transactions: [], debtPlans: [], debtEntries: [] };
     }
 
     function makeAccount(name, type, openingBalance, note) { const t = nowIso(); return { id: createId('acc'), name, type, openingBalance: Number(openingBalance || 0), note, created_at: t, updated_at: t, deleted_at: null }; }
@@ -287,6 +294,7 @@
     function fillBaseForms() {
       el.currencyInput.value = state.meta.currency || 'VND';
       el.themeLabelInput.value = state.meta.themeLabel || 'dark-green';
+      el.monthlyExpenseTargetInput.value = state.meta.monthlyExpenseTarget ? String(state.meta.monthlyExpenseTarget) : '';
       fillAccountSelect(el.reportAccountFilter, true, 'Tất cả tài khoản');
       fillCompareAccountFilter();
       fillAccountSelect(el.txAccountFromInput, false);
@@ -302,6 +310,7 @@
     function renderSettingsPage() {
       renderCategoryList('expense', el.expenseCategoryList);
       renderCategoryList('income', el.incomeCategoryList);
+      renderMonthlyExpenseTargetRecommendation();
     }
 
     function renderCloudStatus() {
@@ -349,7 +358,31 @@
       runtime.charts.cashflowLine.update();
       renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow);
       updateDashboardDistributionDonut(transactions, el.dashboardDistributionMode.value);
+      renderMonthlyExpenseTargetCard();
       renderDashboardDebtAlerts();
+    }
+
+    function renderMonthlyExpenseTargetCard() {
+      if (!el.dashboardExpenseTargetSummary || !el.dashboardExpenseTargetProgressFill || !el.dashboardExpenseTargetMeta || !el.dashboardExpenseTargetHint) return;
+      const snapshot = getCurrentMonthExpenseTargetSnapshot();
+      const suggestion = getRecentMonthlyExpenseAverage();
+      const clampedProgress = snapshot.target > 0 ? Math.min(snapshot.usedPct, 100) : 0;
+      el.dashboardExpenseTargetProgressFill.style.width = `${clampedProgress}%`;
+      el.dashboardExpenseTargetProgressFill.className = `progress-fill${snapshot.target > 0 && snapshot.usedPct >= 100 ? ' danger' : snapshot.target > 0 && snapshot.usedPct >= 80 ? ' warning' : ''}`;
+      el.dashboardExpenseTargetSummary.innerHTML = `${pill('Tháng hiện tại','pill-adjustment')} ${pill('Đã chi','pill-expense')} ${pill(formatCurrency(snapshot.spent),'pill-expense')} ${snapshot.target > 0 ? `${pill('Target','pill-income')} ${pill(formatCurrency(snapshot.target),'pill-income')}` : pill('Chưa thiết lập target','pill-adjustment')} ${pill('Tháng đã trôi qua','pill-adjustment')} ${pill(`${snapshot.elapsedPct.toFixed(1)}%`,'pill-adjustment')}`;
+      el.dashboardExpenseTargetMeta.innerHTML = snapshot.target > 0
+        ? `<span>${snapshot.usedPct.toFixed(1)}% target</span><span>${formatCurrency(snapshot.spent)} / ${formatCurrency(snapshot.target)}</span>`
+        : `<span>Chưa có target</span><span>${formatCurrency(snapshot.spent)} đã chi trong tháng này</span>`;
+      if (snapshot.target <= 0) {
+        el.dashboardExpenseTargetHint.textContent = suggestion.average > 0
+          ? `Chưa thiết lập target. App đang gợi ý ${formatCurrency(suggestion.average)} dựa trên trung bình chi tiêu của 3 tháng gần nhất.`
+          : 'Chưa thiết lập target và chưa có đủ dữ liệu chi tiêu 3 tháng gần nhất để đề xuất.';
+        return;
+      }
+      const paceText = snapshot.usedPct > snapshot.elapsedPct ? 'Mức chi hiện tại đang nhanh hơn tiến độ thời gian của tháng.' : 'Mức chi hiện tại vẫn đang chậm hơn hoặc bám sát tiến độ thời gian của tháng.';
+      el.dashboardExpenseTargetHint.textContent = snapshot.remaining >= 0
+        ? `Còn lại ${formatCurrency(snapshot.remaining)} so với target tháng. ${paceText}`
+        : `Bạn đã vượt target ${formatCurrency(Math.abs(snapshot.remaining))}. ${paceText}`;
     }
 
     function renderNetFlowAllocationChart(transactions, incomeTotal, expenseTotal, netFlow) {
@@ -718,12 +751,12 @@
       try {
         if (mode === 'pull') {
           const cloudState = await fetchCloudState();
-          const cloudHasData = (cloudState.accounts?.length || 0) > 0 || (cloudState.categories?.expense?.length || 0) > 0 || (cloudState.categories?.income?.length || 0) > 0 || (cloudState.transactions?.length || 0) > 0;
+          const cloudHasData = Boolean(cloudState.hasCloudSettings) || (cloudState.accounts?.length || 0) > 0 || (cloudState.categories?.expense?.length || 0) > 0 || (cloudState.categories?.income?.length || 0) > 0 || (cloudState.transactions?.length || 0) > 0;
           // FIX AUTH-009/010: only replace local if it's the first sync AND local has no data
           const localHasData = state.accounts.length > 0 || state.transactions.length > 0;
           const shouldReplaceLocalFromCloud = !state.meta.lastCloudSyncAt && cloudHasData && !localHasData;
           state = shouldReplaceLocalFromCloud
-            ? normalizeState({ ...cloudState, meta: { ...cloudState.meta, currency: cloudState.meta?.currency || state.meta.currency, themeLabel: state.meta.themeLabel || cloudState.meta?.themeLabel || 'dark-green', deviceId: state.meta.deviceId, lastSavedAt: state.meta.lastSavedAt, lastCloudSyncAt: nowIso() } })
+            ? normalizeState({ ...cloudState, meta: { ...cloudState.meta, currency: cloudState.meta?.currency || state.meta.currency, themeLabel: cloudState.meta?.themeLabel || state.meta.themeLabel || 'dark-green', monthlyExpenseTarget: normalizeNonNegativeNumber(cloudState.meta?.monthlyExpenseTarget ?? state.meta.monthlyExpenseTarget ?? 0), settingsUpdatedAt: cloudState.meta?.settingsUpdatedAt || state.meta.settingsUpdatedAt || nowIso(), deviceId: state.meta.deviceId, lastSavedAt: state.meta.lastSavedAt, lastCloudSyncAt: nowIso() } })
             : mergeStates(state, cloudState, { keepLocalMeta: true });
           state.meta.lastCloudSyncAt = nowIso();
           persistState({ skipCloud: true });
@@ -748,7 +781,8 @@
 async function fetchCloudState() {
   const userId = runtime.auth.user.id;
 
-  const [aR, cR, tR, dpR, deR] = await Promise.all([
+  const [sR, aR, cR, tR, dpR, deR] = await Promise.all([
+    supabase.from(TABLES.appSettings).select('*').eq('user_id', userId),
     supabase.from(TABLES.accounts).select('*').eq('user_id', userId),
     supabase.from(TABLES.categories).select('*').eq('user_id', userId),
     supabase.from(TABLES.transactions).select('*').eq('user_id', userId),
@@ -756,12 +790,15 @@ async function fetchCloudState() {
     supabase.from(TABLES.debtEntries).select('*').eq('user_id', userId)
   ]);
 
-  const failed = [aR, cR, tR, dpR, deR].find(r => r.error);
+  const failed = [sR, aR, cR, tR, dpR, deR].find(r => r.error);
   if (failed?.error) throw failed.error;
+  const settingsRow = (sR.data || [])[0] || null;
+  const cloudSettings = mapCloudSettingsToLocal(settingsRow);
 
   return {
     version: 12,
-    meta: clone(state.meta),
+    hasCloudSettings: Boolean(settingsRow),
+    meta: { ...clone(state.meta), ...cloudSettings },
     accounts: (aR.data || []).map(mapCloudAccountToLocal),
     categories: {
       expense: (cR.data || []).filter(r => r.kind === 'expense').map(mapCloudCategoryToLocal),
@@ -775,6 +812,11 @@ async function fetchCloudState() {
 
 async function pushLocalStateToCloud(currentState) {
   const userId = runtime.auth.user.id;
+
+  const sR = await supabase
+    .from(TABLES.appSettings)
+    .upsert([mapLocalSettingsToCloud(currentState.meta, userId)], { onConflict: 'user_id' });
+  if (sR.error) throw sR.error;
 
   const aR = await supabase
     .from(TABLES.accounts)
@@ -820,14 +862,29 @@ async function pushLocalStateToCloud(currentState) {
     function handleSaveGeneralSettings(event) {
       event.preventDefault();
       const currency = (el.currencyInput.value || '').trim().toUpperCase();
+      const monthlyExpenseTargetRaw = (el.monthlyExpenseTargetInput.value || '').trim();
+      const monthlyExpenseTarget = monthlyExpenseTargetRaw === '' ? 0 : Number(monthlyExpenseTargetRaw);
       const allowedThemes = ['dark-green', 'dark-blue', 'light'];
       const theme = allowedThemes.includes(el.themeLabelInput.value) ? el.themeLabelInput.value : 'dark-green';
       if (!currency || currency.length > 10) { alert('Đơn vị tiền tệ không hợp lệ.'); return; }
+      if (!Number.isFinite(monthlyExpenseTarget) || monthlyExpenseTarget < 0) { alert('Target chi tiêu tháng phải là số không âm.'); return; }
       state.meta.currency = currency;
       state.meta.themeLabel = theme;
+      state.meta.monthlyExpenseTarget = monthlyExpenseTarget;
+      state.meta.settingsUpdatedAt = nowIso();
       applyTheme(state.meta.themeLabel);
       persistState();
       renderAll();
+    }
+
+    function applySuggestedMonthlyExpenseTarget() {
+      const suggestion = getRecentMonthlyExpenseAverage();
+      if (!suggestion.average) {
+        alert('Chưa có đủ dữ liệu chi tiêu 3 tháng gần nhất để đề xuất target.');
+        return;
+      }
+      el.monthlyExpenseTargetInput.value = String(suggestion.average);
+      renderMonthlyExpenseTargetRecommendation();
     }
 
     function handleAddCategory(event, type) {
@@ -1075,7 +1132,8 @@ async function pushLocalStateToCloud(currentState) {
       const mode = selectEl.value;
       const today = new Date();
       let from = '', to = formatDateInput(today);
-      if (mode === '3m') from = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
+      if (mode === 'current-month') from = formatDateInput(new Date(today.getFullYear(), today.getMonth(), 1));
+      else if (mode === '3m') from = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
       else if (mode === '30d') { const s = new Date(today); s.setDate(s.getDate() - 29); from = formatDateInput(s); }
       else if (mode === 'ytd') from = formatDateInput(new Date(today.getFullYear(), 0, 1));
       else if (mode === 'all') { from = ''; to = ''; }
@@ -1085,9 +1143,8 @@ async function pushLocalStateToCloud(currentState) {
     }
 
     function initializeCompareDefaultRange() {
-      const today = new Date();
-      el.compareDateTo.value = formatDateInput(today);
-      el.compareDateFrom.value = formatDateInput(new Date(today.getFullYear(), today.getMonth() - 2, 1));
+      el.compareQuickRange.value = 'current-month';
+      applyQuickRange(el.compareQuickRange, el.compareDateFrom, el.compareDateTo);
     }
 
     function toggleReportExpenseModeVisibility() {
@@ -1146,6 +1203,8 @@ async function pushLocalStateToCloud(currentState) {
         meta: {
           currency: input?.meta?.currency || base.meta.currency,
           themeLabel: input?.meta?.themeLabel || base.meta.themeLabel,
+          monthlyExpenseTarget: normalizeNonNegativeNumber(input?.meta?.monthlyExpenseTarget ?? input?.meta?.monthly_expense_target ?? base.meta.monthlyExpenseTarget ?? 0),
+          settingsUpdatedAt: input?.meta?.settingsUpdatedAt || input?.meta?.settings_updated_at || base.meta.settingsUpdatedAt,
           lastSavedAt: input?.meta?.lastSavedAt || base.meta.lastSavedAt,
           lastCloudSyncAt: input?.meta?.lastCloudSyncAt || null,
           deviceId: input?.meta?.deviceId || base.meta.deviceId
@@ -1241,15 +1300,10 @@ async function pushLocalStateToCloud(currentState) {
     }
 
     function mergeStates(localState, incomingState, options = {}) {
+      const mergedMeta = mergeMeta(localState.meta, incomingState.meta, options);
       const merged = normalizeState({
         version: 12,
-        meta: {
-          currency: options.keepLocalMeta ? localState.meta.currency : incomingState.meta.currency || localState.meta.currency,
-          themeLabel: options.keepLocalMeta ? localState.meta.themeLabel : incomingState.meta.themeLabel || localState.meta.themeLabel,
-          lastSavedAt: nowIso(),
-          lastCloudSyncAt: localState.meta.lastCloudSyncAt || incomingState.meta.lastCloudSyncAt || null,
-          deviceId: localState.meta.deviceId || incomingState.meta.deviceId || createStableDeviceId()
-        },
+        meta: mergedMeta,
         accounts: mergeRecords(localState.accounts, incomingState.accounts),
         categories: {
           expense: deduplicateCategoriesByName(mergeRecords(localState.categories.expense, incomingState.categories.expense)),
@@ -1260,6 +1314,22 @@ async function pushLocalStateToCloud(currentState) {
         debtEntries: mergeRecords(localState.debtEntries, incomingState.debtEntries)
       });
       return merged;
+    }
+
+    function mergeMeta(localMeta = {}, incomingMeta = {}, options = {}) {
+      const localSettingsUpdatedAt = localMeta.settingsUpdatedAt || '';
+      const incomingSettingsUpdatedAt = incomingMeta.settingsUpdatedAt || '';
+      const useIncomingSettings = !options.keepLocalMeta && compareIso(incomingSettingsUpdatedAt, localSettingsUpdatedAt) > 0;
+      const settingsSource = useIncomingSettings ? incomingMeta : localMeta;
+      return {
+        currency: settingsSource.currency || localMeta.currency || incomingMeta.currency || 'VND',
+        themeLabel: settingsSource.themeLabel || localMeta.themeLabel || incomingMeta.themeLabel || 'dark-green',
+        monthlyExpenseTarget: normalizeNonNegativeNumber(settingsSource.monthlyExpenseTarget ?? localMeta.monthlyExpenseTarget ?? incomingMeta.monthlyExpenseTarget ?? 0),
+        settingsUpdatedAt: (useIncomingSettings ? incomingSettingsUpdatedAt : localSettingsUpdatedAt) || nowIso(),
+        lastSavedAt: nowIso(),
+        lastCloudSyncAt: localMeta.lastCloudSyncAt || incomingMeta.lastCloudSyncAt || null,
+        deviceId: localMeta.deviceId || incomingMeta.deviceId || createStableDeviceId()
+      };
     }
 
     function mergeRecords(left, right) {
@@ -1277,6 +1347,63 @@ async function pushLocalStateToCloud(currentState) {
       if (includeAll) options.push(`<option value="all">${escapeHtml(allLabel)}</option>`);
       options.push(...getActiveAccounts().map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`));
       selectEl.innerHTML = options.join('');
+    }
+
+    function getMonthRange(date = new Date(), offset = 0) {
+      const start = new Date(date.getFullYear(), date.getMonth() + offset, 1);
+      const end = new Date(date.getFullYear(), date.getMonth() + offset + 1, 0);
+      return { start, end, from: formatDateInput(start), to: formatDateInput(end) };
+    }
+
+    function getExpenseTotalInRange(from = '', to = '') {
+      return sumBy(getActiveTransactions().filter(tx => tx.type === 'expense' && (from ? tx.date >= from : true) && (to ? tx.date <= to : true)), 'amount');
+    }
+
+    function normalizeNonNegativeNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    }
+
+    function getMonthLabel(dateValue) {
+      const [year, month] = String(dateValue || '').split('-');
+      return month && year ? `${month}/${year}` : '';
+    }
+
+    function getRecentMonthlyExpenseAverage(monthCount = 3) {
+      const months = [];
+      for (let offset = -1; offset >= -monthCount; offset -= 1) {
+        const range = getMonthRange(new Date(), offset);
+        months.push({ ...range, total: getExpenseTotalInRange(range.from, range.to), label: getMonthLabel(range.from) });
+      }
+      const total = months.reduce((sum, month) => sum + month.total, 0);
+      return { average: Math.max(0, Math.round((total / Math.max(months.length, 1)) / 1000) * 1000), months };
+    }
+
+    function renderMonthlyExpenseTargetRecommendation() {
+      if (!el.monthlyExpenseTargetRecommendation) return;
+      const suggestion = getRecentMonthlyExpenseAverage();
+      const currentTarget = Number(el.monthlyExpenseTargetInput?.value || state.meta.monthlyExpenseTarget || 0);
+      if (!suggestion.average) {
+        el.monthlyExpenseTargetRecommendation.textContent = currentTarget > 0
+          ? `Target hiện tại là ${formatCurrency(currentTarget)}. Chưa có đủ dữ liệu chi tiêu trong 3 tháng gần nhất để app đề xuất mức mới.`
+          : 'Chưa có đủ dữ liệu chi tiêu trong 3 tháng gần nhất để app đề xuất target.';
+        return;
+      }
+      const monthBreakdown = suggestion.months.map(month => `${month.label}: ${formatCurrency(month.total)}`).join(' · ');
+      el.monthlyExpenseTargetRecommendation.textContent = currentTarget > 0
+        ? `Target hiện tại: ${formatCurrency(currentTarget)}. Đề xuất từ app: ${formatCurrency(suggestion.average)} dựa trên chi tiêu 3 tháng gần nhất (${monthBreakdown}).`
+        : `Đề xuất từ app: ${formatCurrency(suggestion.average)} dựa trên chi tiêu 3 tháng gần nhất (${monthBreakdown}).`;
+    }
+
+    function getCurrentMonthExpenseTargetSnapshot() {
+      const monthRange = getMonthRange(new Date(), 0);
+      const now = new Date();
+      const spent = getExpenseTotalInRange(monthRange.from, formatDateInput(now));
+      const target = Number(state.meta.monthlyExpenseTarget || 0);
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const elapsedPct = (now.getDate() / daysInMonth) * 100;
+      const usedPct = target > 0 ? (spent / target) * 100 : 0;
+      return { spent, target, remaining: target - spent, usedPct, elapsedPct, from: monthRange.from, to: formatDateInput(now) };
     }
 
     function getMultiSelectValues(selectEl) {
@@ -1798,6 +1925,24 @@ function handleDebtEntrySubmit(event) {
     }
 
     function mapLocalAccountToCloud(item, userId) { return { id: item.id, user_id: userId, name: item.name, type: item.type, opening_balance: item.openingBalance, note: item.note, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
+    function mapLocalSettingsToCloud(meta, userId) {
+      return {
+        user_id: userId,
+        currency: meta.currency || 'VND',
+        theme_label: meta.themeLabel || 'dark-green',
+        monthly_expense_target: normalizeNonNegativeNumber(meta.monthlyExpenseTarget || 0),
+        updated_at: meta.settingsUpdatedAt || nowIso()
+      };
+    }
+    function mapCloudSettingsToLocal(row) {
+      if (!row) return null;
+      return {
+        currency: row.currency || 'VND',
+        themeLabel: row.theme_label || 'dark-green',
+        monthlyExpenseTarget: normalizeNonNegativeNumber(row.monthly_expense_target || 0),
+        settingsUpdatedAt: row.updated_at || nowIso()
+      };
+    }
     function mapCloudAccountToLocal(row) { return { id: row.id, name: row.name, type: row.type, openingBalance: Number(row.opening_balance || 0), note: row.note || '', created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
     function mapLocalCategoryToCloud(item, userId) { return { id: item.id, user_id: userId, kind: item.kind, name: item.name, created_at: item.created_at, updated_at: item.updated_at, deleted_at: item.deleted_at }; }
     function mapCloudCategoryToLocal(row) { return { id: row.id, kind: row.kind, name: row.name, created_at: row.created_at || nowIso(), updated_at: row.updated_at || row.created_at || nowIso(), deleted_at: row.deleted_at || null }; }
@@ -1879,5 +2024,3 @@ function mapCloudDebtEntryToLocal(row) {
     window.startEditDebtPlan = startEditDebtPlan;
     window.softDeleteDebtPlan = softDeleteDebtPlan;
   
-
-

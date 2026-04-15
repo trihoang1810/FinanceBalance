@@ -78,6 +78,7 @@
             <div class="field">
               <label for="dashboardQuickRange">Khoảng thời gian</label>
               <select id="dashboardQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
                 <option value="3m">3 tháng gần nhất</option>
                 <option value="30d">30 ngày gần nhất</option>
                 <option value="ytd">Từ đầu năm đến nay</option>
@@ -94,6 +95,14 @@
           <div class="card"><div class="metric-title">Tổng thu</div><div class="metric-value metric-positive" id="metricIncome">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch thu nhập trong kỳ lọc.</div></div>
           <div class="card"><div class="metric-title">Tổng chi</div><div class="metric-value metric-negative" id="metricExpense">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch chi tiêu trong kỳ lọc.</div></div>
           <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="metricNetFlow">0 ₫</div><div class="metric-meta">Thu nhập trừ chi tiêu trong kỳ lọc.</div></div>
+        </div>
+        <div class="card">
+          <h3>Tiến độ target chi tiêu tháng hiện tại</h3>
+          <div class="card-subtitle">Theo dõi mức dùng ngân sách chi tiêu của tháng đang diễn ra, tách biệt với bộ lọc dashboard.</div>
+          <div class="stacked-summary" id="dashboardExpenseTargetSummary"></div>
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="dashboardExpenseTargetProgressFill" style="width: 0%"></div></div>
+          <div class="progress-meta" id="dashboardExpenseTargetMeta"><span>0% target</span><span>0 ₫ / 0 ₫</span></div>
+          <div class="card-subtitle" id="dashboardExpenseTargetHint">Chưa thiết lập target chi tiêu tháng.</div>
         </div>
         <div class="card">
           <h3>Cần nộp trong 7 ngày tới</h3>
@@ -141,6 +150,7 @@
           <div class="toolbar">
             <div class="field"><label for="reportQuickRange">Khoảng thời gian</label>
               <select id="reportQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
                 <option value="3m">3 tháng gần nhất</option>
                 <option value="30d">30 ngày gần nhất</option>
                 <option value="ytd">Từ đầu năm đến nay</option>
@@ -185,6 +195,16 @@
           <h3>So sánh dao động của các nguồn thu chi</h3>
           <div class="card-subtitle">Biểu đồ cột chồng, trục hoành có thể chọn theo ngày, tháng hoặc năm. Các bộ lọc Loại giao dịch, Tài khoản và Phân loại dùng dropdown có checkbox để chọn nhiều mục; nếu không chọn mục nào thì hệ thống lấy tất cả.</div>
           <div class="toolbar">
+            <div class="field"><label for="compareQuickRange">Khoảng thời gian</label>
+              <select id="compareQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
             <div class="field"><label for="compareDateFrom">Từ ngày</label><input id="compareDateFrom" type="date" /></div>
             <div class="field"><label for="compareDateTo">Đến ngày</label><input id="compareDateTo" type="date" /></div>
             <div class="field"><label for="compareGranularity">Trục hoành</label><select id="compareGranularity"><option value="day">Ngày</option><option value="month">Tháng</option><option value="year">Năm</option></select></div>
@@ -338,6 +358,9 @@
             <form id="generalSettingsForm" class="form-grid">
               <div class="field"><label for="currencyInput">Đơn vị tiền tệ</label><input id="currencyInput" type="text" maxlength="10" /></div>
               <div class="field"><label for="themeLabelInput">Chủ đề giao diện</label><select id="themeLabelInput"><option value="dark-green">Dark Green</option><option value="dark-blue">Dark Blue</option><option value="light">Light</option></select></div>
+              <div class="field"><label for="monthlyExpenseTargetInput">Target chi tiêu tháng</label><input id="monthlyExpenseTargetInput" type="number" min="0" step="1000" placeholder="Ví dụ: 15000000" /></div>
+              <div class="field"><label for="suggestMonthlyTargetBtn">Đề xuất từ app</label><button class="btn btn-secondary" type="button" id="suggestMonthlyTargetBtn">Lấy trung bình 3 tháng gần nhất</button></div>
+              <div class="field" style="grid-column: 1 / -1;"><label>Gợi ý target hiện tại</label><div class="notice" id="monthlyExpenseTargetRecommendation">App sẽ đề xuất target dựa trên trung bình chi tiêu 3 tháng gần nhất.</div></div>
               <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Lưu thiết lập</button></div>
             </form>
             <div class="notice">Mở Developer Tools để xem localStorage, số bản ghi đang hoạt động, lần lưu gần nhất và trạng thái cloud.</div>
@@ -401,5 +424,4 @@
   <script type="module" src="src/js/app.js"></script>
 </body>
 </html>
-
 
