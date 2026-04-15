@@ -371,10 +371,11 @@
       gap: 6px;
       background: none;
       border: none;
-      padding: 8px;
+      padding: 12px;
       cursor: pointer;
       align-items: center;
       justify-content: center;
+      z-index: 1000;
     }
     
     .hamburger-btn span {
@@ -430,10 +431,17 @@
     @media (max-width: 768px) {
       .hamburger-btn {
         display: flex;
+        position: fixed;
+        top: 16px;
+        left: 16px;
       }
       
       .app {
         grid-template-columns: 1fr;
+      }
+      
+      .main {
+        padding-top: 24px;
       }
       
       .sidebar {
