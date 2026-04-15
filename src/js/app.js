@@ -33,6 +33,7 @@ const runtime = {
   editingTransactionId: null,
   editingDebtPlanId: null,
   cloudSyncTimer: null,
+  cloudRealtimeSubscriptions: [],
   txList: {
     page: 1,
     pageSize: 10,
@@ -330,7 +331,10 @@ async function initializeSupabaseAuth() {
     ? `Đã đăng nhập cloud với ${runtime.auth.user.email}`
     : "Chưa đăng nhập cloud.";
   renderCloudStatus();
-  if (runtime.auth.user) await syncCloudData("pull");
+  if (runtime.auth.user) {
+    subscribeToCloudChanges();
+    await syncCloudData("pull");
+  }
   supabase.auth.onAuthStateChange(async (event, sessionValue) => {
     runtime.auth.session = sessionValue || null;
     runtime.auth.user = sessionValue?.user || null;
@@ -339,8 +343,14 @@ async function initializeSupabaseAuth() {
       ? `Đăng nhập thành công: ${runtime.auth.user.email}`
       : "Đã đăng xuất cloud.";
     renderCloudStatus();
-    if (runtime.auth.user && event !== "INITIAL_SESSION")
-      await syncCloudData("pull");
+    if (runtime.auth.user) {
+      if (event !== "INITIAL_SESSION") {
+        subscribeToCloudChanges();
+        await syncCloudData("pull");
+      }
+    } else {
+      unsubscribeFromCloudChanges();
+    }
   });
 }
 
@@ -1328,6 +1338,7 @@ async function handleCloudLogout() {
   runtime.auth.busy = true;
   renderCloudStatus();
   const { error } = await supabase.auth.signOut();
+  unsubscribeFromCloudChanges();
   runtime.auth.busy = false;
   runtime.auth.lastError = error ? error.message : "";
   runtime.auth.lastInfo = error ? runtime.auth.lastInfo : "Đã đăng xuất cloud.";
@@ -1499,6 +1510,48 @@ function handleStorageSync(event) {
   } catch (e) {
     console.error(e);
   }
+}
+
+function subscribeToCloudChanges() {
+  if (!runtime.auth.user) {
+    console.log("Cannot subscribe to cloud changes: user not logged in");
+    return;
+  }
+  unsubscribeFromCloudChanges();
+  const userId = runtime.auth.user.id;
+  const tables = [
+    TABLES.appSettings,
+    TABLES.accounts,
+    TABLES.categories,
+    TABLES.transactions,
+    TABLES.debtPlans,
+    TABLES.debtEntries,
+  ];
+  tables.forEach((table) => {
+    const subscription = supabase
+      .channel(`public:${table}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table, filter: `user_id=eq.${userId}` },
+        async () => {
+          console.log(`Cloud change detected in ${table}, syncing...`);
+          await syncCloudData("pull");
+        },
+      )
+      .subscribe((status) => {
+        console.log(`Subscription to ${table}: ${status}`);
+      });
+    runtime.cloudRealtimeSubscriptions.push({ table, subscription });
+  });
+}
+
+function unsubscribeFromCloudChanges() {
+  runtime.cloudRealtimeSubscriptions.forEach(({ subscription }) => {
+    if (subscription) {
+      supabase.removeChannel(subscription);
+    }
+  });
+  runtime.cloudRealtimeSubscriptions = [];
 }
 
 function handleSaveGeneralSettings(event) {
