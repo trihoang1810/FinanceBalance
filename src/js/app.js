@@ -286,6 +286,9 @@ function bindEvents() {
   el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull", true));
   el.cloudLogoutBtn.addEventListener("click", handleCloudLogout);
 
+  el.sidebarToggleBtn.addEventListener("click", toggleSidebar);
+  el.sidebarBackdrop.addEventListener("click", closeSidebar);
+
   el.txDateInput.value = formatDateInput(new Date());
   el.dashboardQuickRange.value = "current-month";
   applyQuickRange(
@@ -317,6 +320,26 @@ function bindDatePickerEvents() {
     input.addEventListener("focus", openPicker);
     input.addEventListener("click", openPicker);
   });
+}
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const backdrop = el.sidebarBackdrop;
+  const btn = el.sidebarToggleBtn;
+
+  sidebar?.classList.toggle("active");
+  backdrop?.classList.toggle("active");
+  btn?.classList.toggle("active");
+}
+
+function closeSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const backdrop = el.sidebarBackdrop;
+  const btn = el.sidebarToggleBtn;
+
+  sidebar?.classList.remove("active");
+  backdrop?.classList.remove("active");
+  btn?.classList.remove("active");
 }
 
 async function initializeSupabaseAuth() {
@@ -2053,6 +2076,7 @@ function handleNavClick(event) {
   const button = event.target.closest(".nav-btn");
   if (!button) return;
   openPage(button.dataset.page);
+  closeSidebar();
 }
 
 function openPage(pageName) {
