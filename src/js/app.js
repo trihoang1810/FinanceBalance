@@ -283,7 +283,7 @@ function bindEvents() {
 
   el.cloudLoginForm.addEventListener("submit", handleCloudLogin);
   el.cloudSyncBtn.addEventListener("click", () => syncCloudData("both"));
-  el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull"));
+  el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull", true));
   el.cloudLogoutBtn.addEventListener("click", handleCloudLogout);
 
   el.txDateInput.value = formatDateInput(new Date());
@@ -1345,7 +1345,7 @@ async function handleCloudLogout() {
   renderCloudStatus();
 }
 
-async function syncCloudData(mode = "both") {
+async function syncCloudData(mode = "both", forceReplace = false) {
   if (!runtime.auth.user) {
     alert("Bạn cần đăng nhập cloud trước khi đồng bộ.");
     return;
@@ -1370,7 +1370,8 @@ async function syncCloudData(mode = "both") {
       const localHasData =
         state.accounts.length > 0 || state.transactions.length > 0;
       const shouldReplaceLocalFromCloud =
-        !state.meta.lastCloudSyncAt && cloudHasData && !localHasData;
+        forceReplace ||
+        (!state.meta.lastCloudSyncAt && cloudHasData && !localHasData);
       state = shouldReplaceLocalFromCloud
         ? normalizeState({
             ...cloudState,
