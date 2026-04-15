@@ -96,11 +96,12 @@ const STATE = globalThis.__qaSupabaseState || (globalThis.__qaSupabaseState = {
   users: {}
 });
 
-const TABLES = ['accounts', 'categories', 'transactions', 'debt_plans', 'debt_entries'];
+const TABLES = ['app_settings', 'accounts', 'categories', 'transactions', 'debt_plans', 'debt_entries'];
 
 function ensureUser(userId) {
   if (!STATE.users[userId]) {
     STATE.users[userId] = {
+      app_settings: [],
       accounts: [],
       categories: [],
       transactions: [],
@@ -154,7 +155,8 @@ function upsertRows(table, rows) {
   if (!userId) return { data: null, error: makeError('No user session') };
   const bucket = ensureUser(userId)[table];
   for (const row of rows || []) {
-    const index = bucket.findIndex((item) => item.id === row.id);
+    const keyField = table === 'app_settings' ? 'user_id' : 'id';
+    const index = bucket.findIndex((item) => item[keyField] === row[keyField]);
     if (index >= 0) bucket[index] = clone(row);
     else bucket.push(clone(row));
   }
@@ -467,6 +469,8 @@ function makeState(overrides = {}) {
     meta: {
       currency: 'VND',
       themeLabel: 'dark-green',
+      monthlyExpenseTarget: 0,
+      settingsUpdatedAt: isoNow(),
       lastSavedAt: isoNow(),
       lastCloudSyncAt: null,
       deviceId: 'qa-device'
@@ -723,6 +727,7 @@ async function main() {
 
     await test('AUTH-009..AUTH-015 bootstrap cloud và cô lập user', async () => {
       const cloudSeed = {
+        app_settings: [{ user_id: 'user:seed@example.com', currency: 'USD', theme_label: 'dark-blue', monthly_expense_target: 12000000, updated_at: isoNow() }],
         accounts: [{ id: 'acc_cloud', user_id: 'user:seed@example.com', name: 'Cloud Wallet', type: 'cash', opening_balance: 500000, note: '', created_at: isoNow(), updated_at: isoNow(), deleted_at: null }],
         categories: [{ id: 'exp_food', user_id: 'user:seed@example.com', kind: 'expense', name: 'Ăn uống', created_at: isoNow(), updated_at: isoNow(), deleted_at: null }],
         transactions: [],
@@ -736,8 +741,11 @@ async function main() {
       await waitFor(`JSON.parse(localStorage.getItem(${JSON.stringify(STORAGE_KEY)})).accounts.length === 1`);
       let saved = await state();
       assert(saved.accounts[0].name === 'Cloud Wallet', 'không pull dữ liệu cloud khi local rỗng');
+      assert(saved.meta.monthlyExpenseTarget === 12000000, 'không pull target từ cloud khi local rỗng');
+      assert(saved.meta.currency === 'USD' && saved.meta.themeLabel === 'dark-blue', 'không pull settings từ cloud khi local rỗng');
 
       const localWithData = makeState({
+        meta: { monthlyExpenseTarget: 9000000, settingsUpdatedAt: new Date(Date.now() - 2000).toISOString() },
         accounts: [{ id: 'acc_local', name: 'Local Wallet', type: 'cash', openingBalance: 100000, note: '', created_at: isoNow(), updated_at: isoNow(), deleted_at: null }],
         categories: { expense: [], income: [] }
       });
@@ -748,8 +756,15 @@ async function main() {
       await waitFor(`JSON.parse(localStorage.getItem(${JSON.stringify(STORAGE_KEY)})).accounts.length >= 2`);
       saved = await state();
       assert(saved.accounts.some((item) => item.name === 'Local Wallet') && saved.accounts.some((item) => item.name === 'Cloud Wallet'), 'merge bootstrap làm mất dữ liệu');
+      assert(saved.meta.monthlyExpenseTarget === 9000000, 'không giữ local settings khi keepLocalMeta đang bật');
+      await click('#navMenu .nav-btn[data-page="settings"]');
+      await setValue('#monthlyExpenseTargetInput', '15000000');
+      await submit('#generalSettingsForm');
       await click('#cloudSyncBtn');
-      await waitFor(`JSON.parse(localStorage.getItem(${JSON.stringify(STORAGE_KEY)})).meta.lastCloudSyncAt`);
+      await delay(1200);
+      const cloudStateAfterPush = await evaluate(`window.__qaSupabase.getState()`);
+      const mergeUserSettings = (cloudStateAfterPush.users['user:merge@example.com']?.app_settings || []).find((item) => item.user_id === 'user:merge@example.com');
+      assert(mergeUserSettings?.monthly_expense_target === 15000000, `không push target lên cloud: ${JSON.stringify(cloudStateAfterPush.users['user:merge@example.com']?.app_settings || null)}`);
       await evaluate(`window.__qaSupabase.setBehavior({ networkDown: true })`);
       await click('#cloudSyncBtn');
       await waitFor(`document.querySelector('#cloudStatusBox').innerText.includes('Failed to fetch')`);
@@ -759,12 +774,13 @@ async function main() {
       await evaluate(`window.__qaSupabase.clearBehavior()`);
       await click('#cloudLogoutBtn');
       await waitFor(`document.querySelector('#cloudStatusBox').innerText.includes('chưa kết nối')`);
-      await evaluate(`window.__qaSupabase.seed('userb@example.com', { accounts: [], categories: [], transactions: [], debt_plans: [], debt_entries: [] });`);
+      await evaluate(`window.__qaSupabase.seed('userb@example.com', { app_settings: [{ user_id: 'user:userb@example.com', currency: 'VND', theme_label: 'light', monthly_expense_target: 3330000, updated_at: ${JSON.stringify(isoNow())} }], accounts: [], categories: [], transactions: [], debt_plans: [], debt_entries: [] });`);
       await evaluate(`window.__qaSupabase.completeMagicLink('userb@example.com')`);
       await delay(300);
       await waitFor(`document.querySelector('#cloudStatusBox').innerText.includes('đã kết nối') && !document.querySelector('#cloudSyncBtn').disabled`);
       saved = await state();
       assert(saved.accounts.some((item) => item.name === 'Local Wallet') && !saved.accounts.some((item) => item.name === 'Only User B'), 'dữ liệu lẫn giữa hai user');
+      assert(saved.meta.monthlyExpenseTarget === 15000000, 'settings local bị user khác ghi đè ngoài ý muốn trong cùng máy');
     });
 
     await test('JSON-001..JSON-009 export/import/merge', async () => {
