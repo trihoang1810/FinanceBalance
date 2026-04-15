@@ -292,8 +292,8 @@
     .btn:hover { transform: translateY(-1px); }
     .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
     .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: #03291d; box-shadow: 0 10px 24px var(--accent-shadow); }
-    .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: rgba(255,125,125,0.12); color: #ffd5d5; border: 1px solid rgba(255,125,125,0.16); }
+    .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); margin-bottom: 6px; }
+    .btn-danger { background: rgba(255,125,125,0.12); color: #ffd5d5; border: 1px solid rgba(255,125,125,0.16); margin-bottom: 6px; }
     .btn-warning { background: rgba(255,209,102,0.12); color: #ffe39f; border: 1px solid rgba(255,209,102,0.16); }
     .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
     .toolbar .field { min-width: 170px; flex: 1; }
