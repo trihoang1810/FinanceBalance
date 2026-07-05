@@ -240,3 +240,84 @@ export function applyTransactionToBalances(tx, balances) {
   } else if (tx.type === "adjustment" && tx.accountFromId)
     balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) + tx.amount;
 }
+
+export function parseLocalDate(value) {
+  const [year, month, day] = String(value || "")
+    .split("-")
+    .map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
+export function chooseCanonicalCategory(a, b) {
+  const aActive = !a.deleted_at;
+  const bActive = !b.deleted_at;
+
+  if (aActive !== bActive) {
+    return aActive ? a : b;
+  }
+
+  const timeDiff = compareIso(a.updated_at, b.updated_at);
+
+  if (timeDiff !== 0) {
+    return timeDiff > 0 ? a : b;
+  }
+
+  return String(a.id).localeCompare(String(b.id)) <= 0 ? a : b;
+}
+
+export function deduplicateCategoriesByNameWithActive(list) {
+  const seen = new Map();
+  const aliasMap = new Map();
+  const categories = [];
+
+  for (const item of list) {
+    const key = getCategoryCanonicalKey(item);
+
+    if (!seen.has(key)) {
+      seen.set(key, item);
+      categories.push(item);
+      continue;
+    }
+
+    const existing = seen.get(key);
+    const canonical = chooseCanonicalCategory(existing, item);
+
+    if (canonical.id !== existing.id) {
+      const oldCanonicalIdx = categories.findIndex((c) => c.id === existing.id);
+      if (oldCanonicalIdx >= 0) {
+        categories[oldCanonicalIdx] = canonical;
+      }
+      seen.set(key, canonical);
+
+      if (existing.id !== item.id) {
+        aliasMap.set(existing.id, canonical.id);
+      }
+    }
+
+    if (item.id !== canonical.id) {
+      aliasMap.set(item.id, canonical.id);
+    }
+  }
+
+  return { categories, aliasMap };
+}
+
+export function settleDebtPeriodIfEligible(plan, impact, balanceAfter) {
+  const isSettled =
+    impact.remainingCarry === 0 && balanceAfter >= impact.targetAfterPayment;
+
+  if (!isSettled) return plan;
+
+  const currentDueDate = parseLocalDate(plan.nextDueDate);
+
+  return {
+    ...plan,
+    lastSettledPeriod: plan.nextDueDate
+      ? plan.nextDueDate.slice(0, 7)
+      : formatDateInput(new Date()).slice(0, 7),
+    nextDueDate: formatDateInput(
+      addDebtCycle(currentDueDate, plan.cycle, plan.dueDay),
+    ),
+  };
+}

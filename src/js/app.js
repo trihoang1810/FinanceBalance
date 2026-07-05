@@ -28,6 +28,24 @@ import {
   sortTransactionsDesc,
   sumBy,
 } from "./utils.js";
+import {
+  addDebtCycle,
+  applyTransactionToBalances,
+  calculateDebtDueDateFromAnchor,
+  calculateDebtImpact,
+  clampDebtDueDay,
+  chooseCanonicalCategory,
+  deduplicateCategoriesByName,
+  deduplicateCategoriesByNameWithActive,
+  getCategoryCanonicalKey,
+  hasDomainData,
+  mergeRecords,
+  mergeMeta,
+  mergeStates,
+  parseLocalDate,
+  remapCategoryReferences,
+  settleDebtPeriodIfEligible,
+} from "./domain.js";
 const runtime = {
   charts: {},
   editingTransactionId: null,
@@ -1121,27 +1139,10 @@ function sanitizePillClass(cls) {
   return PILL_CLASSES.has(cls) ? cls : "pill-adjustment";
 }
 
-function hasDomainData(candidateState) {
-  return Boolean(
-    candidateState.accounts?.length ||
-    candidateState.transactions?.length ||
-    candidateState.categories?.expense?.length ||
-    candidateState.categories?.income?.length ||
-    candidateState.debtPlans?.length ||
-    candidateState.debtEntries?.length,
-  );
-}
-
 function getDebtEntryByTransactionId(transactionId) {
   return getActiveDebtEntries().find(
     (entry) => entry.transactionId === transactionId,
   );
-}
-
-function getCategoryCanonicalKey(item) {
-  return `${item.kind || ""}::${String(item.name || "")
-    .trim()
-    .toLowerCase()}`;
 }
 
 function buildCategoryAliasMap(categories) {
@@ -1157,17 +1158,6 @@ function buildCategoryAliasMap(categories) {
     }
   }
   return aliasMap;
-}
-
-function remapCategoryReferences(transactions, aliasMap) {
-  if (!aliasMap.size) return transactions;
-  return transactions.map((tx) => {
-    if (!tx.categoryId || !aliasMap.has(tx.categoryId)) return tx;
-    return {
-      ...tx,
-      categoryId: aliasMap.get(tx.categoryId),
-    };
-  });
 }
 
 // FIX CMP-013: renderCustomMultiDropdown binds change events that only update chart, not rebuild dropdown
@@ -2066,21 +2056,6 @@ function calculateAccountBalances() {
   return { ...balances };
 }
 
-function applyTransactionToBalances(tx, balances) {
-  if (tx.type === "income" && tx.accountToId)
-    balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
-  else if (tx.type === "expense" && tx.accountFromId)
-    balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) - tx.amount;
-  else if (tx.type === "transfer") {
-    if (tx.accountFromId)
-      balances[tx.accountFromId] =
-        (balances[tx.accountFromId] || 0) - tx.amount;
-    if (tx.accountToId)
-      balances[tx.accountToId] = (balances[tx.accountToId] || 0) + tx.amount;
-  } else if (tx.type === "adjustment" && tx.accountFromId)
-    balances[tx.accountFromId] = (balances[tx.accountFromId] || 0) + tx.amount;
-}
-
 function buildNetWorthSeries(
   sourceTransactions = getActiveTransactions(),
   fromDate = "",
@@ -2436,110 +2411,6 @@ function handleImportJson(event) {
 }
 
 // FIX JSON-008: dedup category by name after merge, preserve canonical references
-function deduplicateCategoriesByName(list) {
-  const seen = new Set();
-  const aliasMap = new Map();
-  const categories = [];
-  for (const item of list) {
-    const key = getCategoryCanonicalKey(item);
-    if (!seen.has(key)) {
-      seen.add(key);
-      categories.push(item);
-      continue;
-    }
-    const canonicalId = categories.find(
-      (category) => getCategoryCanonicalKey(category) === key,
-    )?.id;
-    if (canonicalId && item.id !== canonicalId) {
-      aliasMap.set(item.id, canonicalId);
-    }
-  }
-  return { categories, aliasMap };
-}
-
-function mergeStates(localState, incomingState, options = {}) {
-  const mergedMeta = mergeMeta(localState.meta, incomingState.meta, options);
-  const mergedAccounts = mergeRecords(
-    localState.accounts,
-    incomingState.accounts,
-  );
-  const expenseDedup = deduplicateCategoriesByName(
-    mergeRecords(
-      localState.categories.expense,
-      incomingState.categories.expense,
-    ),
-  );
-  const incomeDedup = deduplicateCategoriesByName(
-    mergeRecords(localState.categories.income, incomingState.categories.income),
-  );
-  const aliasMap = new Map([...expenseDedup.aliasMap, ...incomeDedup.aliasMap]);
-  const mergedTransactions = remapCategoryReferences(
-    mergeRecords(localState.transactions, incomingState.transactions),
-    aliasMap,
-  );
-  const merged = normalizeState({
-    version: 12,
-    meta: mergedMeta,
-    accounts: mergedAccounts,
-    categories: {
-      expense: expenseDedup.categories,
-      income: incomeDedup.categories,
-    },
-    transactions: mergedTransactions,
-    debtPlans: mergeRecords(localState.debtPlans, incomingState.debtPlans),
-    debtEntries: mergeRecords(
-      localState.debtEntries,
-      incomingState.debtEntries,
-    ),
-  });
-  return merged;
-}
-
-function mergeMeta(localMeta = {}, incomingMeta = {}, options = {}) {
-  const localSettingsUpdatedAt = localMeta.settingsUpdatedAt || "";
-  const incomingSettingsUpdatedAt = incomingMeta.settingsUpdatedAt || "";
-  const useIncomingSettings =
-    compareIso(incomingSettingsUpdatedAt, localSettingsUpdatedAt) > 0;
-  const settingsSource = useIncomingSettings ? incomingMeta : localMeta;
-  return {
-    currency:
-      settingsSource.currency ||
-      localMeta.currency ||
-      incomingMeta.currency ||
-      "VND",
-    themeLabel:
-      settingsSource.themeLabel ||
-      localMeta.themeLabel ||
-      incomingMeta.themeLabel ||
-      "dark-green",
-    monthlyExpenseTarget: normalizeNonNegativeNumber(
-      settingsSource.monthlyExpenseTarget ??
-        localMeta.monthlyExpenseTarget ??
-        incomingMeta.monthlyExpenseTarget ??
-        0,
-    ),
-    settingsUpdatedAt:
-      (useIncomingSettings
-        ? incomingSettingsUpdatedAt
-        : localSettingsUpdatedAt) || nowIso(),
-    lastSavedAt: localMeta.lastSavedAt || incomingMeta.lastSavedAt || nowIso(),
-    lastCloudSyncAt:
-      incomingMeta.lastCloudSyncAt || localMeta.lastCloudSyncAt || null,
-    deviceId:
-      localMeta.deviceId || incomingMeta.deviceId || createStableDeviceId(),
-  };
-}
-
-function mergeRecords(left, right) {
-  const map = new Map();
-  [...(left || []), ...(right || [])].forEach((record) => {
-    if (!record?.id) return;
-    const existing = map.get(record.id);
-    if (!existing || compareIso(record.updated_at, existing.updated_at) > 0)
-      map.set(record.id, clone(record));
-  });
-  return Array.from(map.values());
-}
 
 function fillAccountSelect(selectEl, includeAll = false, allLabel = "Tất cả") {
   const options = [];
@@ -2813,53 +2684,6 @@ function calculateBalanceAroundTransaction(accountId, transactionId) {
   return { before, after, found };
 }
 
-function clampDebtDueDay(year, month, dueDay) {
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  return Math.min(Math.max(Number(dueDay || 1), 1), daysInMonth);
-}
-
-function addDebtCycle(date, cycle, dueDay) {
-  const next = new Date(date.getTime());
-  if (cycle === "yearly") {
-    next.setFullYear(next.getFullYear() + 1);
-  } else if (cycle === "quarterly") {
-    next.setMonth(next.getMonth() + 3);
-  } else {
-    next.setMonth(next.getMonth() + 1);
-  }
-  const year = next.getFullYear();
-  const month = next.getMonth();
-  return new Date(year, month, clampDebtDueDay(year, month, dueDay));
-}
-
-function calculateDebtDueDateFromAnchor(plan, referenceDate = new Date()) {
-  const anchor = new Date(plan.anchorDate || formatDateInput(new Date()));
-  const dueDay = Number(plan.dueDay || 1);
-  const clampedDueDay = clampDebtDueDay(
-    anchor.getFullYear(),
-    anchor.getMonth(),
-    dueDay,
-  );
-  let current = new Date(
-    anchor.getFullYear(),
-    anchor.getMonth(),
-    clampedDueDay,
-  );
-  if (current < anchor)
-    current = addDebtCycle(current, plan.cycle, clampedDueDay);
-  const today = new Date(
-    referenceDate.getFullYear(),
-    referenceDate.getMonth(),
-    referenceDate.getDate(),
-  );
-  while (true) {
-    const next = addDebtCycle(current, plan.cycle, clampedDueDay);
-    if (next > today) break;
-    current = next;
-  }
-  return current;
-}
-
 function calculateDebtDueInfo(plan, referenceDate = new Date()) {
   const today = new Date(
     referenceDate.getFullYear(),
@@ -2906,32 +2730,6 @@ function calculateDebtSnapshot(
     lastEntry,
     dueInfo,
     status,
-  };
-}
-
-function calculateDebtImpact(plan, transaction, balanceBefore, balanceAfter) {
-  const targetBefore = Number(plan.currentTargetAmount || 0);
-  const carryBefore = Math.max(0, Number(plan.carryShortfall || 0));
-  const paymentAmount = Number(transaction.amount || 0);
-  const gapBefore = Math.max(0, targetBefore - balanceBefore);
-  const payToCarry = Math.min(paymentAmount, carryBefore);
-  const remainingAfterCarry = paymentAmount - payToCarry;
-  const payToGap = Math.min(remainingAfterCarry, gapBefore);
-  const remainingAfterGap = remainingAfterCarry - payToGap;
-  const replenishAmount = payToCarry + payToGap;
-  const growthAmount = remainingAfterGap;
-  const targetAfterPayment = targetBefore + growthAmount;
-  const remainingCarry = Math.max(0, carryBefore - payToCarry);
-  return {
-    paymentAmount,
-    gapBefore,
-    minimumDueBefore: gapBefore + carryBefore,
-    replenishAmount,
-    growthAmount,
-    targetAfterPayment,
-    remainingCarry,
-    balanceBefore,
-    balanceAfter,
   };
 }
 
@@ -3344,12 +3142,17 @@ function handleDebtEntrySubmit(event) {
 
   const idx = state.debtPlans.findIndex((item) => item.id === plan.id);
   if (idx >= 0) {
-    state.debtPlans[idx] = {
+    let updatedPlan = {
       ...state.debtPlans[idx],
       currentTargetAmount: impact.targetAfterPayment,
       carryShortfall: impact.remainingCarry,
       updated_at: nowIso(),
     };
+
+    // Check if this debt period should be settled and advance nextDueDate
+    updatedPlan = settleDebtPeriodIfEligible(updatedPlan, impact, around.after);
+
+    state.debtPlans[idx] = updatedPlan;
   }
 
   el.debtEntryForm.reset();
@@ -3643,6 +3446,9 @@ function mapLocalDebtPlanToCloud(item, userId) {
     cycle: item.cycle,
     due_day: item.dueDay,
     carry_shortfall: item.carryShortfall,
+    anchor_date: item.anchorDate,
+    next_due_date: item.nextDueDate,
+    last_settled_period: item.lastSettledPeriod,
     note: item.note,
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -3660,6 +3466,20 @@ function mapCloudDebtPlanToLocal(row) {
     cycle: row.cycle || "monthly",
     dueDay: Number(row.due_day || 1),
     carryShortfall: Number(row.carry_shortfall || 0),
+    anchorDate: row.anchor_date || formatDateInput(new Date()),
+    nextDueDate:
+      row.next_due_date ||
+      formatDateInput(
+        calculateDebtDueDateFromAnchor(
+          {
+            anchorDate: row.anchor_date || formatDateInput(new Date()),
+            cycle: row.cycle || "monthly",
+            dueDay: Number(row.due_day || 1),
+          },
+          new Date(),
+        ),
+      ),
+    lastSettledPeriod: row.last_settled_period || null,
     note: row.note || "",
     created_at: row.created_at || nowIso(),
     updated_at: row.updated_at || row.created_at || nowIso(),
