@@ -1174,18 +1174,18 @@ function renderCustomMultiDropdown(
   const wasOpen = container.classList.contains("open");
   container.innerHTML = `
         <button type="button" class="btn btn-secondary multi-trigger">
-          <span id="summary-${container.id}">${summary}</span>
-          <span class="muted">${selectedSet.size ? `${selectedSet.size} mục` : "Tất cả"}</span>
+          <span class="multi-summary"></span>
+          <span class="muted"></span>
         </button>
         <div class="multi-menu">
           ${
             options.length
               ? options
                   .map(
-                    (opt) => `
+                    (opt, idx) => `
             <label class="multi-option">
-              <input type="checkbox" value="${escapeHtml(opt.value)}" ${selectedSet.has(opt.value) ? "checked" : ""} />
-              <span>${escapeHtml(opt.label)}</span>
+              <input type="checkbox" value="${escapeHtml(opt.value)}" data-idx="${idx}" ${selectedSet.has(opt.value) ? "checked" : ""} />
+              <span class="opt-label" data-idx="${idx}"></span>
             </label>
           `,
                   )
@@ -1195,6 +1195,20 @@ function renderCustomMultiDropdown(
         </div>
       `;
   if (wasOpen) container.classList.add("open");
+
+  // Set text content safely after DOM is created
+  container.querySelector(".multi-summary").textContent = summary;
+  container.querySelector(".muted").textContent = selectedSet.size
+    ? `${selectedSet.size} mục`
+    : "Tất cả";
+
+  // Set option labels safely via textContent
+  container.querySelectorAll(".opt-label").forEach((el) => {
+    const idx = Number(el.dataset.idx || 0);
+    if (options[idx]) {
+      el.textContent = options[idx].label;
+    }
+  });
   // Bind checkbox changes — update summary label + trigger chart only, no full re-render
   container.querySelectorAll('input[type="checkbox"]').forEach((input) => {
     input.addEventListener("change", () => {
@@ -1203,7 +1217,7 @@ function renderCustomMultiDropdown(
       ].map((i) => i.value);
       const newSet = new Set(checkedVals);
       const newSummary = getMultiDropdownSummary(options, newSet, placeholder);
-      const summaryEl = container.querySelector(`#summary-${container.id}`);
+      const summaryEl = container.querySelector(".multi-summary");
       if (summaryEl) summaryEl.textContent = newSummary;
       const countEl = container.querySelector(".muted");
       if (countEl)
@@ -1241,9 +1255,15 @@ function renderAssetLegend(labels, values) {
   el.assetLegend.innerHTML = labels
     .map(
       (l, i) =>
-        `<div class="legend-row"><span class="legend-swatch" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span><span>${escapeHtml(l)}</span><span>${formatCurrency(values[i] || 0)} · ${(((values[i] || 0) / total) * 100).toFixed(1)}%</span></div>`,
+        `<div class="legend-row"><span class="legend-swatch" data-color-idx="${i}"></span><span>${escapeHtml(l)}</span><span>${formatCurrency(values[i] || 0)} · ${(((values[i] || 0) / total) * 100).toFixed(1)}%</span></div>`,
     )
     .join("");
+
+  // Set legend swatch colors safely after DOM creation
+  el.assetLegend.querySelectorAll("[data-color-idx]").forEach((el) => {
+    const idx = Number(el.dataset.colorIdx || 0);
+    el.style.backgroundColor = CHART_COLORS[idx % CHART_COLORS.length];
+  });
 }
 
 function renderTransactionFormOptions() {
@@ -2920,6 +2940,12 @@ function renderDebtPage() {
   }
   renderDebtEntriesTable();
   renderDebtProjection();
+
+  // Fix progress bar widths per CSP - already set safe inline styles from template
+  el.debtTable.querySelectorAll("[data-progress]").forEach((el) => {
+    const pct = Number(el.dataset.progress || 0);
+    el.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+  });
 }
 
 function getFilteredDebtEntries() {
