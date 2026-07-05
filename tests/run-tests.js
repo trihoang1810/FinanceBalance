@@ -28,6 +28,10 @@ const htmlSource = fs.readFileSync(
   new URL("../index.html", import.meta.url),
   "utf8",
 );
+const packageSource = fs.readFileSync(
+  new URL("../package.json", import.meta.url),
+  "utf8",
+);
 const migrationSource = fs.readFileSync(
   new URL(
     "../supabase/migrations/20260705_security_and_debt_schema.sql",
@@ -470,6 +474,14 @@ function runSourceRegressionTests() {
     "Normal cloud pull should merge unless replaceLocal is explicitly requested",
   );
   assert.ok(
+    appSource.includes('return tx.type === "expense" && tx.expenseMode === "variable";'),
+    "Monthly target should only count variable expenses",
+  );
+  assert.ok(
+    appSource.includes("isVariableExpenseForMonthlyTarget(tx)"),
+    "Monthly target calculations should use the variable-expense helper",
+  );
+  assert.ok(
     !appSource.includes('syncCloudData("pull", true)'),
     "Forced replacement should not be wired to the normal cloud pull button",
   );
@@ -498,6 +510,14 @@ function runSourceRegressionTests() {
     "Transaction sequence should map from cloud to local",
   );
   assert.ok(
+    appSource.includes("function isMissingSequenceSchemaError(error)"),
+    "Supabase sync should detect missing sequence schema errors",
+  );
+  assert.ok(
+    appSource.includes("const legacyTransactionRows = transactionRows.map(({ sequence, ...row }) => row);"),
+    "Supabase sync should retry transaction upserts without sequence when the remote schema is outdated",
+  );
+  assert.ok(
     appSource.includes("anchor_date: item.anchorDate"),
     "Debt lifecycle fields should map local anchorDate to cloud",
   );
@@ -524,6 +544,14 @@ function runSourceRegressionTests() {
   assert.ok(
     migrationSource.includes("WHERE sequence IS NULL;"),
     "Migration should backfill missing sequence values",
+  );
+  assert.ok(
+    htmlSource.includes("v1.1.0"),
+    "The visible app version should be updated to 1.1.0",
+  );
+  assert.ok(
+    packageSource.includes('"version": "1.1.0"'),
+    "package.json version should be updated to 1.1.0",
   );
 }
 

@@ -1604,6 +1604,14 @@ async function fetchCloudState() {
   };
 }
 
+function isMissingSequenceSchemaError(error) {
+  const message = String(error?.message || "");
+  return (
+    message.includes("Could not find the 'sequence' column of 'transactions'") ||
+    message.includes('Could not find the "sequence" column of "transactions"')
+  );
+}
+
 async function pushLocalStateToCloud(currentState) {
   const userId = runtime.auth.user.id;
 
@@ -1628,10 +1636,18 @@ async function pushLocalStateToCloud(currentState) {
   );
   if (cR.error) throw cR.error;
 
-  const tR = await supabase.from(TABLES.transactions).upsert(
-    currentState.transactions.map((i) => mapLocalTransactionToCloud(i, userId)),
-    { onConflict: "id" },
+  const transactionRows = currentState.transactions.map((i) =>
+    mapLocalTransactionToCloud(i, userId),
   );
+  let tR = await supabase.from(TABLES.transactions).upsert(transactionRows, {
+    onConflict: "id",
+  });
+  if (tR.error && isMissingSequenceSchemaError(tR.error)) {
+    const legacyTransactionRows = transactionRows.map(({ sequence, ...row }) => row);
+    tR = await supabase.from(TABLES.transactions).upsert(legacyTransactionRows, {
+      onConflict: "id",
+    });
+  }
   if (tR.error) throw tR.error;
 
   const dpR = await supabase.from(TABLES.debtPlans).upsert(
@@ -2463,11 +2479,15 @@ function getMonthRange(date = new Date(), offset = 0) {
   return { start, end, from: formatDateInput(start), to: formatDateInput(end) };
 }
 
+function isVariableExpenseForMonthlyTarget(tx) {
+  return tx.type === "expense" && tx.expenseMode === "variable";
+}
+
 function getExpenseTotalInRange(from = "", to = "") {
   return sumBy(
     getActiveTransactions().filter(
       (tx) =>
-        tx.type === "expense" &&
+        isVariableExpenseForMonthlyTarget(tx) &&
         (from ? tx.date >= from : true) &&
         (to ? tx.date <= to : true),
     ),
