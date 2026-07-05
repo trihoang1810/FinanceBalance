@@ -108,13 +108,13 @@ export function mergeStates(localState, incomingState) {
     localState.accounts,
     incomingState.accounts,
   );
-  const expenseDedup = deduplicateCategoriesByName(
+  const expenseDedup = deduplicateCategoriesByNameWithActive(
     mergeRecords(
       localState.categories.expense,
       incomingState.categories.expense,
     ),
   );
-  const incomeDedup = deduplicateCategoriesByName(
+  const incomeDedup = deduplicateCategoriesByNameWithActive(
     mergeRecords(localState.categories.income, incomingState.categories.income),
   );
   const aliasMap = new Map([...expenseDedup.aliasMap, ...incomeDedup.aliasMap]);
