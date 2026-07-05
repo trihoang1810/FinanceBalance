@@ -1,0 +1,20 @@
+# Personal financial exports
+data/exports/
+tai-chinh-ca-nhan-*.json
+*.finance-backup.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

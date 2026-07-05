@@ -563,6 +563,9 @@ function makeDebtPlan(
   note,
 ) {
   const t = nowIso();
+  const now = new Date();
+  const anchorDate = formatDateInput(now);
+  const normalizedDueDay = Number(dueDay || 1);
   return {
     id: createId("debt"),
     kind: "fund_replenishment",
@@ -570,9 +573,21 @@ function makeDebtPlan(
     linkedAccountId,
     currentTargetAmount: Number(currentTargetAmount || 0),
     cycle: cycle || "monthly",
-    dueDay: Number(dueDay || 1),
+    dueDay: normalizedDueDay,
     carryShortfall: Number(carryShortfall || 0),
     note: note || "",
+    anchorDate,
+    nextDueDate: formatDateInput(
+      calculateDebtDueDateFromAnchor(
+        {
+          anchorDate,
+          cycle: cycle || "monthly",
+          dueDay: normalizedDueDay,
+        },
+        now,
+      ),
+    ),
+    lastSettledPeriod: null,
     created_at: t,
     updated_at: t,
     deleted_at: null,
@@ -688,7 +703,7 @@ function renderAccountsPage() {
         (tx) =>
           tx.accountFromId === account.id || tx.accountToId === account.id,
       );
-      return `<tr><td>${escapeHtml(account.name)}</td><td>${mapAccountType(account.type)}</td><td>${formatCurrency(account.openingBalance)}</td><td><strong>${formatCurrency(balances[account.id] || 0)}</strong></td><td>${formatDateTime(account.created_at)}</td><td>${formatDateTime(utdNow)}</td><td>${formatDurationBetween(account.created_at, utdNow)}</td><td>${escapeHtml(account.note || "-")}</td><td><button class="btn btn-secondary" type="button" onclick="window.softDeleteAccount('${account.id}')" ${linked ? "disabled" : ""}>Xóa</button></td></tr>`;
+      return `<tr><td>${escapeHtml(account.name)}</td><td>${mapAccountType(account.type)}</td><td>${formatCurrency(account.openingBalance)}</td><td><strong>${formatCurrency(balances[account.id] || 0)}</strong></td><td>${formatDateTime(account.created_at)}</td><td>${formatDateTime(utdNow)}</td><td>${formatDurationBetween(account.created_at, utdNow)}</td><td>${escapeHtml(account.note || "-")}</td><td><button class="btn btn-secondary" type="button" data-action="delete-account" data-id="${account.id}" ${linked ? "disabled" : ""}>Xóa</button></td></tr>`;
     })
     .join("")}</tbody></table></div>`;
 }
@@ -1050,6 +1065,38 @@ function handleDocumentClick(event) {
     }
     return;
   }
+
+  const actionButton = event.target.closest("[data-action]");
+  if (actionButton) {
+    const action = actionButton.dataset.action;
+    const id = actionButton.dataset.id;
+    const type = actionButton.dataset.type;
+    if (action === "edit-transaction") {
+      startEditTransaction(id);
+      return;
+    }
+    if (action === "delete-transaction") {
+      softDeleteTransaction(id);
+      return;
+    }
+    if (action === "delete-account") {
+      softDeleteAccount(id);
+      return;
+    }
+    if (action === "delete-category") {
+      softDeleteCategory(type, id);
+      return;
+    }
+    if (action === "edit-debt-plan") {
+      startEditDebtPlan(id);
+      return;
+    }
+    if (action === "delete-debt-plan") {
+      softDeleteDebtPlan(id);
+      return;
+    }
+  }
+
   if (!container) closeAllMultiDropdowns();
 }
 
@@ -1057,6 +1104,69 @@ function closeAllMultiDropdowns() {
   document.querySelectorAll(".multi-dropdown.open").forEach((n) => {
     n.classList.remove("open");
     n.classList.remove("flip-up");
+  });
+}
+
+const PILL_CLASSES = new Set([
+  "pill-income",
+  "pill-expense",
+  "pill-transfer",
+  "pill-adjustment",
+  "pill-fixed",
+  "pill-variable",
+  "pill-cloud",
+]);
+
+function sanitizePillClass(cls) {
+  return PILL_CLASSES.has(cls) ? cls : "pill-adjustment";
+}
+
+function hasDomainData(candidateState) {
+  return Boolean(
+    candidateState.accounts?.length ||
+    candidateState.transactions?.length ||
+    candidateState.categories?.expense?.length ||
+    candidateState.categories?.income?.length ||
+    candidateState.debtPlans?.length ||
+    candidateState.debtEntries?.length,
+  );
+}
+
+function getDebtEntryByTransactionId(transactionId) {
+  return getActiveDebtEntries().find(
+    (entry) => entry.transactionId === transactionId,
+  );
+}
+
+function getCategoryCanonicalKey(item) {
+  return `${item.kind || ""}::${String(item.name || "")
+    .trim()
+    .toLowerCase()}`;
+}
+
+function buildCategoryAliasMap(categories) {
+  const canonicalMap = new Map();
+  const aliasMap = new Map();
+  for (const category of categories) {
+    if (category.deleted_at) continue;
+    const key = getCategoryCanonicalKey(category);
+    if (!canonicalMap.has(key)) {
+      canonicalMap.set(key, category.id);
+    } else if (category.id !== canonicalMap.get(key)) {
+      aliasMap.set(category.id, canonicalMap.get(key));
+    }
+  }
+  return aliasMap;
+}
+
+function remapCategoryReferences(transactions, aliasMap) {
+  if (!aliasMap.size) return transactions;
+  return transactions.map((tx) => {
+    if (!tx.categoryId || !aliasMap.has(tx.categoryId)) return tx;
+    return {
+      ...tx,
+      categoryId: aliasMap.get(tx.categoryId),
+    };
   });
 }
 
@@ -1128,7 +1238,7 @@ function renderCategoryList(type, container) {
       '<div class="empty-state">Chưa có phân loại nào.</div>';
     return;
   }
-  container.innerHTML = `<div class="list-simple">${list.map((item) => `<div class="list-item"><div><strong>${escapeHtml(item.name)}</strong><span>${type === "expense" ? "Danh mục chi tiêu" : "Danh mục thu nhập"}</span></div><button class="btn btn-secondary" type="button" onclick="window.softDeleteCategory('${type}','${item.id}')">Xóa</button></div>`).join("")}</div>`;
+  container.innerHTML = `<div class="list-simple">${list.map((item) => `<div class="list-item"><div><strong>${escapeHtml(item.name)}</strong><span>${type === "expense" ? "Danh mục chi tiêu" : "Danh mục thu nhập"}</span></div><button class="btn btn-secondary" type="button" data-action="delete-category" data-type="${type}" data-id="${item.id}">Xóa</button></div>`).join("")}</div>`;
 }
 
 function renderAssetLegend(labels, values) {
@@ -1217,7 +1327,7 @@ function renderTransactionsTable() {
     el.transactionNextBtn.disabled = true;
     return;
   }
-  el.transactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="selectAllTransactions" ${pageItems.every((i) => runtime.txList.selectedIds.has(i.id)) ? "checked" : ""}></th><th>Ngày</th><th>Loại</th><th>Chi tiêu</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${pageItems.map((tx) => `<tr><td><input type="checkbox" class="tx-select" data-id="${tx.id}" ${runtime.txList.selectedIds.has(tx.id) ? "checked" : ""}></td><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${tx.type === "expense" ? getExpenseModeBadge(tx.expenseMode) : "-"}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" onclick="window.startEditTransaction('${tx.id}')">Sửa</button><button class="btn btn-danger" type="button" onclick="window.softDeleteTransaction('${tx.id}')">Xóa</button></div></td></tr>`).join("")}</tbody></table></div>`;
+  el.transactionsTable.innerHTML = `<div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="selectAllTransactions" ${pageItems.every((i) => runtime.txList.selectedIds.has(i.id)) ? "checked" : ""}></th><th>Ngày</th><th>Loại</th><th>Chi tiêu</th><th>Số tiền</th><th>Tài khoản</th><th>Phân loại</th><th>Ghi chú</th><th>Thao tác</th></tr></thead><tbody>${pageItems.map((tx) => `<tr><td><input type="checkbox" class="tx-select" data-id="${tx.id}" ${runtime.txList.selectedIds.has(tx.id) ? "checked" : ""}></td><td>${formatDateDisplay(tx.date)}</td><td>${getTypeBadge(tx.type)}</td><td>${tx.type === "expense" ? getExpenseModeBadge(tx.expenseMode) : "-"}</td><td>${formatCurrency(tx.amount)}</td><td>${escapeHtml(getTransactionAccountText(tx))}</td><td>${escapeHtml(getCategoryNameByTransaction(tx))}</td><td>${escapeHtml(tx.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" data-action="edit-transaction" data-id="${tx.id}">Sửa</button><button class="btn btn-danger" type="button" data-action="delete-transaction" data-id="${tx.id}">Xóa</button></div></td></tr>`).join("")}</tbody></table></div>`;
   bindTransactionSelectionEvents();
   el.transactionPaginationInfo.textContent = `Trang ${runtime.txList.page} / ${totalPages} · ${all.length} giao dịch`;
   el.transactionPrevBtn.disabled = runtime.txList.page <= 1;
@@ -1384,14 +1494,9 @@ async function syncCloudData(mode = "both", forceReplace = false) {
     if (mode === "pull") {
       const cloudState = await fetchCloudState();
       const cloudHasData =
-        Boolean(cloudState.hasCloudSettings) ||
-        (cloudState.accounts?.length || 0) > 0 ||
-        (cloudState.categories?.expense?.length || 0) > 0 ||
-        (cloudState.categories?.income?.length || 0) > 0 ||
-        (cloudState.transactions?.length || 0) > 0;
+        Boolean(cloudState.hasCloudSettings) || hasDomainData(cloudState);
       // FIX AUTH-009/010: only replace local if it's the first sync AND local has no data
-      const localHasData =
-        state.accounts.length > 0 || state.transactions.length > 0;
+      const localHasData = hasDomainData(state);
       const shouldReplaceLocalFromCloud =
         forceReplace ||
         (!state.meta.lastCloudSyncAt && cloudHasData && !localHasData);
@@ -1419,12 +1524,12 @@ async function syncCloudData(mode = "both", forceReplace = false) {
               lastCloudSyncAt: nowIso(),
             },
           })
-        : mergeStates(state, cloudState, { keepLocalMeta: true });
+        : mergeStates(state, cloudState);
       state.meta.lastCloudSyncAt = nowIso();
       persistState({ skipCloud: true });
     } else {
       const cloudState = await fetchCloudState();
-      state = mergeStates(state, cloudState, { keepLocalMeta: true });
+      state = mergeStates(state, cloudState);
       await pushLocalStateToCloud(state);
       state.meta.lastCloudSyncAt = nowIso();
       persistState({ skipCloud: true });
@@ -1529,7 +1634,7 @@ function handleStorageSync(event) {
   if (event.key !== STORAGE_KEY || !event.newValue) return;
   try {
     const external = normalizeState(JSON.parse(event.newValue));
-    state = mergeStates(state, external, { keepLocalMeta: true });
+    state = mergeStates(state, external);
     renderAll();
   } catch (e) {
     console.error(e);
@@ -1686,6 +1791,7 @@ function handleTransactionSubmit(event) {
         ...old,
         ...payload,
         id: old.id,
+        sequence: old.sequence || Number(new Date(old.created_at).getTime()),
         created_at: old.created_at,
         updated_at: nowIso(),
         deviceId: state.meta.deviceId,
@@ -1696,6 +1802,7 @@ function handleTransactionSubmit(event) {
     state.transactions.push({
       id: createId("tx"),
       ...payload,
+      sequence: Number(Date.now()),
       deviceId: state.meta.deviceId,
       created_at: nowIso(),
       updated_at: nowIso(),
@@ -1811,6 +1918,10 @@ function cancelTransactionEdit(options = {}) {
 function startEditTransaction(id) {
   const tx = state.transactions.find((i) => i.id === id && !i.deleted_at);
   if (!tx) return;
+  if (getDebtEntryByTransactionId(tx.id)) {
+    alert("Giao dịch này đã được liên kết với quỹ nên không thể sửa.");
+    return;
+  }
   runtime.editingTransactionId = id;
   openPage("transactions");
   el.txDateInput.value = tx.date;
@@ -1833,6 +1944,10 @@ function startEditTransaction(id) {
 function softDeleteTransaction(id) {
   const tx = state.transactions.find((i) => i.id === id && !i.deleted_at);
   if (!tx) return;
+  if (getDebtEntryByTransactionId(tx.id)) {
+    alert("Giao dịch này đã được liên kết với quỹ nên không thể xóa.");
+    return;
+  }
   if (!confirm("Bạn muốn xóa giao dịch này?")) return;
   tx.deleted_at = nowIso();
   tx.updated_at = nowIso();
@@ -2180,6 +2295,10 @@ function normalizeState(input) {
           item.expenseMode ||
           item.expense_mode ||
           (item.type === "expense" ? "variable" : null),
+        sequence:
+          Number(item.sequence) ||
+          Number(item.occurred_at ? new Date(item.occurred_at).getTime() : 0) ||
+          Number(new Date(item.created_at || nowIso()).getTime()),
         deviceId: item.deviceId || item.device_id || base.meta.deviceId,
         created_at: item.created_at || nowIso(),
         updated_at: item.updated_at || item.created_at || nowIso(),
@@ -2225,6 +2344,25 @@ function normalizeDebtPlans(input, fallback) {
     dueDay: Number(item.dueDay || item.due_day || 1),
     carryShortfall: Number(item.carryShortfall || item.carry_shortfall || 0),
     note: item.note || "",
+    anchorDate:
+      item.anchorDate || item.anchor_date || formatDateInput(new Date()),
+    nextDueDate: item.nextDueDate
+      ? item.nextDueDate
+      : formatDateInput(
+          calculateDebtDueDateFromAnchor(
+            {
+              anchorDate:
+                item.anchorDate ||
+                item.anchor_date ||
+                formatDateInput(new Date()),
+              cycle: item.cycle || "monthly",
+              dueDay: Number(item.dueDay || item.due_day || 1),
+            },
+            new Date(),
+          ),
+        ),
+    lastSettledPeriod:
+      item.lastSettledPeriod || item.last_settled_period || null,
     created_at: item.created_at || nowIso(),
     updated_at: item.updated_at || item.created_at || nowIso(),
     deleted_at: item.deleted_at || null,
@@ -2283,9 +2421,7 @@ function handleImportJson(event) {
         return;
       }
       state =
-        mode.toLowerCase() === "replace"
-          ? parsed
-          : mergeStates(state, parsed, { keepLocalMeta: true });
+        mode.toLowerCase() === "replace" ? parsed : mergeStates(state, parsed);
       persistState();
       renderAll();
       alert("Đã nhập dữ liệu JSON thành công.");
@@ -2299,42 +2435,57 @@ function handleImportJson(event) {
   reader.readAsText(file, "utf-8");
 }
 
-// FIX JSON-008: dedup category by name after merge
+// FIX JSON-008: dedup category by name after merge, preserve canonical references
 function deduplicateCategoriesByName(list) {
   const seen = new Set();
-  return list.filter((item) => {
-    if (item.deleted_at) return true; // giữ soft-deleted, không dedup
-    const key = `${item.kind}::${item.name.toLowerCase()}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const aliasMap = new Map();
+  const categories = [];
+  for (const item of list) {
+    const key = getCategoryCanonicalKey(item);
+    if (!seen.has(key)) {
+      seen.add(key);
+      categories.push(item);
+      continue;
+    }
+    const canonicalId = categories.find(
+      (category) => getCategoryCanonicalKey(category) === key,
+    )?.id;
+    if (canonicalId && item.id !== canonicalId) {
+      aliasMap.set(item.id, canonicalId);
+    }
+  }
+  return { categories, aliasMap };
 }
 
 function mergeStates(localState, incomingState, options = {}) {
   const mergedMeta = mergeMeta(localState.meta, incomingState.meta, options);
+  const mergedAccounts = mergeRecords(
+    localState.accounts,
+    incomingState.accounts,
+  );
+  const expenseDedup = deduplicateCategoriesByName(
+    mergeRecords(
+      localState.categories.expense,
+      incomingState.categories.expense,
+    ),
+  );
+  const incomeDedup = deduplicateCategoriesByName(
+    mergeRecords(localState.categories.income, incomingState.categories.income),
+  );
+  const aliasMap = new Map([...expenseDedup.aliasMap, ...incomeDedup.aliasMap]);
+  const mergedTransactions = remapCategoryReferences(
+    mergeRecords(localState.transactions, incomingState.transactions),
+    aliasMap,
+  );
   const merged = normalizeState({
     version: 12,
     meta: mergedMeta,
-    accounts: mergeRecords(localState.accounts, incomingState.accounts),
+    accounts: mergedAccounts,
     categories: {
-      expense: deduplicateCategoriesByName(
-        mergeRecords(
-          localState.categories.expense,
-          incomingState.categories.expense,
-        ),
-      ),
-      income: deduplicateCategoriesByName(
-        mergeRecords(
-          localState.categories.income,
-          incomingState.categories.income,
-        ),
-      ),
+      expense: expenseDedup.categories,
+      income: incomeDedup.categories,
     },
-    transactions: mergeRecords(
-      localState.transactions,
-      incomingState.transactions,
-    ),
+    transactions: mergedTransactions,
     debtPlans: mergeRecords(localState.debtPlans, incomingState.debtPlans),
     debtEntries: mergeRecords(
       localState.debtEntries,
@@ -2348,7 +2499,6 @@ function mergeMeta(localMeta = {}, incomingMeta = {}, options = {}) {
   const localSettingsUpdatedAt = localMeta.settingsUpdatedAt || "";
   const incomingSettingsUpdatedAt = incomingMeta.settingsUpdatedAt || "";
   const useIncomingSettings =
-    !options.keepLocalMeta &&
     compareIso(incomingSettingsUpdatedAt, localSettingsUpdatedAt) > 0;
   const settingsSource = useIncomingSettings ? incomingMeta : localMeta;
   return {
@@ -2372,9 +2522,9 @@ function mergeMeta(localMeta = {}, incomingMeta = {}, options = {}) {
       (useIncomingSettings
         ? incomingSettingsUpdatedAt
         : localSettingsUpdatedAt) || nowIso(),
-    lastSavedAt: nowIso(),
+    lastSavedAt: localMeta.lastSavedAt || incomingMeta.lastSavedAt || nowIso(),
     lastCloudSyncAt:
-      localMeta.lastCloudSyncAt || incomingMeta.lastCloudSyncAt || null,
+      incomingMeta.lastCloudSyncAt || localMeta.lastCloudSyncAt || null,
     deviceId:
       localMeta.deviceId || incomingMeta.deviceId || createStableDeviceId(),
   };
@@ -2663,28 +2813,61 @@ function calculateBalanceAroundTransaction(accountId, transactionId) {
   return { before, after, found };
 }
 
-function calculateDebtDueInfo(plan, referenceDate = new Date()) {
-  const ref = new Date(
+function clampDebtDueDay(year, month, dueDay) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return Math.min(Math.max(Number(dueDay || 1), 1), daysInMonth);
+}
+
+function addDebtCycle(date, cycle, dueDay) {
+  const next = new Date(date.getTime());
+  if (cycle === "yearly") {
+    next.setFullYear(next.getFullYear() + 1);
+  } else if (cycle === "quarterly") {
+    next.setMonth(next.getMonth() + 3);
+  } else {
+    next.setMonth(next.getMonth() + 1);
+  }
+  const year = next.getFullYear();
+  const month = next.getMonth();
+  return new Date(year, month, clampDebtDueDay(year, month, dueDay));
+}
+
+function calculateDebtDueDateFromAnchor(plan, referenceDate = new Date()) {
+  const anchor = new Date(plan.anchorDate || formatDateInput(new Date()));
+  const dueDay = Number(plan.dueDay || 1);
+  const clampedDueDay = clampDebtDueDay(
+    anchor.getFullYear(),
+    anchor.getMonth(),
+    dueDay,
+  );
+  let current = new Date(
+    anchor.getFullYear(),
+    anchor.getMonth(),
+    clampedDueDay,
+  );
+  if (current < anchor)
+    current = addDebtCycle(current, plan.cycle, clampedDueDay);
+  const today = new Date(
     referenceDate.getFullYear(),
     referenceDate.getMonth(),
     referenceDate.getDate(),
   );
-  const dueDay = Math.min(31, Math.max(1, Number(plan.dueDay || 1)));
-  let nextDue;
-  if (plan.cycle === "yearly") {
-    nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
-    if (nextDue < ref)
-      nextDue = new Date(ref.getFullYear() + 1, ref.getMonth(), dueDay);
-  } else if (plan.cycle === "quarterly") {
-    nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
-    while (nextDue < ref)
-      nextDue = new Date(nextDue.getFullYear(), nextDue.getMonth() + 3, dueDay);
-  } else {
-    nextDue = new Date(ref.getFullYear(), ref.getMonth(), dueDay);
-    if (nextDue < ref)
-      nextDue = new Date(ref.getFullYear(), ref.getMonth() + 1, dueDay);
+  while (true) {
+    const next = addDebtCycle(current, plan.cycle, clampedDueDay);
+    if (next > today) break;
+    current = next;
   }
-  const daysUntilDue = Math.floor((nextDue - ref) / 86400000);
+  return current;
+}
+
+function calculateDebtDueInfo(plan, referenceDate = new Date()) {
+  const today = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+  );
+  const nextDue = calculateDebtDueDateFromAnchor(plan, today);
+  const daysUntilDue = Math.floor((nextDue - today) / 86400000);
   return { nextDue, daysUntilDue };
 }
 
@@ -2933,7 +3116,7 @@ function renderDebtPage() {
             : metrics.status === "Sắp hạn"
               ? "warning"
               : "";
-        return `<tr><td>${escapeHtml(plan.name)}</td><td>${escapeHtml(getAccountName(plan.linkedAccountId))}</td><td><div class="progress-track"><div class="progress-fill ${progressClass}" style="width:${Math.min(progressPct, 100)}%"></div></div><div class="progress-meta"><span>${progressPct}% đạt mốc</span><span>${formatCurrency(metrics.currentBalance)} / ${formatCurrency(plan.currentTargetAmount)}</span></div></td><td>${formatCurrency(metrics.currentBalance)}</td><td>${formatCurrency(plan.currentTargetAmount)}</td><td>${formatCurrency(metrics.gapToTarget)}</td><td>${formatCurrency(metrics.carryShortfall)}</td><td><strong>${formatCurrency(metrics.minimumDue)}</strong></td><td>${escapeHtml(getDebtCycleLabel(plan.cycle))}</td><td>${formatDateDisplay(formatDateInput(metrics.dueInfo.nextDue))}</td><td>${metrics.lastEntry ? `${formatDateDisplay(metrics.lastEntry.date)} · ${formatCurrency(metrics.lastEntry.amount)}` : "-"}</td><td>${metrics.status === "Quá hạn" ? pill("Quá hạn", "pill-expense") : metrics.status === "Sắp hạn" ? pill("Sắp hạn", "pill-fixed") : metrics.status === "Cần bù" ? pill("Cần bù", "pill-expense") : pill("Ổn định", "pill-income")}</td><td>${escapeHtml(plan.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" onclick="window.startEditDebtPlan('${plan.id}')">Sửa</button><button class="btn btn-danger" type="button" onclick="window.softDeleteDebtPlan('${plan.id}')">Xóa</button></div></td></tr>`;
+        return `<tr><td>${escapeHtml(plan.name)}</td><td>${escapeHtml(getAccountName(plan.linkedAccountId))}</td><td><div class="progress-track"><div class="progress-fill ${progressClass}" style="width:${Math.min(progressPct, 100)}%"></div></div><div class="progress-meta"><span>${progressPct}% đạt mốc</span><span>${formatCurrency(metrics.currentBalance)} / ${formatCurrency(plan.currentTargetAmount)}</span></div></td><td>${formatCurrency(metrics.currentBalance)}</td><td>${formatCurrency(plan.currentTargetAmount)}</td><td>${formatCurrency(metrics.gapToTarget)}</td><td>${formatCurrency(metrics.carryShortfall)}</td><td><strong>${formatCurrency(metrics.minimumDue)}</strong></td><td>${escapeHtml(getDebtCycleLabel(plan.cycle))}</td><td>${formatDateDisplay(formatDateInput(metrics.dueInfo.nextDue))}</td><td>${metrics.lastEntry ? `${formatDateDisplay(metrics.lastEntry.date)} · ${formatCurrency(metrics.lastEntry.amount)}` : "-"}</td><td>${metrics.status === "Quá hạn" ? pill("Quá hạn", "pill-expense") : metrics.status === "Sắp hạn" ? pill("Sắp hạn", "pill-fixed") : metrics.status === "Cần bù" ? pill("Cần bù", "pill-expense") : pill("Ổn định", "pill-income")}</td><td>${escapeHtml(plan.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" data-action="edit-debt-plan" data-id="${plan.id}">Sửa</button><button class="btn btn-danger" type="button" data-action="delete-debt-plan" data-id="${plan.id}">Xóa</button></div></td></tr>`;
       })
       .join("")}</tbody></table></div>`;
   }
@@ -3060,6 +3243,7 @@ function handleDebtPlanSubmit(event) {
     );
     if (idx >= 0) {
       const old = state.debtPlans[idx];
+      const anchorDate = old.anchorDate || formatDateInput(new Date());
       state.debtPlans[idx] = {
         ...old,
         name,
@@ -3069,6 +3253,13 @@ function handleDebtPlanSubmit(event) {
         dueDay,
         carryShortfall,
         note,
+        anchorDate,
+        nextDueDate: formatDateInput(
+          calculateDebtDueDateFromAnchor(
+            { anchorDate, cycle, dueDay },
+            new Date(),
+          ),
+        ),
         updated_at: nowIso(),
         deleted_at: null,
       };
@@ -3205,6 +3396,15 @@ function softDeleteDebtPlan(id) {
     (item) => item.id === id && !item.deleted_at,
   );
   if (!plan) return;
+  const linkedEntry = getActiveDebtEntries().find(
+    (entry) => entry.planId === id,
+  );
+  if (linkedEntry) {
+    alert(
+      "Quỹ này đang có ghi nhận nộp quỹ liên kết nên không thể xóa trực tiếp. Hãy lưu trữ quỹ hoặc xoá các ghi nhận nộp quỹ trước.",
+    );
+    return;
+  }
   if (!confirm("Bạn muốn xóa quỹ hoàn quỹ này?")) return;
   plan.deleted_at = nowIso();
   plan.updated_at = nowIso();
@@ -3274,7 +3474,7 @@ function getExpenseModeBadge(mode) {
     : pill("Không cố định", "pill-variable");
 }
 function pill(text, cls) {
-  return `<span class="pill ${cls}">${text}</span>`;
+  return `<span class="pill ${sanitizePillClass(cls)}">${escapeHtml(text)}</span>`;
 }
 function mapAccountType(type) {
   return (
