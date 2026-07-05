@@ -1,24 +1,52 @@
 process.env.TZ = "Asia/Ho_Chi_Minh";
 
 import assert from "assert";
+import fs from "fs";
 import {
+  addDebtCycle,
   applyTransactionToBalances,
   calculateDebtImpact,
   calculateDebtDueDateFromAnchor,
-  deduplicateCategoriesByName,
+  deduplicateCategoriesByNameWithActive,
   getCategoryCanonicalKey,
   hasDomainData,
   mergeStates,
+  parseLocalDate,
+  settleDebtPeriodIfEligible,
 } from "../src/js/domain.js";
 import { formatDateInput } from "../src/js/utils.js";
+
+const appSource = fs.readFileSync(
+  new URL("../src/js/app.js", import.meta.url),
+  "utf8",
+);
+const cssSource = fs.readFileSync(
+  new URL("../src/css/styles.css", import.meta.url),
+  "utf8",
+);
+const htmlSource = fs.readFileSync(
+  new URL("../index.html", import.meta.url),
+  "utf8",
+);
+const migrationSource = fs.readFileSync(
+  new URL(
+    "../supabase/migrations/20260705_security_and_debt_schema.sql",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 function assertDeepEqual(actual, expected, message) {
   try {
     assert.deepStrictEqual(actual, expected);
-  } catch (err) {
+  } catch (error) {
     console.error(message);
-    throw err;
+    throw error;
   }
+}
+
+function assertMatch(source, pattern, message) {
+  assert.ok(pattern.test(source), message);
 }
 
 function runBalanceTests() {
@@ -183,13 +211,38 @@ function runMergeTests() {
   );
   assert.strictEqual(
     merged.transactions[0].categoryId,
-    "c1",
+    "c2",
     "Duplicate category IDs should be remapped to canonical category",
   );
   assert.strictEqual(
     merged.categories.expense.length,
     1,
     "Duplicate categories should merge by canonical key",
+  );
+
+  const deduped = deduplicateCategoriesByNameWithActive([
+    {
+      id: "c1",
+      kind: "expense",
+      name: "Food",
+      updated_at: "2024-01-01T00:00:00Z",
+    },
+    {
+      id: "c2",
+      kind: "expense",
+      name: " food ",
+      updated_at: "2024-02-01T00:00:00Z",
+    },
+  ]);
+  assert.strictEqual(
+    deduped.categories.length,
+    1,
+    "Category deduplication should keep one canonical category",
+  );
+  assert.strictEqual(
+    getCategoryCanonicalKey({ kind: "expense", name: " Food " }),
+    "expense::food",
+    "Canonical category keys should be normalized",
   );
 
   const hasDomain = hasDomainData({
@@ -251,6 +304,95 @@ function runDebtTests() {
     "2024-02-29",
     "Due day 31 in February should clamp to the last day of February",
   );
+
+  const validLocalDate = parseLocalDate("2024-04-15");
+  assert.strictEqual(
+    formatDateInput(validLocalDate),
+    "2024-04-15",
+    "parseLocalDate should preserve local civil dates",
+  );
+  assert.strictEqual(
+    parseLocalDate("2024-02-30"),
+    null,
+    "parseLocalDate should reject invalid business dates",
+  );
+
+  assertMatch(
+    appSource,
+    /const storedDueDate = plan\.nextDueDate \? parseLocalDate\(plan\.nextDueDate\) : null;[\s\S]*calculateDebtDueDateFromAnchor\(plan, today\)/,
+    "calculateDebtDueInfo should prefer nextDueDate and fall back safely",
+  );
+
+  const unsettledPlan = {
+    nextDueDate: "2024-07-31",
+    cycle: "monthly",
+    dueDay: 31,
+    anchorDate: "2024-01-10",
+    currentTargetAmount: 1000,
+    carryShortfall: 100,
+  };
+  const unsettledResult = settleDebtPeriodIfEligible(
+    unsettledPlan,
+    {
+      remainingCarry: 50,
+      targetAfterPayment: 1000,
+    },
+    900,
+  );
+  assertDeepEqual(
+    unsettledResult,
+    unsettledPlan,
+    "Unsettled debt periods should not advance",
+  );
+
+  const settledPlan = {
+    nextDueDate: "2024-01-31",
+    cycle: "monthly",
+    dueDay: 31,
+    anchorDate: "2024-01-10",
+    currentTargetAmount: 1000,
+    carryShortfall: 0,
+  };
+  const settledResult = settleDebtPeriodIfEligible(
+    settledPlan,
+    {
+      remainingCarry: 0,
+      targetAfterPayment: 1000,
+    },
+    1000,
+  );
+  assert.strictEqual(
+    settledResult.lastSettledPeriod,
+    "2024-01",
+    "Settled debt periods should track the settled period",
+  );
+  assert.strictEqual(
+    settledResult.nextDueDate,
+    "2024-02-29",
+    "Settled debt periods should advance exactly one cycle",
+  );
+
+  const invalidStoredResult = settleDebtPeriodIfEligible(
+    {
+      ...settledPlan,
+      nextDueDate: "invalid-date",
+    },
+    {
+      remainingCarry: 0,
+      targetAfterPayment: 1000,
+    },
+    1000,
+  );
+  assert.ok(
+    parseLocalDate(invalidStoredResult.nextDueDate),
+    "Invalid stored due dates should still fall back to a valid next due date",
+  );
+
+  assert.strictEqual(
+    formatDateInput(addDebtCycle(parseLocalDate("2024-01-31"), "monthly", 31)),
+    "2024-02-29",
+    "January 31 should advance to February 29 in leap years",
+  );
 }
 
 function runDateTests() {
@@ -284,12 +426,114 @@ function runDateTests() {
   );
 }
 
+function runSourceRegressionTests() {
+  assert.ok(
+    !appSource.includes('\\"[data-progress]\\"'),
+    'No escaped \\"[data-progress]\\" selector should remain',
+  );
+  assert.ok(
+    appSource.includes('data-progress="${Math.min(progressPct, 100)}"'),
+    "Debt progress HTML should use data-progress",
+  );
+  assert.ok(
+    appSource.includes('querySelectorAll("[data-progress]").forEach((element) => {'),
+    "Debt progress width should be applied after DOM creation",
+  );
+  assert.ok(
+    !appSource.includes('style="width:'),
+    "Debt progress HTML should not render inline width styles",
+  );
+  assert.ok(
+    appSource.includes('<div class="cloud-error"><strong>Lỗi:</strong>'),
+    "Cloud error should use a CSS class",
+  );
+  assert.ok(
+    cssSource.includes(".cloud-error { color: #ff7d7d; }"),
+    "Cloud error CSS should exist",
+  );
+  assert.ok(
+    !htmlSource.includes('style="'),
+    "HTML should not retain inline style attributes that conflict with CSP",
+  );
+  assert.ok(
+    appSource.includes(
+      'el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull"));',
+    ),
+    "Normal cloud pull should merge instead of replacing",
+  );
+  assert.ok(
+    appSource.includes('async function syncCloudData(mode = "both", options = {})'),
+    "Cloud sync should use an options object",
+  );
+  assert.ok(
+    appSource.includes("const shouldReplaceLocalFromCloud = replaceLocal;"),
+    "Normal cloud pull should merge unless replaceLocal is explicitly requested",
+  );
+  assert.ok(
+    !appSource.includes('syncCloudData("pull", true)'),
+    "Forced replacement should not be wired to the normal cloud pull button",
+  );
+  assert.ok(
+    appSource.includes("const protectedTransactions = selectedTransactions.filter"),
+    "Bulk delete should identify protected debt-linked transactions",
+  );
+  assert.ok(
+    appSource.includes("const deletableTransactions = selectedTransactions.filter"),
+    "Bulk delete should identify deletable transactions separately",
+  );
+  assert.ok(
+    appSource.includes("alert(\"Không thể xóa giao dịch đã liên kết với quỹ.\");"),
+    "Bulk delete should stop when all selected transactions are protected",
+  );
+  assert.ok(
+    appSource.includes("Bỏ qua ${protectedTransactions.length} giao dịch liên kết với quỹ."),
+    "Bulk delete should report skipped linked transactions",
+  );
+  assert.ok(
+    appSource.includes("sequence: Number(item.sequence || 0)"),
+    "Transaction sequence should map from local to cloud",
+  );
+  assert.ok(
+    appSource.includes("Number(row.sequence) ||"),
+    "Transaction sequence should map from cloud to local",
+  );
+  assert.ok(
+    appSource.includes("anchor_date: item.anchorDate"),
+    "Debt lifecycle fields should map local anchorDate to cloud",
+  );
+  assert.ok(
+    appSource.includes("next_due_date: item.nextDueDate"),
+    "Debt lifecycle fields should map local nextDueDate to cloud",
+  );
+  assert.ok(
+    appSource.includes("last_settled_period: item.lastSettledPeriod"),
+    "Debt lifecycle fields should map local lastSettledPeriod to cloud",
+  );
+  assert.ok(
+    appSource.includes("row.next_due_date ||"),
+    "Debt lifecycle fields should map cloud next_due_date to local",
+  );
+  assert.ok(
+    appSource.includes("lastSettledPeriod: row.last_settled_period || null"),
+    "Debt lifecycle fields should map cloud last_settled_period to local",
+  );
+  assert.ok(
+    migrationSource.includes("ADD COLUMN IF NOT EXISTS sequence bigint;"),
+    "Migration should add the sequence column",
+  );
+  assert.ok(
+    migrationSource.includes("WHERE sequence IS NULL;"),
+    "Migration should backfill missing sequence values",
+  );
+}
+
 function runAll() {
-  console.log("Running FinanceBalance domain tests...");
+  console.log("Running FinanceBalance tests...");
   runBalanceTests();
   runMergeTests();
   runDebtTests();
   runDateTests();
+  runSourceRegressionTests();
   console.log("All tests passed.");
 }
 

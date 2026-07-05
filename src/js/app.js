@@ -301,7 +301,7 @@ function bindEvents() {
 
   el.cloudLoginForm.addEventListener("submit", handleCloudLogin);
   el.cloudSyncBtn.addEventListener("click", () => syncCloudData("both"));
-  el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull", true));
+  el.cloudPullBtn.addEventListener("click", () => syncCloudData("pull"));
   el.cloudLogoutBtn.addEventListener("click", handleCloudLogout);
 
   el.sidebarToggleBtn.addEventListener("click", toggleSidebar);
@@ -699,7 +699,7 @@ function renderCloudStatus() {
   const lastSaved = state.meta.lastSavedAt
     ? new Date(state.meta.lastSavedAt).toLocaleString("vi-VN")
     : "Chưa có";
-  el.cloudStatusBox.innerHTML = `<div><span class="pill pill-cloud">Cloud ${user ? "đã kết nối" : "chưa kết nối"}</span></div><div><strong>Trạng thái:</strong> ${escapeHtml(runtime.auth.lastInfo || "")}</div><div><strong>Lưu local gần nhất:</strong> ${escapeHtml(lastSaved)}</div><div><strong>Đồng bộ cloud gần nhất:</strong> ${escapeHtml(lastCloudSync)}</div><div><strong>Thiết bị:</strong> ${escapeHtml(state.meta.deviceId)}</div>${runtime.auth.lastError ? `<div style="color:#ff7d7d"><strong>Lỗi:</strong> ${escapeHtml(runtime.auth.lastError)}</div>` : ""}`;
+  el.cloudStatusBox.innerHTML = `<div><span class="pill pill-cloud">Cloud ${user ? "đã kết nối" : "chưa kết nối"}</span></div><div><strong>Trạng thái:</strong> ${escapeHtml(runtime.auth.lastInfo || "")}</div><div><strong>Lưu local gần nhất:</strong> ${escapeHtml(lastSaved)}</div><div><strong>Đồng bộ cloud gần nhất:</strong> ${escapeHtml(lastCloudSync)}</div><div><strong>Thiết bị:</strong> ${escapeHtml(state.meta.deviceId)}</div>${runtime.auth.lastError ? `<div class="cloud-error"><strong>Lỗi:</strong> ${escapeHtml(runtime.auth.lastError)}</div>` : ""}`;
   el.cloudSyncBtn.disabled = !user || runtime.auth.busy;
   el.cloudPullBtn.disabled = !user || runtime.auth.busy;
   el.cloudLogoutBtn.disabled = !user || runtime.auth.busy;
@@ -1382,21 +1382,39 @@ function bulkDeleteTransactions() {
     alert("Chưa có giao dịch nào được chọn.");
     return;
   }
+  const selectedTransactions = state.transactions.filter(
+    (transaction) =>
+      runtime.txList.selectedIds.has(transaction.id) && !transaction.deleted_at,
+  );
+  const protectedTransactions = selectedTransactions.filter((transaction) =>
+    Boolean(getDebtEntryByTransactionId(transaction.id)),
+  );
+  const deletableTransactions = selectedTransactions.filter(
+    (transaction) => !getDebtEntryByTransactionId(transaction.id),
+  );
+
+  if (!deletableTransactions.length) {
+    alert("Không thể xóa giao dịch đã liên kết với quỹ.");
+    return;
+  }
   if (
     !confirm(
-      `Bạn muốn xóa ${runtime.txList.selectedIds.size} giao dịch đã chọn?`,
+      `Bạn muốn xóa ${deletableTransactions.length} giao dịch đã chọn?`,
     )
   )
     return;
   const deletedAt = nowIso();
-  state.transactions.forEach((tx) => {
-    if (runtime.txList.selectedIds.has(tx.id) && !tx.deleted_at) {
-      tx.deleted_at = deletedAt;
-      tx.updated_at = deletedAt;
-      tx.deviceId = state.meta.deviceId;
-    }
+  deletableTransactions.forEach((tx) => {
+    tx.deleted_at = deletedAt;
+    tx.updated_at = deletedAt;
+    tx.deviceId = state.meta.deviceId;
+    runtime.txList.selectedIds.delete(tx.id);
   });
-  runtime.txList.selectedIds.clear();
+  if (protectedTransactions.length) {
+    alert(
+      `Đã xóa ${deletableTransactions.length} giao dịch. Bỏ qua ${protectedTransactions.length} giao dịch liên kết với quỹ.`,
+    );
+  }
   persistState();
   renderAll();
 }
@@ -1488,7 +1506,7 @@ async function handleCloudLogout() {
   renderCloudStatus();
 }
 
-async function syncCloudData(mode = "both", forceReplace = false) {
+async function syncCloudData(mode = "both", options = {}) {
   if (!runtime.auth.user) {
     alert("Bạn cần đăng nhập cloud trước khi đồng bộ.");
     return;
@@ -1503,13 +1521,8 @@ async function syncCloudData(mode = "both", forceReplace = false) {
   try {
     if (mode === "pull") {
       const cloudState = await fetchCloudState();
-      const cloudHasData =
-        Boolean(cloudState.hasCloudSettings) || hasDomainData(cloudState);
-      // FIX AUTH-009/010: only replace local if it's the first sync AND local has no data
-      const localHasData = hasDomainData(state);
-      const shouldReplaceLocalFromCloud =
-        forceReplace ||
-        (!state.meta.lastCloudSyncAt && cloudHasData && !localHasData);
+      const replaceLocal = options.replaceLocal === true;
+      const shouldReplaceLocalFromCloud = replaceLocal;
       state = shouldReplaceLocalFromCloud
         ? normalizeState({
             ...cloudState,
@@ -2710,8 +2723,14 @@ function calculateDebtDueInfo(plan, referenceDate = new Date()) {
     referenceDate.getMonth(),
     referenceDate.getDate(),
   );
-  const nextDue = calculateDebtDueDateFromAnchor(plan, today);
-  const daysUntilDue = Math.floor((nextDue - today) / 86400000);
+  const storedDueDate = plan.nextDueDate ? parseLocalDate(plan.nextDueDate) : null;
+  const nextDue =
+    storedDueDate && !Number.isNaN(storedDueDate.getTime())
+      ? storedDueDate
+      : calculateDebtDueDateFromAnchor(plan, today);
+  const daysUntilDue = Math.floor(
+    (nextDue.getTime() - today.getTime()) / 86400000,
+  );
   return { nextDue, daysUntilDue };
 }
 
@@ -2934,17 +2953,16 @@ function renderDebtPage() {
             : metrics.status === "Sắp hạn"
               ? "warning"
               : "";
-        return `<tr><td>${escapeHtml(plan.name)}</td><td>${escapeHtml(getAccountName(plan.linkedAccountId))}</td><td><div class="progress-track"><div class="progress-fill ${progressClass}" style="width:${Math.min(progressPct, 100)}%"></div></div><div class="progress-meta"><span>${progressPct}% đạt mốc</span><span>${formatCurrency(metrics.currentBalance)} / ${formatCurrency(plan.currentTargetAmount)}</span></div></td><td>${formatCurrency(metrics.currentBalance)}</td><td>${formatCurrency(plan.currentTargetAmount)}</td><td>${formatCurrency(metrics.gapToTarget)}</td><td>${formatCurrency(metrics.carryShortfall)}</td><td><strong>${formatCurrency(metrics.minimumDue)}</strong></td><td>${escapeHtml(getDebtCycleLabel(plan.cycle))}</td><td>${formatDateDisplay(formatDateInput(metrics.dueInfo.nextDue))}</td><td>${metrics.lastEntry ? `${formatDateDisplay(metrics.lastEntry.date)} · ${formatCurrency(metrics.lastEntry.amount)}` : "-"}</td><td>${metrics.status === "Quá hạn" ? pill("Quá hạn", "pill-expense") : metrics.status === "Sắp hạn" ? pill("Sắp hạn", "pill-fixed") : metrics.status === "Cần bù" ? pill("Cần bù", "pill-expense") : pill("Ổn định", "pill-income")}</td><td>${escapeHtml(plan.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" data-action="edit-debt-plan" data-id="${plan.id}">Sửa</button><button class="btn btn-danger" type="button" data-action="delete-debt-plan" data-id="${plan.id}">Xóa</button></div></td></tr>`;
+        return `<tr><td>${escapeHtml(plan.name)}</td><td>${escapeHtml(getAccountName(plan.linkedAccountId))}</td><td><div class="progress-track"><div class="progress-fill ${progressClass}" data-progress="${Math.min(progressPct, 100)}"></div></div><div class="progress-meta"><span>${progressPct}% đạt mốc</span><span>${formatCurrency(metrics.currentBalance)} / ${formatCurrency(plan.currentTargetAmount)}</span></div></td><td>${formatCurrency(metrics.currentBalance)}</td><td>${formatCurrency(plan.currentTargetAmount)}</td><td>${formatCurrency(metrics.gapToTarget)}</td><td>${formatCurrency(metrics.carryShortfall)}</td><td><strong>${formatCurrency(metrics.minimumDue)}</strong></td><td>${escapeHtml(getDebtCycleLabel(plan.cycle))}</td><td>${formatDateDisplay(formatDateInput(metrics.dueInfo.nextDue))}</td><td>${metrics.lastEntry ? `${formatDateDisplay(metrics.lastEntry.date)} · ${formatCurrency(metrics.lastEntry.amount)}` : "-"}</td><td>${metrics.status === "Quá hạn" ? pill("Quá hạn", "pill-expense") : metrics.status === "Sắp hạn" ? pill("Sắp hạn", "pill-fixed") : metrics.status === "Cần bù" ? pill("Cần bù", "pill-expense") : pill("Ổn định", "pill-income")}</td><td>${escapeHtml(plan.note || "-")}</td><td><div class="actions-inline"><button class="btn btn-secondary" type="button" data-action="edit-debt-plan" data-id="${plan.id}">Sửa</button><button class="btn btn-danger" type="button" data-action="delete-debt-plan" data-id="${plan.id}">Xóa</button></div></td></tr>`;
       })
       .join("")}</tbody></table></div>`;
   }
   renderDebtEntriesTable();
   renderDebtProjection();
 
-  // Fix progress bar widths per CSP - already set safe inline styles from template
-  el.debtTable.querySelectorAll("[data-progress]").forEach((el) => {
-    const pct = Number(el.dataset.progress || 0);
-    el.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+  el.debtTable.querySelectorAll("[data-progress]").forEach((element) => {
+    const pct = Number(element.dataset.progress || 0);
+    element.style.width = `${Math.min(100, Math.max(0, pct))}%`;
   });
 }
 
@@ -3168,17 +3186,20 @@ function handleDebtEntrySubmit(event) {
 
   const idx = state.debtPlans.findIndex((item) => item.id === plan.id);
   if (idx >= 0) {
-    let updatedPlan = {
-      ...state.debtPlans[idx],
-      currentTargetAmount: impact.targetAfterPayment,
-      carryShortfall: impact.remainingCarry,
+    const updatedPlan = settleDebtPeriodIfEligible(
+      {
+        ...state.debtPlans[idx],
+        currentTargetAmount: impact.targetAfterPayment,
+        carryShortfall: impact.remainingCarry,
+      },
+      impact,
+      around.after,
+    );
+    state.debtPlans[idx] = updatedPlan;
+    state.debtPlans[idx] = {
+      ...updatedPlan,
       updated_at: nowIso(),
     };
-
-    // Check if this debt period should be settled and advance nextDueDate
-    updatedPlan = settleDebtPeriodIfEligible(updatedPlan, impact, around.after);
-
-    state.debtPlans[idx] = updatedPlan;
   }
 
   el.debtEntryForm.reset();
@@ -3438,6 +3459,7 @@ function mapLocalTransactionToCloud(item, userId) {
     note: item.note,
     expense_mode: item.expenseMode,
     device_id: item.deviceId,
+    sequence: Number(item.sequence || 0),
     created_at: item.created_at,
     updated_at: item.updated_at,
     deleted_at: item.deleted_at,
@@ -3456,6 +3478,9 @@ function mapCloudTransactionToLocal(row) {
     expenseMode:
       row.expense_mode || (row.type === "expense" ? "variable" : null),
     deviceId: row.device_id || state.meta.deviceId,
+    sequence:
+      Number(row.sequence) ||
+      Number(new Date(row.created_at || nowIso()).getTime()),
     created_at: row.created_at || nowIso(),
     updated_at: row.updated_at || row.created_at || nowIso(),
     deleted_at: row.deleted_at || null,

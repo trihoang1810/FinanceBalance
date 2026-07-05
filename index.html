@@ -107,7 +107,7 @@
           <h3>Tiến độ target chi tiêu tháng hiện tại</h3>
           <div class="card-subtitle">Theo dõi mức dùng chi tiêu của tháng hiện tại.</div>
           <div class="stacked-summary" id="dashboardExpenseTargetSummary"></div>
-          <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="dashboardExpenseTargetProgressFill" style="width: 0%"></div></div>
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="dashboardExpenseTargetProgressFill"></div></div>
           <div class="progress-meta" id="dashboardExpenseTargetMeta"><span>0% target</span><span>0 ₫ / 0 ₫</span></div>
           <div class="card-subtitle" id="dashboardExpenseTargetHint">Chưa thiết lập target chi tiêu tháng.</div>
         </div>
@@ -246,8 +246,8 @@
               <div class="field"><label for="debtPlanCycleInput">Chu kỳ theo dõi</label><select id="debtPlanCycleInput"><option value="monthly">Hàng tháng</option><option value="quarterly">Hàng quý</option><option value="yearly">Hàng năm</option></select></div>
               <div class="field"><label for="debtPlanDueDayInput">Ngày đến hạn trong kỳ</label><input id="debtPlanDueDayInput" type="number" min="1" max="31" step="1" placeholder="1" required /></div>
               <div class="field"><label for="debtPlanCarryShortfallInput">Phần thiếu dồn từ kỳ trước</label><input id="debtPlanCarryShortfallInput" type="number" min="0" step="1000" placeholder="0" /></div>
-              <div class="field" style="grid-column: 1 / -1;"><label for="debtPlanNoteInput">Ghi chú</label><textarea id="debtPlanNoteInput" placeholder="Ví dụ: nếu quỹ bị rút bớt thì kỳ sau phải bù về mốc hiện hành trước, phần còn lại mới tính là tăng mốc."></textarea></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="debtPlanSubmitBtn">Lưu quỹ</button><button class="btn btn-secondary hidden" type="button" id="debtPlanCancelEditBtn">Hủy sửa</button></div>
+              <div class="field span-all"><label for="debtPlanNoteInput">Ghi chú</label><textarea id="debtPlanNoteInput" placeholder="Ví dụ: nếu quỹ bị rút bớt thì kỳ sau phải bù về mốc hiện hành trước, phần còn lại mới tính là tăng mốc."></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="debtPlanSubmitBtn">Lưu quỹ</button><button class="btn btn-secondary hidden" type="button" id="debtPlanCancelEditBtn">Hủy sửa</button></div>
             </form>
           </div>
 
@@ -257,9 +257,9 @@
             <form id="debtEntryForm" class="form-grid">
               <div class="field"><label for="debtEntryPlanSelect">Chọn quỹ</label><select id="debtEntryPlanSelect"></select></div>
               <div class="field"><label for="debtEntryTransactionSelect">Giao dịch thật liên kết</label><select id="debtEntryTransactionSelect"></select></div>
-              <div class="field" style="grid-column: 1 / -1;"><label>Thông tin giao dịch</label><div id="debtEntryTransactionInfo" class="notice">Chọn quỹ để hiện danh sách giao dịch có thể liên kết.</div></div>
-              <div class="field" style="grid-column: 1 / -1;"><label for="debtEntryNoteInput">Ghi chú</label><textarea id="debtEntryNoteInput" placeholder="Ví dụ: kỳ này nộp từ lương để bù quỹ và tăng mốc."></textarea></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="debtEntrySubmitBtn">Ghi nhận nộp quỹ</button></div>
+              <div class="field span-all"><label>Thông tin giao dịch</label><div id="debtEntryTransactionInfo" class="notice">Chọn quỹ để hiện danh sách giao dịch có thể liên kết.</div></div>
+              <div class="field span-all"><label for="debtEntryNoteInput">Ghi chú</label><textarea id="debtEntryNoteInput" placeholder="Ví dụ: kỳ này nộp từ lương để bù quỹ và tăng mốc."></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="debtEntrySubmitBtn">Ghi nhận nộp quỹ</button></div>
             </form>
           </div>
         </div>
@@ -280,7 +280,7 @@
           <div class="card">
             <h3>Lịch sử nộp quỹ</h3>
             <div class="card-subtitle">Mỗi lần nộp sẽ tách rõ phần bù hụt và phần tăng mốc.</div>
-            <div class="toolbar" style="margin-bottom: 14px;">
+            <div class="toolbar toolbar-gap-bottom">
               <div class="field"><label for="debtEntryDateFrom">Từ ngày</label><input id="debtEntryDateFrom" type="date" /></div>
               <div class="field"><label for="debtEntryDateTo">Đến ngày</label><input id="debtEntryDateTo" type="date" /></div>
               <div class="field"><label for="debtEntryPageSize">Số dòng mỗi trang</label><select id="debtEntryPageSize"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
@@ -310,8 +310,8 @@
               <div class="field"><label for="txCategoryInput">Phân loại</label><select id="txCategoryInput"></select></div>
               <div class="field hidden" id="txExpenseModeField"><label for="txExpenseModeInput">Chi tiêu</label><select id="txExpenseModeInput"><option value="fixed">Cố định</option><option value="variable">Không cố định</option></select></div>
               <div class="field hidden" id="txAdjustmentField"><label for="txAdjustmentModeInput">Hướng điều chỉnh</label><select id="txAdjustmentModeInput"><option value="add">Cộng thêm</option><option value="subtract">Trừ bớt</option></select></div>
-              <div class="field" style="grid-column: 1 / -1;"><label for="txNoteInput">Ghi chú</label><textarea id="txNoteInput"></textarea></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit" id="transactionSubmitBtn">Lưu giao dịch</button><button class="btn btn-secondary hidden" type="button" id="transactionCancelEditBtn">Hủy sửa</button></div>
+              <div class="field span-all"><label for="txNoteInput">Ghi chú</label><textarea id="txNoteInput"></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="transactionSubmitBtn">Lưu giao dịch</button><button class="btn btn-secondary hidden" type="button" id="transactionCancelEditBtn">Hủy sửa</button></div>
             </form>
           </div>
           <div class="card">
@@ -351,7 +351,7 @@
             <div class="field"><label for="accountTypeInput">Loại tài khoản</label><select id="accountTypeInput"><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="saving">Tiết kiệm</option><option value="investment">Đầu tư</option><option value="other">Khác</option></select></div>
             <div class="field"><label for="openingBalanceInput">Số dư khởi tạo</label><input id="openingBalanceInput" type="number" step="1000" required /></div>
             <div class="field"><label for="accountNoteInput">Ghi chú</label><input id="accountNoteInput" type="text" maxlength="120" /></div>
-            <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Thêm tài khoản</button></div>
+            <div class="actions-inline span-all"><button class="btn btn-primary" type="submit">Thêm tài khoản</button></div>
           </form>
         </div>
         <div class="card"><h3>Danh sách tài khoản</h3><div id="accountsTable"></div></div>
@@ -367,8 +367,8 @@
               <div class="field"><label for="themeLabelInput">Chủ đề giao diện</label><select id="themeLabelInput"><option value="dark-green">Dark Green</option><option value="dark-blue">Dark Blue</option><option value="light">Light</option></select></div>
               <div class="field"><label for="monthlyExpenseTargetInput">Target chi tiêu tháng</label><input id="monthlyExpenseTargetInput" type="number" min="0" step="1000" placeholder="Ví dụ: 15000000" /></div>
               <div class="field"><label for="suggestMonthlyTargetBtn">Đề xuất từ app</label><button class="btn btn-secondary" type="button" id="suggestMonthlyTargetBtn">Lấy trung bình 3 tháng gần nhất</button></div>
-              <div class="field" style="grid-column: 1 / -1;"><label>Gợi ý target hiện tại</label><div class="notice" id="monthlyExpenseTargetRecommendation">App sẽ đề xuất target dựa trên trung bình chi tiêu 3 tháng gần nhất.</div></div>
-              <div class="actions-inline" style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Lưu thiết lập</button></div>
+              <div class="field span-all"><label>Gợi ý target hiện tại</label><div class="notice" id="monthlyExpenseTargetRecommendation">App sẽ đề xuất target dựa trên trung bình chi tiêu 3 tháng gần nhất.</div></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit">Lưu thiết lập</button></div>
             </form>
             <div class="notice">Mở Developer Tools để xem localStorage, số bản ghi đang hoạt động, lần lưu gần nhất và trạng thái cloud.</div>
           </div>
@@ -376,7 +376,7 @@
             <h3>Cloud Sync với Supabase</h3>
             <div class="card-subtitle">Đăng nhập bằng magic link để đồng bộ nhiều thiết bị.</div>
             <div class="status-box" id="cloudStatusBox"></div>
-            <form id="cloudLoginForm" class="toolbar" style="margin-top: 14px;">
+            <form id="cloudLoginForm" class="toolbar toolbar-gap-top">
               <div class="field"><label for="cloudEmailInput">Email đăng nhập</label><input id="cloudEmailInput" type="email" placeholder="you@example.com" /></div>
               <button class="btn btn-primary" type="submit">Gửi magic link</button>
               <button class="btn btn-secondary" type="button" id="cloudSyncBtn">Đồng bộ ngay</button>
@@ -411,7 +411,7 @@
               <div class="field"><label for="expenseCategoryInput">Tên phân loại chi tiêu</label><input id="expenseCategoryInput" type="text" maxlength="50" /></div>
               <button class="btn btn-primary" type="submit">Thêm phân loại</button>
             </form>
-            <div style="height: 14px;"></div>
+            <div class="spacer-sm"></div>
             <div id="expenseCategoryList"></div>
           </div>
           <div class="card">
@@ -420,7 +420,7 @@
               <div class="field"><label for="incomeCategoryInput">Tên phân loại thu nhập</label><input id="incomeCategoryInput" type="text" maxlength="50" /></div>
               <button class="btn btn-primary" type="submit">Thêm phân loại</button>
             </form>
-            <div style="height: 14px;"></div>
+            <div class="spacer-sm"></div>
             <div id="incomeCategoryList"></div>
           </div>
         </div>

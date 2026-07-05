@@ -327,6 +327,7 @@
     .hidden { display: none !important; }
     .notice { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: rgba(124,199,255,0.08); border: 1px solid rgba(124,199,255,0.14); color: #d8efff; font-size: 13px; line-height: 1.55; }
     .status-box { padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: grid; gap: 8px; font-size: 14px; }
+    .cloud-error { color: #ff7d7d; }
     .search-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 14px; }
     .search-row .field { min-width: 180px; flex: 1; }
     .pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
@@ -357,12 +358,17 @@
     .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
     .progress-fill.warning { background: linear-gradient(90deg, var(--warning), #ffdf7a); }
     .progress-fill.danger { background: linear-gradient(90deg, #ff8f8f, var(--danger)); }
+    #dashboardExpenseTargetProgressFill { width: 0; }
     .progress-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .alert-list { display: grid; gap: 10px; }
     .alert-item { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); display: grid; gap: 4px; }
     .alert-item.warning { border-color: rgba(255,209,102,0.28); background: rgba(255,209,102,0.08); }
     .alert-item.danger { border-color: rgba(255,125,125,0.28); background: rgba(255,125,125,0.08); }
     .alert-item strong { font-size: 14px; }
+    .span-all { grid-column: 1 / -1; }
+    .toolbar-gap-bottom { margin-bottom: 14px; }
+    .toolbar-gap-top { margin-top: 14px; }
+    .spacer-sm { height: 14px; }
     
     /* Hamburger Menu */
     .hamburger-btn {

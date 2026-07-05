@@ -169,7 +169,8 @@ export function calculateDebtDueDateFromAnchor(
   plan,
   referenceDate = new Date(),
 ) {
-  const anchor = new Date(plan.anchorDate || formatDateInput(new Date()));
+  const anchor =
+    parseLocalDate(plan.anchorDate) || parseLocalDate(formatDateInput(new Date()));
   const dueDay = Number(plan.dueDay || 1);
   const clampedDueDay = clampDebtDueDay(
     anchor.getFullYear(),
@@ -242,11 +243,26 @@ export function applyTransactionToBalances(tx, balances) {
 }
 
 export function parseLocalDate(value) {
-  const [year, month, day] = String(value || "")
+  const parts = String(value || "")
     .split("-")
     .map(Number);
 
-  return new Date(year, month - 1, day);
+  if (parts.length !== 3 || parts.some((part) => !Number.isInteger(part))) {
+    return null;
+  }
+
+  const [year, month, day] = parts;
+  const result = new Date(year, month - 1, day);
+
+  if (
+    result.getFullYear() !== year ||
+    result.getMonth() !== month - 1 ||
+    result.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return result;
 }
 
 export function chooseCanonicalCategory(a, b) {
@@ -309,13 +325,14 @@ export function settleDebtPeriodIfEligible(plan, impact, balanceAfter) {
 
   if (!isSettled) return plan;
 
-  const currentDueDate = parseLocalDate(plan.nextDueDate);
+  const currentDueDate =
+    parseLocalDate(plan.nextDueDate) ||
+    calculateDebtDueDateFromAnchor(plan, new Date());
+  const settledPeriod = formatDateInput(currentDueDate).slice(0, 7);
 
   return {
     ...plan,
-    lastSettledPeriod: plan.nextDueDate
-      ? plan.nextDueDate.slice(0, 7)
-      : formatDateInput(new Date()).slice(0, 7),
+    lastSettledPeriod: settledPeriod,
     nextDueDate: formatDateInput(
       addDebtCycle(currentDueDate, plan.cycle, plan.dueDay),
     ),

@@ -266,7 +266,6 @@ ON public.debt_entries (user_id, plan_id);
 -- Only for transactions that don't already have a sequence value
 UPDATE public.transactions
 SET sequence = (EXTRACT(EPOCH FROM created_at) * 1000)::bigint
-WHERE sequence IS NULL
-  AND created_at IS NOT NULL;
+WHERE sequence IS NULL;
 
 -- END OF MIGRATION
