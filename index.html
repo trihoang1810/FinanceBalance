@@ -1,0 +1,453 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co https://*.supabase.in; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" />
+  <title>Quản lý tài chính cá nhân</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="src/css/styles.css" />
+</head>
+<body>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <button class="hamburger-btn" id="sidebarToggleBtn" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="app">
+<aside class="sidebar">
+  <div class="brand brand-compact">
+    <div class="brand-icon">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#iconGrad)"/>
+        <rect x="14" y="14" width="36" height="36" rx="10" fill="#0C2E24" fill-opacity="0.18"/>
+        <path d="M22 40V25" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M31 40V19" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M40 40V30" stroke="#05251C" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M19 43H43" stroke="#05251C" stroke-width="2.8" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="iconGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#12E7A0"/>
+            <stop offset="1" stop-color="#05C88A"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="brand-copy">
+      <div class="brand-title">
+        <span class="brand-title-main">FINANCE</span>
+        <span class="brand-title-accent">PRO</span>
+      </div>
+      <div class="brand-meta">
+        <span class="brand-subtitle">TRIHOANG EDITION</span>
+        <span class="brand-version">v1.2.0</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="navMenu">
+    <div class="nav-group-title">Tổng quan</div>
+    <nav class="nav">
+      <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+    </nav>
+    <div class="nav-group-title">Phân tích</div>
+    <nav class="nav">
+      <button class="nav-btn" data-page="reports">Báo cáo thu chi</button>
+      <button class="nav-btn" data-page="compare">So sánh thu chi</button>
+    </nav>
+    <div class="nav-group-title">Quản lý</div>
+    <nav class="nav">
+      <button class="nav-btn" data-page="debt">Quỹ hoàn quỹ</button>
+      <button class="nav-btn" data-page="transactions">Dữ liệu giao dịch</button>
+      <button class="nav-btn" data-page="accounts">Tài khoản</button>
+    </nav>
+    <div class="nav-group-title">Hệ thống</div>
+    <nav class="nav">
+      <button class="nav-btn" data-page="settings">Thiết lập</button>
+    </nav>
+  </div>
+
+  <div class="sidebar-actions">
+    <button class="btn btn-primary" id="exportJsonBtn">⬇️ Xuất JSON</button>
+    <label class="btn btn-secondary" for="importJsonInput">⬆️ Nhập JSON</label>
+    <input id="importJsonInput" type="file" accept="application/json" class="hidden" />
+  </div>
+</aside>
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Tổng quan tài sản, dòng tiền và các giao dịch gần đây.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" id="openTransactionsBtn">Nhập giao dịch</button>
+          <button class="btn btn-secondary" id="syncNowTopBtn">Đồng bộ ngay</button>
+        </div>
+      </section>
+
+      <section class="page active" id="page-dashboard">
+        <div class="card">
+          <h3>Lọc thời gian dashboard</h3>
+          <div class="toolbar">
+            <div class="field">
+              <label for="dashboardQuickRange">Khoảng thời gian</label>
+              <select id="dashboardQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+            <div class="field"><label for="dashboardDateFrom">Từ ngày</label><input id="dashboardDateFrom" type="date" /></div>
+            <div class="field"><label for="dashboardDateTo">Đến ngày</label><input id="dashboardDateTo" type="date" /></div>
+            <button class="btn btn-secondary filter-reset" id="clearDashboardFiltersBtn" type="button">Xóa bộ lọc</button>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="card"><div class="metric-title">Tổng tài sản hiện có</div><div class="metric-value" id="metricNetWorth">0 ₫</div><div class="metric-meta">Tổng số dư hiện tại của tất cả tài khoản.</div></div>
+          <div class="card"><div class="metric-title">Tổng thu</div><div class="metric-value metric-positive" id="metricIncome">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch thu nhập trong kỳ lọc.</div></div>
+          <div class="card"><div class="metric-title">Tổng chi</div><div class="metric-value metric-negative" id="metricExpense">0 ₫</div><div class="metric-meta">Bao gồm các giao dịch chi tiêu trong kỳ lọc.</div></div>
+          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="metricNetFlow">0 ₫</div><div class="metric-meta">Thu nhập trừ chi tiêu trong kỳ lọc.</div></div>
+        </div>
+        <div class="card">
+          <h3>Tiến độ target chi tiêu tháng hiện tại</h3>
+          <div class="card-subtitle">Theo dõi mức dùng chi tiêu của tháng hiện tại.</div>
+          <div class="stacked-summary" id="dashboardExpenseTargetSummary"></div>
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="dashboardExpenseTargetProgressFill"></div></div>
+          <div class="progress-meta" id="dashboardExpenseTargetMeta"><span>0% target</span><span>0 ₫ / 0 ₫</span></div>
+          <div class="card-subtitle" id="dashboardExpenseTargetHint">Chưa thiết lập target chi tiêu tháng.</div>
+        </div>
+        <div class="card">
+          <h3>Cần nộp trong 7 ngày tới</h3>
+          <div class="card-subtitle">Cảnh báo các quỹ đang thiếu tiền và sắp đến hạn nộp.</div>
+          <div id="dashboardDebtAlerts"></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Báo cáo tổng tài sản</h3>
+            <div class="card-subtitle">Tỷ trọng tài sản theo từng tài khoản.</div>
+            <div class="grid-2">
+              <div class="chart-shell sm"><canvas id="assetDonutChart"></canvas></div>
+              <div><div class="legend-list" id="assetLegend"></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Phân bổ dòng tiền ròng theo tài khoản</h3>
+            <div class="card-subtitle">Trong kỳ lọc, dòng tiền ròng được giữ lại hoặc dịch chuyển qua từng tài khoản như thế nào.</div>
+            <div class="chart-shell sm"><canvas id="netFlowAllocationChart"></canvas></div>
+            <div class="stacked-summary" id="netFlowSummary"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Biến động tài sản</h3>
+            <div class="card-subtitle">Diễn biến tổng tài sản theo thời gian giao dịch.</div>
+            <div class="chart-shell"><canvas id="cashflowLineChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Tỷ trọng Chi tiêu và Thu nhập</h3>
+            <div class="card-subtitle">Phân bổ các nguồn thu hoặc chi theo bộ lọc dashboard.</div>
+            <div class="toolbar">
+              <div class="field"><label for="dashboardDistributionMode">Chế độ hiển thị</label>
+                <select id="dashboardDistributionMode"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select>
+              </div>
+            </div>
+            <div class="chart-shell sm"><canvas id="dashboardDistributionDonutChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="card">
+          <h3>Bộ lọc báo cáo</h3>
+          <div class="toolbar">
+            <div class="field"><label for="reportQuickRange">Khoảng thời gian</label>
+              <select id="reportQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+            <div class="field"><label for="reportDateFrom">Từ ngày</label><input id="reportDateFrom" type="date" /></div>
+            <div class="field"><label for="reportDateTo">Đến ngày</label><input id="reportDateTo" type="date" /></div>
+            <div class="field"><label for="reportAccountFilter">Tài khoản</label><select id="reportAccountFilter"></select></div>
+            <div class="field"><label for="reportTypeFilter">Loại giao dịch</label><select id="reportTypeFilter"><option value="all">Tất cả giao dịch</option><option value="income">Chỉ thu nhập</option><option value="expense">Chỉ chi tiêu</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+            <div class="field"><label for="reportExpenseModeFilter">Chi tiêu</label><select id="reportExpenseModeFilter"><option value="all">Cả 2</option><option value="fixed">Cố định</option><option value="variable">Không cố định</option></select></div>
+            <button class="btn btn-secondary filter-reset" id="clearReportFiltersBtn" type="button">Xóa bộ lọc</button>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="card"><div class="metric-title">Thu đã lọc</div><div class="metric-value metric-positive" id="reportIncomeTotal">0 ₫</div></div>
+          <div class="card"><div class="metric-title">Chi đã lọc</div><div class="metric-value metric-negative" id="reportExpenseTotal">0 ₫</div></div>
+          <div class="card"><div class="metric-title">Giao dịch đã lọc</div><div class="metric-value" id="reportTransactionCount">0</div></div>
+          <div class="card"><div class="metric-title">Dòng tiền ròng</div><div class="metric-value" id="reportNetAmount">0 ₫</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><h3>Tỷ trọng chi tiêu</h3><div class="chart-shell sm"><canvas id="expenseDonutChart"></canvas></div></div>
+          <div class="card"><h3>Tỷ trọng thu nhập</h3><div class="chart-shell sm"><canvas id="incomeDonutChart"></canvas></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Xu hướng Thu và Chi theo kỳ</h3>
+            <div class="card-subtitle">Biểu đồ cột chồng cho thấy thay đổi tổng nguồn thu và tổng nguồn chi theo từng tháng.</div>
+            <div class="chart-shell"><canvas id="reportTrendStackedChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Phân bổ chi tiêu theo danh mục</h3>
+            <div class="card-subtitle">Mỗi cột là tổng chi của kỳ, được chia theo từng danh mục chi tiêu.</div>
+            <div class="chart-shell"><canvas id="reportExpenseCategoryStackedChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Lịch sử giao dịch đã lọc</h3>
+          <div class="toolbar">
+            <div class="field"><label for="reportTransactionSearch">Lọc trong bảng</label><input id="reportTransactionSearch" type="search" placeholder="Ví dụ: Không cố định, đi nhậu" /></div>
+            <div class="field"><label for="reportTransactionPageSize">Số dòng mỗi trang</label><select id="reportTransactionPageSize"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></div>
+          </div>
+          <div id="reportTransactionsTable"></div>
+          <div class="pagination"><div id="reportTransactionPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="reportTransactionPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="reportTransactionNextBtn" type="button">Trang sau</button></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-compare">
+        <div class="card">
+          <h3>So sánh dao động của các nguồn thu chi</h3>
+          <div class="card-subtitle">Biểu đồ cột chồng, trục hoành có thể chọn theo ngày, tháng hoặc năm. Các bộ lọc Loại giao dịch, Tài khoản và Phân loại dùng dropdown có checkbox để chọn nhiều mục; nếu không chọn mục nào thì hệ thống lấy tất cả.</div>
+          <div class="toolbar">
+            <div class="field"><label for="compareQuickRange">Khoảng thời gian</label>
+              <select id="compareQuickRange">
+                <option value="current-month">Tháng hiện tại</option>
+                <option value="3m">3 tháng gần nhất</option>
+                <option value="30d">30 ngày gần nhất</option>
+                <option value="ytd">Từ đầu năm đến nay</option>
+                <option value="all">Toàn bộ</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+            <div class="field"><label for="compareDateFrom">Từ ngày</label><input id="compareDateFrom" type="date" /></div>
+            <div class="field"><label for="compareDateTo">Đến ngày</label><input id="compareDateTo" type="date" /></div>
+            <div class="field"><label for="compareGranularity">Trục hoành</label><select id="compareGranularity"><option value="day">Ngày</option><option value="month">Tháng</option><option value="year">Năm</option></select></div>
+            <div class="field"><label>Loại giao dịch</label><div id="compareTypeFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label>Tài khoản</label><div id="compareAccountFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label>Phân loại</label><div id="compareCategoryFilter" class="multi-dropdown"></div></div>
+            <div class="field"><label for="compareBy">So sánh theo</label><select id="compareBy"><option value="type">Loại</option><option value="account">Tài khoản</option><option value="category">Phân loại</option></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Biểu đồ so sánh</h3>
+          <div class="chart-shell lg"><canvas id="compareStackedChart"></canvas></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-debt">
+        <div class="grid-4">
+          <div class="card"><div class="metric-title">Tổng cần bù về mốc hiện hành</div><div class="metric-value metric-negative" id="debtTotalGap">0 ₫</div><div class="metric-meta">Phần thiếu hụt để các quỹ quay về mốc mục tiêu hiện hành.</div></div>
+          <div class="card"><div class="metric-title">Tổng cần nộp tối thiểu</div><div class="metric-value" id="debtTotalMinDue">0 ₫</div><div class="metric-meta">Bao gồm phần cần bù và phần thiếu dồn từ kỳ trước.</div></div>
+          <div class="card"><div class="metric-title">Số quỹ đang theo dõi</div><div class="metric-value" id="debtFundCount">0</div><div class="metric-meta">Các quỹ hoàn quỹ đang được quản lý trên thiết bị này.</div></div>
+          <div class="card"><div class="metric-title">Tổng mốc mục tiêu hiện hành</div><div class="metric-value metric-positive" id="debtTargetTotal">0 ₫</div><div class="metric-meta">Mốc mục tiêu động sau các lần nộp làm tăng quỹ.</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="debtFormTitle">Tạo quỹ hoàn quỹ</h3>
+            <div class="card-subtitle">Mốc mục tiêu là động. Sau mỗi lần nộp, phần vượt mức cần bù sẽ làm tăng mốc cho các kỳ sau.</div>
+            <form id="debtPlanForm" class="form-grid">
+              <div class="field"><label for="debtPlanNameInput">Tên quỹ</label><input id="debtPlanNameInput" type="text" maxlength="80" placeholder="Ví dụ: Quỹ tiết kiệm ngân hàng A" required /></div>
+              <div class="field"><label for="debtPlanAccountInput">Tài khoản liên kết</label><select id="debtPlanAccountInput"></select></div>
+              <div class="field"><label for="debtPlanCurrentTargetInput">Mốc mục tiêu hiện hành</label><input id="debtPlanCurrentTargetInput" type="number" min="0" step="1000" placeholder="30000000" required /></div>
+              <div class="field"><label for="debtPlanCycleInput">Chu kỳ theo dõi</label><select id="debtPlanCycleInput"><option value="monthly">Hàng tháng</option><option value="quarterly">Hàng quý</option><option value="yearly">Hàng năm</option></select></div>
+              <div class="field"><label for="debtPlanDueDayInput">Ngày đến hạn trong kỳ</label><input id="debtPlanDueDayInput" type="number" min="1" max="31" step="1" placeholder="1" required /></div>
+              <div class="field"><label for="debtPlanCarryShortfallInput">Phần thiếu dồn từ kỳ trước</label><input id="debtPlanCarryShortfallInput" type="number" min="0" step="1000" placeholder="0" /></div>
+              <div class="field span-all"><label for="debtPlanNoteInput">Ghi chú</label><textarea id="debtPlanNoteInput" placeholder="Ví dụ: nếu quỹ bị rút bớt thì kỳ sau phải bù về mốc hiện hành trước, phần còn lại mới tính là tăng mốc."></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="debtPlanSubmitBtn">Lưu quỹ</button><button class="btn btn-secondary hidden" type="button" id="debtPlanCancelEditBtn">Hủy sửa</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Ghi nhận nộp quỹ</h3>
+            <div class="card-subtitle">Bản ghi nộp quỹ phải liên kết trực tiếp với một giao dịch thật đã đi vào tài khoản liên kết. Điều này giúp tránh sai lệch số dư và truy vết rõ ràng.</div>
+            <form id="debtEntryForm" class="form-grid">
+              <div class="field"><label for="debtEntryPlanSelect">Chọn quỹ</label><select id="debtEntryPlanSelect"></select></div>
+              <div class="field"><label for="debtEntryTransactionSelect">Giao dịch thật liên kết</label><select id="debtEntryTransactionSelect"></select></div>
+              <div class="field span-all"><label>Thông tin giao dịch</label><div id="debtEntryTransactionInfo" class="notice">Chọn quỹ để hiện danh sách giao dịch có thể liên kết.</div></div>
+              <div class="field span-all"><label for="debtEntryNoteInput">Ghi chú</label><textarea id="debtEntryNoteInput" placeholder="Ví dụ: kỳ này nộp từ lương để bù quỹ và tăng mốc."></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="debtEntrySubmitBtn">Ghi nhận nộp quỹ</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Mô phỏng các kỳ tới</h3>
+            <div class="card-subtitle">Nhập một mức nộp dự kiến cho mỗi kỳ để xem phần bù hụt, phần tăng mốc và mốc mới sẽ thay đổi như thế nào.</div>
+            <div class="toolbar">
+              <div class="field"><label for="debtProjectionPlanSelect">Quỹ mô phỏng</label><select id="debtProjectionPlanSelect"></select></div>
+              <div class="field"><label for="debtProjectionPaymentInput">Số tiền dự kiến nộp mỗi kỳ</label><input id="debtProjectionPaymentInput" type="number" min="0" step="1000" value="3000000" /></div>
+              <div class="field"><label for="debtProjectionPeriodsInput">Số kỳ mô phỏng</label><input id="debtProjectionPeriodsInput" type="number" min="1" max="24" step="1" value="6" /></div>
+            </div>
+            <div class="stacked-summary" id="debtProjectionSummary"></div>
+            <div id="debtProjectionTable"></div>
+          </div>
+
+          <div class="card">
+            <h3>Lịch sử nộp quỹ</h3>
+            <div class="card-subtitle">Mỗi lần nộp sẽ tách rõ phần bù hụt và phần tăng mốc.</div>
+            <div class="toolbar toolbar-gap-bottom">
+              <div class="field"><label for="debtEntryDateFrom">Từ ngày</label><input id="debtEntryDateFrom" type="date" /></div>
+              <div class="field"><label for="debtEntryDateTo">Đến ngày</label><input id="debtEntryDateTo" type="date" /></div>
+              <div class="field"><label for="debtEntryPageSize">Số dòng mỗi trang</label><select id="debtEntryPageSize"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+            </div>
+            <div id="debtEntryTable"></div>
+            <div class="pagination"><div id="debtEntryPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="debtEntryPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="debtEntryNextBtn" type="button">Trang sau</button></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Danh sách quỹ hoàn quỹ</h3>
+          <div class="card-subtitle">Trang này theo dõi quỹ mục tiêu theo logic mốc động: phần vượt mức cần bù sẽ làm tăng mốc mục tiêu cho các kỳ tiếp theo.</div>
+          <div id="debtTable"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-transactions">
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="transactionFormTitle">Nhập giao dịch hằng ngày</h3>
+            <form id="transactionForm" class="form-grid-3">
+              <div class="field"><label for="txDateInput">Ngày giao dịch</label><input id="txDateInput" type="date" required /></div>
+              <div class="field"><label for="txTypeInput">Loại giao dịch</label><select id="txTypeInput"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+              <div class="field"><label for="txAmountInput">Số tiền</label><input id="txAmountInput" type="number" min="0" step="1000" required /></div>
+              <div class="field" id="txAccountFromField"><label for="txAccountFromInput">Tài khoản nguồn</label><select id="txAccountFromInput"></select></div>
+              <div class="field" id="txAccountToField"><label for="txAccountToInput">Tài khoản đích hoặc nhận tiền</label><select id="txAccountToInput"></select></div>
+              <div class="field"><label for="txCategoryInput">Phân loại</label><select id="txCategoryInput"></select></div>
+              <div class="field hidden" id="txExpenseModeField"><label for="txExpenseModeInput">Chi tiêu</label><select id="txExpenseModeInput"><option value="fixed">Cố định</option><option value="variable">Không cố định</option></select></div>
+              <div class="field hidden" id="txAdjustmentField"><label for="txAdjustmentModeInput">Hướng điều chỉnh</label><select id="txAdjustmentModeInput"><option value="add">Cộng thêm</option><option value="subtract">Trừ bớt</option></select></div>
+              <div class="field span-all"><label for="txNoteInput">Ghi chú</label><textarea id="txNoteInput"></textarea></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit" id="transactionSubmitBtn">Lưu giao dịch</button><button class="btn btn-secondary hidden" type="button" id="transactionCancelEditBtn">Hủy sửa</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Quy tắc nhập giao dịch</h3>
+            <div class="list-simple">
+              <div class="list-item"><strong>Ngày giao dịch</strong><span>Không cho nhập ngày ở tương lai.</span></div>
+              <div class="list-item"><strong>Số tiền</strong><span>Phải lớn hơn 0 và chỉ nhập số.</span></div>
+              <div class="list-item"><strong>Chi tiêu</strong><span>Chọn tài khoản nguồn, phân loại chi tiêu và xác định là cố định hay không cố định.</span></div>
+              <div class="list-item"><strong>Thu nhập</strong><span>Chọn tài khoản nhận tiền và phân loại thu nhập tương ứng.</span></div>
+              <div class="list-item"><strong>Chuyển khoản nội bộ</strong><span>Tài khoản nguồn và tài khoản đích phải khác nhau.</span></div>
+              <div class="list-item"><strong>Điều chỉnh số dư</strong><span>Chọn tài khoản bị điều chỉnh và hướng cộng hoặc trừ để hệ thống lưu giá trị đúng.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Lịch sử giao dịch</h3>
+          <div class="search-row">
+            <div class="field"><label for="transactionSearchInput">Tìm kiếm</label><input id="transactionSearchInput" type="search" placeholder="Ví dụ: Không cố định, đi nhậu" /></div>
+            <div class="field"><label for="transactionTypeFilter">Loại giao dịch</label><select id="transactionTypeFilter"><option value="all">Tất cả giao dịch</option><option value="income">Thu nhập</option><option value="expense">Chi tiêu</option><option value="transfer">Chuyển khoản nội bộ</option><option value="adjustment">Điều chỉnh số dư</option></select></div>
+            <div class="field"><label for="transactionPageSize">Số dòng mỗi trang</label><select id="transactionPageSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></div>
+            <button class="btn btn-secondary filter-reset" id="clearTransactionFiltersBtn" type="button">Xóa bộ lọc</button>
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-secondary" id="clearSelectionBtn" type="button">Bỏ chọn</button>
+            <button class="btn btn-danger" id="bulkDeleteBtn" type="button">Xóa các mục đã chọn</button>
+            <span id="selectedCountLabel">Đã chọn 0 mục</span>
+          </div>
+          <div id="transactionsTable"></div>
+          <div class="pagination"><div id="transactionPaginationInfo">Trang 1 / 1</div><div class="actions-inline"><button class="btn btn-secondary" id="transactionPrevBtn" type="button">Trang trước</button><button class="btn btn-secondary" id="transactionNextBtn" type="button">Trang sau</button></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-accounts">
+        <div class="card">
+          <h3>Thêm tài khoản mới</h3>
+          <form id="accountForm" class="form-grid">
+            <div class="field"><label for="accountNameInput">Tên tài khoản</label><input id="accountNameInput" type="text" maxlength="50" required /></div>
+            <div class="field"><label for="accountTypeInput">Loại tài khoản</label><select id="accountTypeInput"><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="saving">Tiết kiệm</option><option value="investment">Đầu tư</option><option value="other">Khác</option></select></div>
+            <div class="field"><label for="openingBalanceInput">Số dư khởi tạo</label><input id="openingBalanceInput" type="number" step="1000" required /></div>
+            <div class="field"><label for="accountNoteInput">Ghi chú</label><input id="accountNoteInput" type="text" maxlength="120" /></div>
+            <div class="actions-inline span-all"><button class="btn btn-primary" type="submit">Thêm tài khoản</button></div>
+          </form>
+        </div>
+        <div class="card"><h3>Danh sách tài khoản</h3><div id="accountsTable"></div></div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="grid-2">
+          <div class="card">
+            <h3>Thiết lập chung</h3>
+            <div class="card-subtitle">Thông tin kỹ thuật lưu trữ đã chuyển lên console.</div>
+            <form id="generalSettingsForm" class="form-grid">
+              <div class="field"><label for="currencyInput">Đơn vị tiền tệ</label><input id="currencyInput" type="text" maxlength="10" /></div>
+              <div class="field"><label for="themeLabelInput">Chủ đề giao diện</label><select id="themeLabelInput"><option value="dark-green">Dark Green</option><option value="dark-blue">Dark Blue</option><option value="light">Light</option></select></div>
+              <div class="field"><label for="monthlyExpenseTargetInput">Target chi tiêu tháng</label><input id="monthlyExpenseTargetInput" type="number" min="0" step="1000" placeholder="Ví dụ: 15000000" /></div>
+              <div class="field"><label for="suggestMonthlyTargetBtn">Đề xuất từ app</label><button class="btn btn-secondary" type="button" id="suggestMonthlyTargetBtn">Lấy trung bình 3 tháng gần nhất</button></div>
+              <div class="field span-all"><label>Gợi ý target hiện tại</label><div class="notice" id="monthlyExpenseTargetRecommendation">App sẽ đề xuất target dựa trên trung bình chi tiêu 3 tháng gần nhất.</div></div>
+              <div class="actions-inline span-all"><button class="btn btn-primary" type="submit">Lưu thiết lập</button></div>
+            </form>
+            <div class="notice">Mở Developer Tools để xem localStorage, số bản ghi đang hoạt động, lần lưu gần nhất và trạng thái cloud.</div>
+          </div>
+          <div class="card">
+            <h3>Cloud Sync với Supabase</h3>
+            <div class="card-subtitle">Đăng nhập bằng magic link để đồng bộ nhiều thiết bị.</div>
+            <div class="status-box" id="cloudStatusBox"></div>
+            <form id="cloudLoginForm" class="toolbar toolbar-gap-top">
+              <div class="field"><label for="cloudEmailInput">Email đăng nhập</label><input id="cloudEmailInput" type="email" placeholder="you@example.com" /></div>
+              <button class="btn btn-primary" type="submit">Gửi magic link</button>
+              <button class="btn btn-secondary" type="button" id="cloudSyncBtn">Đồng bộ ngay</button>
+              <button class="btn btn-warning" type="button" id="cloudPullBtn">Tải từ cloud</button>
+              <button class="btn btn-danger" type="button" id="cloudLogoutBtn">Đăng xuất</button>
+            </form>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Xuất và nhập dữ liệu</h3>
+            <div class="card-subtitle">Nhập JSON có 2 chế độ: merge hoặc replace.</div>
+            <div class="list-simple">
+              <div class="list-item"><div><strong>Xuất JSON</strong><span>Xuất toàn bộ cấu hình, tài khoản, danh mục và lịch sử giao dịch.</span></div><button class="btn btn-secondary" id="settingsExportBtn" type="button">Xuất</button></div>
+              <div class="list-item"><div><strong>Nhập JSON</strong><span>Sau khi chọn tệp, nhập <strong>merge</strong> để gộp hoặc <strong>replace</strong> để ghi đè.</span></div><label class="btn btn-secondary" for="settingsImportInput">Nhập</label><input id="settingsImportInput" type="file" accept="application/json" class="hidden" /></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Quy tắc đồng bộ</h3>
+            <div class="list-simple">
+              <div class="list-item"><strong>Lưu local ngay</strong><span>Mỗi thao tác thêm, sửa, xóa đều lưu cục bộ lập tức.</span></div>
+              <div class="list-item"><strong>Cloud sau</strong><span>Nếu đã đăng nhập, app sẽ tự hẹn đồng bộ Supabase.</span></div>
+              <div class="list-item"><strong>Tránh trùng</strong><span>Bản nào có <code>updated_at</code> mới hơn sẽ được giữ lại khi merge.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Phân loại chi tiêu</h3>
+            <form id="expenseCategoryForm" class="toolbar">
+              <div class="field"><label for="expenseCategoryInput">Tên phân loại chi tiêu</label><input id="expenseCategoryInput" type="text" maxlength="50" /></div>
+              <button class="btn btn-primary" type="submit">Thêm phân loại</button>
+            </form>
+            <div class="spacer-sm"></div>
+            <div id="expenseCategoryList"></div>
+          </div>
+          <div class="card">
+            <h3>Phân loại thu nhập</h3>
+            <form id="incomeCategoryForm" class="toolbar">
+              <div class="field"><label for="incomeCategoryInput">Tên phân loại thu nhập</label><input id="incomeCategoryInput" type="text" maxlength="50" /></div>
+              <button class="btn btn-primary" type="submit">Thêm phân loại</button>
+            </form>
+            <div class="spacer-sm"></div>
+            <div id="incomeCategoryList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="src/js/app.js"></script>
+</body>
+</html>
+

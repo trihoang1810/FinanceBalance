@@ -1,0 +1,23 @@
+-- ============================================================================
+-- DEPRECATED: This file uses invalid PostgreSQL syntax "CREATE POLICY IF NOT EXISTS"
+-- ============================================================================
+-- 
+-- PLEASE USE: supabase/migrations/20260705_security_and_debt_schema.sql
+--
+-- This new migration file includes:
+-- - Valid DROP POLICY IF EXISTS ... CREATE POLICY syntax
+-- - Proper TO authenticated clauses
+-- - New debt_plans columns: anchor_date, next_due_date, last_settled_period
+-- - New transactions column: sequence
+-- - Composite indexes for better query performance
+-- - Data backfill for sequence field
+-- - Idempotent SQL that can be run multiple times safely
+--
+-- To deploy:
+-- 1. Open Supabase SQL Editor
+-- 2. Copy contents from supabase/migrations/20260705_security_and_debt_schema.sql
+-- 3. Review the SQL carefully (especially the RLS policies)
+-- 4. Execute in your target Supabase project
+-- 5. Do NOT run this file - it contains invalid syntax that PostgreSQL will reject
+--
+-- ============================================================================
